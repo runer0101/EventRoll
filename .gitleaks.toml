@@ -1,0 +1,17 @@
+title = "EventRoll gitleaks config"
+
+[allowlist]
+description = "Global allowlist"
+paths = [
+    '''tmp-secret.*''',
+    '''\.env\.example$''',
+    '''\.env\.development$''',
+    '''\.env\.production$''',
+    '''\.github/workflows/''',
+    '''tests/'''
+]
+regexes = [
+    '''Password: <REPLACE_WITH_SECURE_PASSWORD>''',
+    '''test-secret-key''',
+    '''TestPass123'''
+]

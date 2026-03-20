@@ -1,0 +1,39 @@
+name: Security Checks
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install backend dependencies
+        run: npm ci --prefix backend
+
+      - name: Run secret scanner (full repo)
+        run: node backend/scripts/check-secrets.cjs --scan-all
+
+      - name: Install gitleaks
+        run: |
+          wget -q -O gitleaks.tar.gz https://github.com/gitleaks/gitleaks/releases/download/v8.21.2/gitleaks_8.21.2_linux_x64.tar.gz
+          tar xzf gitleaks.tar.gz gitleaks
+          sudo mv gitleaks /usr/local/bin/gitleaks
+
+      - name: Run gitleaks (detect secrets)
+        run: gitleaks detect --source . -c .gitleaks.toml
+
+      - name: Run npm audit (backend)
+        run: npm audit --prefix backend --audit-level=moderate || true
+
+      - name: Run npm audit (root)
+        run: npm audit --audit-level=moderate || true

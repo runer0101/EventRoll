@@ -1,0 +1,149 @@
+/**
+ * YSSEL - Sistema de Variables CSS Globales
+ * Responsive Design System
+ */
+
+:root {
+  /* ===== TIPOGRAFIA DE MARCA ===== */
+  --font-sans: 'Manrope', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  --font-display: 'Sora', 'Manrope', 'Segoe UI', sans-serif;
+
+  /* ===== PALETA DE COLORES ===== */
+  --color-primary: #FFD700;
+  --color-primary-dark: #E6C200;
+  --color-primary-light: #FFED4E;
+
+  --color-dark: #1a1a1a;
+  --color-dark-secondary: #2d2d2d;
+  --color-dark-tertiary: #404040;
+
+  --color-text: #ffffff;
+  --color-text-secondary: #d1d1d1;
+  --color-text-muted: #999999;
+
+  --color-bg-main: #1a1a1a;
+  --color-bg-secondary: #2d2d2d;
+  --color-bg-tertiary: #404040;
+  --color-bg-light: #f9f9f9;
+
+  --color-success: #10b981;
+  --color-success-light: #34d399;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+  --color-info: #3b82f6;
+
+  /* ===== TOKENS SEMANTICOS ===== */
+  --bg-page: var(--color-bg-main);
+  --bg-surface: var(--color-bg-secondary);
+  --bg-surface-elevated: var(--color-dark-tertiary);
+  --bg-card-light: #ffffff;
+  --text-primary: var(--color-text);
+  --text-secondary: var(--color-text-secondary);
+  --text-muted: var(--color-text-muted);
+  --accent: var(--color-primary);
+  --accent-strong: var(--color-primary-dark);
+  --focus-ring: rgba(255, 215, 0, 0.35);
+
+  --color-border: #ddd;
+  --color-border-dark: #555;
+
+  /* ===== ESPACIADO (Escala 8px) ===== */
+  --spacing-xs: 0.5rem;   /* 8px */
+  --spacing-sm: 1rem;     /* 16px */
+  --spacing-md: 1.5rem;   /* 24px */
+  --spacing-lg: 2rem;     /* 32px */
+  --spacing-xl: 3rem;     /* 48px */
+  --spacing-2xl: 4rem;    /* 64px */
+
+  /* ===== TIPOGRAFÍA ===== */
+  --font-size-xs: 0.75rem;    /* 12px */
+  --font-size-sm: 0.875rem;   /* 14px */
+  --font-size-base: 1rem;     /* 16px */
+  --font-size-lg: 1.125rem;   /* 18px */
+  --font-size-xl: 1.25rem;    /* 20px */
+  --font-size-2xl: 1.5rem;    /* 24px */
+  --font-size-3xl: 2rem;      /* 32px */
+
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  --line-height-tight: 1.25;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.75;
+
+  /* ===== BORDES Y SOMBRAS ===== */
+  --radius-sm: 0.25rem;   /* 4px */
+  --radius-md: 0.5rem;    /* 8px */
+  --radius-lg: 0.75rem;   /* 12px */
+  --radius-xl: 1rem;      /* 16px */
+  --radius-full: 9999px;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.15);
+
+  /* ===== BREAKPOINTS (Para uso en media queries) ===== */
+  --bp-mobile: 480px;
+  --bp-tablet: 768px;
+  --bp-tablet-landscape: 980px;
+  --bp-desktop: 1200px;
+  --bp-desktop-lg: 1440px;
+  --bp-ultrawide: 1920px;
+
+  /* ===== LAYOUT RESPONSIVO ===== */
+  --sidebar-width: clamp(220px, 18vw, 280px);
+  --sidebar-width-collapsed: 70px;
+
+  --container-max-width: 1400px;
+  --container-padding: clamp(1rem, 3vw, 2rem);
+
+  --header-height: clamp(60px, 8vh, 80px);
+
+  /* ===== TRANSICIONES ===== */
+  --transition-fast: 150ms ease-in-out;
+  --transition-normal: 250ms ease-in-out;
+  --transition-slow: 350ms ease-in-out;
+
+  /* ===== Z-INDEX SCALE ===== */
+  --z-base: 1;
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-overlay: 300;
+  --z-modal: 400;
+  --z-toast: 500;
+  --z-tooltip: 600;
+}
+
+/* ===== UTILIDADES RESPONSIVAS ===== */
+.container {
+  max-width: var(--container-max-width);
+  margin-inline: auto;
+  padding-inline: var(--container-padding);
+}
+
+/* ===== RESET Y BASE ===== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-normal);
+  color: var(--text-primary);
+  background-color: var(--bg-page);
+}
+
+/* ===== MEDIA QUERIES HELPERS ===== */
+/* Uso: @media (max-width: var(--bp-tablet)) { ... } */

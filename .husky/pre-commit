@@ -1,0 +1,4 @@
+#!/bin/sh
+
+# Pre-commit hook: run backend scanner
+node backend/scripts/check-secrets.cjs
