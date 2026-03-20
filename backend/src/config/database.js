@@ -6,10 +6,15 @@ dotenv.config()
 
 const { Pool } = pg
 
+// Reemplaza sslmode=require por sslmode=no-verify para evitar error de certificado auto-firmado
+const dbUrl = process.env.DATABASE_URL
+  ? process.env.DATABASE_URL.replace('sslmode=require', 'sslmode=no-verify')
+  : undefined
+
 // Configuración del pool de conexiones
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+  connectionString: dbUrl,
+  ssl: { rejectUnauthorized: false },
   max: 20,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 2000,
