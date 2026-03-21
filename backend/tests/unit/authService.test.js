@@ -1,11 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import bcrypt from 'bcrypt'
+import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 
 // Mocks antes de importar el servicio
 vi.mock('../../src/repositories/authRepository.js')
 vi.mock('../../src/services/activityService.js')
-vi.mock('bcrypt')
+vi.mock('bcryptjs')
 vi.mock('jsonwebtoken')
 
 import { authService } from '../../src/services/authService.js'

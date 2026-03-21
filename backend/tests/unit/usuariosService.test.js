@@ -1,9 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import bcrypt from 'bcrypt'
+import bcrypt from 'bcryptjs'
 
 vi.mock('../../src/repositories/usuariosRepository.js')
 vi.mock('../../src/services/activityService.js')
-vi.mock('bcrypt')
+vi.mock('bcryptjs')
 
 import { usuariosService } from '../../src/services/usuariosService.js'
 import { usuariosRepository } from '../../src/repositories/usuariosRepository.js'
