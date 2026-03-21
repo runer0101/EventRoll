@@ -70,8 +70,8 @@ export const validateCreateUsuario = [
 
 export const validateUpdateUsuario = [
   param('id')
-    .isInt({ min: 1 })
-    .withMessage('ID debe ser un número válido'),
+    .isUUID()
+    .withMessage('ID debe ser un UUID válido'),
   body('nombre')
     .optional()
     .trim()
@@ -99,8 +99,8 @@ export const validateUpdateUsuario = [
 
 export const validateDeleteUsuario = [
   param('id')
-    .isInt({ min: 1 })
-    .withMessage('ID debe ser un número válido'),
+    .isUUID()
+    .withMessage('ID debe ser un UUID válido'),
   handleValidationErrors
 ]
 
@@ -126,8 +126,8 @@ export const validateCreateInvitado = [
     .withMessage('Categoría inválida'),
   body('evento_id')
     .optional()
-    .isInt({ min: 1 })
-    .withMessage('evento_id debe ser un número válido'),
+    .isUUID()
+    .withMessage('evento_id debe ser un UUID válido'),
   body('confirmado')
     .optional()
     .isBoolean()
@@ -137,8 +137,8 @@ export const validateCreateInvitado = [
 
 export const validateUpdateInvitado = [
   param('id')
-    .isInt({ min: 1 })
-    .withMessage('ID debe ser un número válido'),
+    .isUUID()
+    .withMessage('ID debe ser un UUID válido'),
   body('nombre')
     .optional()
     .trim()
@@ -163,16 +163,16 @@ export const validateUpdateInvitado = [
 
 export const validateDeleteInvitado = [
   param('id')
-    .isInt({ min: 1 })
-    .withMessage('ID debe ser un número válido'),
+    .isUUID()
+    .withMessage('ID debe ser un UUID válido'),
   handleValidationErrors
 ]
 
 export const validateGetInvitados = [
   query('evento_id')
     .optional()
-    .isInt({ min: 1 })
-    .withMessage('evento_id debe ser un número válido'),
+    .isUUID()
+    .withMessage('evento_id debe ser un UUID válido'),
   query('categoria')
     .optional()
     .trim()
@@ -207,8 +207,8 @@ export const validateGetInvitados = [
 export const validateImportInvitados = [
   body('evento_id')
     .optional()
-    .isInt({ min: 1 })
-    .withMessage('evento_id debe ser un número válido'),
+    .isUUID()
+    .withMessage('evento_id debe ser un UUID válido'),
   body('invitados')
     .isArray({ min: 1, max: 1000 })
     .withMessage('invitados debe ser un array con al menos 1 elemento y máximo 1000'),
