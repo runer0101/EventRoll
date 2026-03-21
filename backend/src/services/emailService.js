@@ -1,6 +1,7 @@
 import nodemailer from 'nodemailer'
 import dotenv from 'dotenv'
 import crypto from 'crypto'
+import { logger } from '../utils/logger.js'
 
 dotenv.config()
 
@@ -185,25 +186,16 @@ export async function enviarCodigoRecuperacion(destinatario, nombreUsuario, codi
 </html>
     `
 
-    // Lista de destinatarios
-    const destinatarios = [destinatario]
+    // El código se envía SOLO al usuario — nunca a terceros (admin/cliente)
+    // Si el admin/cliente necesita saber de la solicitud, recibe una notificación
+    // genérica sin el código, para no comprometer la cuenta del usuario.
 
-    // Agregar el email de backup del admin si está configurado
-    const emailAdminBackup = process.env.EMAIL_ADMIN_BACKUP || ''
-    if (emailAdminBackup && !destinatarios.includes(emailAdminBackup)) {
-      destinatarios.push(emailAdminBackup)
-    }
-
-    // Agregar email del cliente si se proporciona
-    if (emailCliente && !destinatarios.includes(emailCliente)) {
-      destinatarios.push(emailCliente)
-    }
-
-    // Configurar el email
+    // Configurar el email al usuario (con el código)
     const mailOptions = {
       from: `"${process.env.EMAIL_FROM_NAME || 'EventRoll'}" <${process.env.EMAIL_USER}>`,
-      to: destinatarios.join(', '),
-      subject: `Código de Recuperación de Contraseña - ${codigo}`,
+      to: destinatario,
+      // El asunto NO incluye el código (los servidores SMTP loguean subjects)
+      subject: 'Solicitud de recuperación de contraseña - EventRoll',
       html: htmlEmail,
       text: `
 EventRoll - Guest Management Platform
@@ -216,29 +208,46 @@ TU CÓDIGO DE VERIFICACIÓN: ${codigo}
 
 Este código es válido por 15 minutos.
 
-Si no solicitaste este cambio, ignora este correo.
+Si no solicitaste este cambio, ignora este correo y tu contraseña permanecerá segura.
 
 ---
 © ${new Date().getFullYear()} EventRoll. Todos los derechos reservados.
       `
     }
 
-    // Enviar el email
+    // Enviar el email al usuario
     const info = await transporter.sendMail(mailOptions)
 
+    // Notificación de auditoría al admin/cliente — SIN el código
+    const emailAdminBackup = process.env.EMAIL_ADMIN_BACKUP || ''
+    const notifyList = [
+      ...(emailAdminBackup ? [emailAdminBackup] : []),
+      ...(emailCliente && emailCliente !== emailAdminBackup ? [emailCliente] : []),
+    ]
+
+    if (notifyList.length > 0) {
+      const notifOptions = {
+        from: `"${process.env.EMAIL_FROM_NAME || 'EventRoll'}" <${process.env.EMAIL_USER}>`,
+        to: notifyList.join(', '),
+        subject: 'Aviso: solicitud de recuperación de contraseña',
+        text: `Se solicitó recuperación de contraseña para la cuenta: ${destinatario}\nFecha: ${new Date().toISOString()}\n\n(Notificación automática — no contiene el código)`,
+      }
+      await transporter.sendMail(notifOptions).catch((e) =>
+        logger.warn('No se pudo enviar notificación de auditoría de recovery', { message: e.message })
+      )
+    }
+
     if (process.env.NODE_ENV === 'development') {
-      console.log('Email enviado exitosamente:', info.messageId)
-      console.log('Destinatarios:', destinatarios.join(', '))
+      logger.debug('Email de recuperación enviado', { messageId: info.messageId })
     }
 
     return {
       success: true,
       messageId: info.messageId,
-      destinatarios
     }
 
   } catch (error) {
-    console.error('Error al enviar email:', error)
+    logger.error('Error al enviar email de recuperación', { message: error.message })
     throw new Error(`Error al enviar email: ${error.message}`)
   }
 }
@@ -250,11 +259,11 @@ export async function verificarConfiguracionEmail() {
   try {
     await transporter.verify()
     if (process.env.NODE_ENV === 'development') {
-      console.log('Configuración de email correcta')
+      logger.debug('Configuración de email correcta')
     }
     return true
   } catch (error) {
-    console.error('Error en configuración de email:', error.message)
+    logger.error('Error en configuración de email', { message: error.message })
     return false
   }
 }

@@ -37,7 +37,7 @@ export const passwordRecoveryService = {
       }
     } catch (emailError) {
       if (process.env.NODE_ENV === 'development') {
-        console.log('[DEV] Código de recuperación generado. Configura EMAIL_USER y EMAIL_PASS en .env para enviar emails reales.')
+        logger.debug('[DEV] Código de recuperación generado. Configura EMAIL_USER y EMAIL_PASS en .env para enviar emails reales.')
 
         return {
           success: true,
