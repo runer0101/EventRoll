@@ -38,7 +38,11 @@ export const query = async (text, params) => {
     logger.debug('Query ejecutado', { duration, rows: res.rowCount })
     return res
   } catch (error) {
-    logger.error('Error en query', { message: error.message, query: text })
+    // No exponer el texto SQL en producción (podría revelar esquema de BD)
+    logger.error('Error en query', {
+      message: error.message,
+      ...(isProduction ? {} : { query: text }),
+    })
     throw error
   }
 }

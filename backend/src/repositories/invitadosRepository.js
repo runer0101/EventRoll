@@ -36,6 +36,9 @@ export const invitadosRepository = {
   async findAllPaginated(filters, pagination) {
     const { whereClause, params, paramCount } = buildFilters(filters)
 
+    // Whitelist explícita para sortDir — previene inyección SQL en ORDER BY
+    const safeSortDir = pagination.sortDir?.toUpperCase() === 'DESC' ? 'DESC' : 'ASC'
+
     const countResult = await query(
       `SELECT
          COUNT(*) AS total,
@@ -47,7 +50,7 @@ export const invitadosRepository = {
 
     const dataResult = await query(
       `SELECT * FROM invitados ${whereClause}
-       ORDER BY apellido ${pagination.sortDir}, nombre ${pagination.sortDir}
+       ORDER BY apellido ${safeSortDir}, nombre ${safeSortDir}
        LIMIT $${paramCount} OFFSET $${paramCount + 1}`,
       [...params, pagination.limit, pagination.offset]
     )

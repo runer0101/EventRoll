@@ -2,6 +2,7 @@ import bcrypt from 'bcryptjs'
 import { passwordRecoveryRepository } from '../repositories/passwordRecoveryRepository.js'
 import { enviarCodigoRecuperacion, generarCodigoVerificacion } from './emailService.js'
 import { badRequest } from '../core/errors/AppError.js'
+import { logger } from '../utils/logger.js'
 
 const SALT_ROUNDS = Number(process.env.SALT_ROUNDS) || 10
 
@@ -121,7 +122,7 @@ export const passwordRecoveryService = {
       try {
         await client.query('ROLLBACK')
       } catch (rollbackError) {
-        console.error('Error haciendo rollback en restablecer-password:', rollbackError)
+        logger.error('Error haciendo rollback en restablecer-password', { message: rollbackError.message })
       }
       throw error
     } finally {
