@@ -6,6 +6,9 @@ dotenv.config()
 
 const { Pool } = pg
 
+// SSL solo en producción — en test/development el Postgres local no tiene SSL
+const isProduction = process.env.NODE_ENV === 'production'
+
 // Reemplaza sslmode=require por sslmode=no-verify para evitar error de certificado auto-firmado
 const dbUrl = process.env.DATABASE_URL
   ? process.env.DATABASE_URL.replace('sslmode=require', 'sslmode=no-verify')
@@ -14,7 +17,7 @@ const dbUrl = process.env.DATABASE_URL
 // Configuración del pool de conexiones
 const pool = new Pool({
   connectionString: dbUrl,
-  ssl: { rejectUnauthorized: false },
+  ssl: isProduction ? { rejectUnauthorized: false } : false,
   max: 10,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 10000,
