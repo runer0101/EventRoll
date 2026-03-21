@@ -1,81 +1,98 @@
 # EventRoll
 
-> Web platform for event guest management — manage lists, track attendance, assign team roles, and bulk import guests from Excel.
+> Plataforma web para gestión de invitados en eventos — administra listas, registra asistencia, asigna roles al equipo e importa invitados en masa desde Excel.
 
-![Node.js](https://img.shields.io/badge/Node.js-20%2B-339933?logo=node.js&logoColor=white)
+![Node.js](https://img.shields.io/badge/Node.js-22-339933?logo=node.js&logoColor=white)
 ![Vue 3](https://img.shields.io/badge/Vue-3-4FC08D?logo=vue.js&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-336791?logo=postgresql&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-ready-2496ED?logo=docker&logoColor=white)
-![License](https://img.shields.io/badge/license-MIT-blue)
-![CI](https://github.com/<your-user>/eventroll/actions/workflows/test.yml/badge.svg)
+![Licencia](https://img.shields.io/badge/licencia-MIT-blue)
+[![Tests](https://github.com/runer0101/EventRoll/actions/workflows/test.yml/badge.svg)](https://github.com/runer0101/EventRoll/actions/workflows/test.yml)
+[![Security](https://github.com/runer0101/EventRoll/actions/workflows/security.yml/badge.svg)](https://github.com/runer0101/EventRoll/actions/workflows/security.yml)
 
 ---
 
-## Features
+## Demo
 
-- **Role-based access control** — admin, organizer, assistant, guard
-- **Guest management** — create, edit, delete, filter, search, and confirm guests
-- **Real-time attendance tracking** — confirm arrivals as they happen
-- **Bulk Excel import/export** — import hundreds of guests in one click
-- **Password recovery** — secure 6-digit code delivered via email
-- **Multi-event support** — independent guest lists per event
-- **JWT auth with HttpOnly cookies** — tokens never touch `localStorage`
-- **Request ID tracing** — every request gets a unique ID for log correlation
-- **Swagger API docs** — available at `/api/docs`
-- **Docker ready** — full stack (API + DB + Nginx) with one command
+| Servicio | URL |
+|----------|-----|
+| Backend API | https://eventroll.onrender.com |
+| Health check | https://eventroll.onrender.com/health |
+| API Docs | https://eventroll.onrender.com/api/docs |
 
-## Tech stack
+> El backend corre en Render Free tier — la primera petición tras inactividad puede tardar ~50 segundos mientras despierta.
 
-| Layer | Technology |
-|-------|-----------|
+---
+
+## Funcionalidades
+
+- **Control de acceso por roles** — admin, organizador, asistente, guardia
+- **Gestión de invitados** — crear, editar, eliminar, filtrar, buscar y confirmar asistencia
+- **Registro de asistencia en tiempo real** — confirma llegadas al instante
+- **Importación/exportación masiva desde Excel** — importa cientos de invitados con un clic
+- **Recuperación de contraseña** — código de 6 dígitos enviado por email exclusivamente al usuario
+- **Soporte multi-evento** — listas independientes por evento
+- **Auth JWT con cookies HttpOnly** — tokens nunca expuestos a JavaScript del cliente
+- **Trazabilidad con Request ID** — cada petición recibe un ID único para correlación de logs
+- **Documentación Swagger** — disponible en `/api/docs`
+- **Docker ready** — stack completo (API + DB + Nginx) con un solo comando
+
+---
+
+## Stack tecnológico
+
+| Capa | Tecnología |
+|------|------------|
 | Frontend | Vue 3, Vite, Pinia, Axios, ExcelJS |
-| Backend | Node.js, Express, PostgreSQL, bcrypt, JWT |
-| Infrastructure | Docker, Nginx, Winston |
-| Testing | Vitest, Supertest |
-| CI/CD | GitHub Actions |
+| Backend | Node.js 22, Express, PostgreSQL, bcryptjs, JWT |
+| Infraestructura | Docker, Nginx, Winston |
+| Tests | Vitest, Supertest |
+| CI/CD | GitHub Actions → Render (auto-deploy en push a `main`) |
+| Base de datos prod | Supabase PostgreSQL (Session Pooler IPv4, AWS us-east-2) |
 
 ---
 
-## Requirements
+## Requisitos locales
 
-- Node.js 20.19 or later
-- npm 9 or later
-- PostgreSQL 14 or later
+- Node.js 22+ (o 20.19+)
+- npm 9+
+- PostgreSQL 14+ (para desarrollo local)
 
 ---
 
-## Getting started
+## Instalación local
 
-### 1. Clone
-
-```bash
-git clone https://github.com/<your-user>/eventroll.git
-cd eventroll
-```
-
-### 2. Install dependencies
+### 1. Clonar
 
 ```bash
-npm install              # frontend
-cd backend && npm install
+git clone https://github.com/runer0101/EventRoll.git
+cd EventRoll
 ```
 
-### 3. Configure environment variables
+### 2. Instalar dependencias
+
+```bash
+npm install                    # frontend
+npm install --prefix backend   # backend
+```
+
+### 3. Configurar variables de entorno
 
 ```bash
 cp backend/.env.example backend/.env
-# Edit backend/.env — set DATABASE_URL, JWT_SECRET, and email settings
+# Editar backend/.env — completar DATABASE_URL, JWT_SECRET y opciones de email
 
-# Frontend (optional for local dev if you use the default port)
+# Frontend
 cp .env.example .env
+# VITE_API_URL=http://localhost:3000/api  (ya configurado por defecto)
 ```
 
-> Generate a secure JWT secret:
-> ```bash
-> node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
-> ```
+Generar un JWT_SECRET seguro:
+```bash
+node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
+```
 
-### 4. Run database migrations
+### 4. Ejecutar migraciones
 
 ```bash
 cd backend
@@ -83,136 +100,168 @@ npm run migrate
 npm run migrate:v1.4
 npm run migrate:v1.5
 npm run migrate:v1.6
-npm run seed          # optional: loads sample data
+npm run seed          # opcional: carga datos de ejemplo
 ```
 
-### 5. Start development servers
+### 5. Iniciar servidores de desarrollo
 
 ```bash
 # Terminal 1 — API
 cd backend && npm run dev
 
-# Terminal 2 — Frontend
+# Terminal 2 — Frontend (raíz del proyecto)
 npm run dev
 ```
 
-Open [http://localhost:5173](http://localhost:5173).
+Abre [http://localhost:5173](http://localhost:5173).
 
-**Default dev credentials** (change after first login):
+**Credenciales por defecto** (cambiar tras el primer login):
 
-| Field | Value |
+| Campo | Valor |
 |-------|-------|
 | Email | `admin@prueba` |
-| Password | value of `DEFAULT_ADMIN_PASSWORD` in `backend/.env` |
+| Password | valor de `DEFAULT_ADMIN_PASSWORD` en `backend/.env` |
 
 ---
 
-## Docker (production)
+## Docker (stack completo local)
 
 ```bash
 cp .env.example .env
-# Set DB_PASSWORD, JWT_SECRET, CORS_ORIGIN in .env
+# Completar DB_PASSWORD, JWT_SECRET, CORS_ORIGIN en .env
 
 docker compose up -d
 ```
 
-The app will be available at `http://localhost`.
+El stack queda disponible en `http://localhost`.
 
 ---
 
-## Available scripts
+## Scripts disponibles
 
 ### Frontend (`/`)
 
 ```bash
-npm run dev          # Start dev server (http://localhost:5173)
-npm run build        # Production build
-npm run preview      # Preview production build locally
-npm run lint         # Lint src/ with ESLint
-npm run lint:fix     # Auto-fix lint errors
-npm run format       # Format src/ with Prettier
+npm run dev          # Servidor de desarrollo (http://localhost:5173)
+npm run build        # Build de producción
+npm run preview      # Preview del build de producción
+npm run lint         # Lint de src/ con ESLint
+npm run lint:fix     # Auto-corregir errores de lint
+npm run format       # Formatear src/ con Prettier
 ```
 
 ### Backend (`/backend`)
 
 ```bash
-npm run dev                # Start with nodemon (auto-reload)
-npm run start              # Start production server
-npm run migrate            # Run base schema migration
-npm run migrate:v1.4       # Audit log table
-npm run migrate:v1.5       # Password recovery table
-npm run migrate:v1.6       # Indexes + unique constraints
-npm run seed               # Seed sample data
-npm run cambiar-password   # Interactive password reset script
-npm run test               # Run unit tests
-npm run test:watch         # Run unit tests in watch mode
-npm run test:coverage      # Unit tests with coverage report
-npm run test:integration   # Integration tests (requires DB)
+npm run dev                # Iniciar con nodemon (auto-recarga)
+npm run start              # Iniciar servidor en producción
+npm run migrate            # Migración de esquema base
+npm run migrate:v1.4       # Tabla de log de actividad
+npm run migrate:v1.5       # Tabla de recuperación de contraseña
+npm run migrate:v1.6       # Índices y restricciones únicas
+npm run seed               # Datos de ejemplo
+npm run cambiar-password   # Script interactivo de reseteo de contraseña
+npm run test               # Tests unitarios
+npm run test:watch         # Tests en modo watch
+npm run test:coverage      # Tests con reporte de cobertura
+npm run test:integration   # Tests de integración (requiere DB)
 ```
 
 ---
 
-## API reference
+## Referencia de la API
 
-Full interactive documentation at `http://localhost:3000/api/docs`.
+Documentación interactiva completa en `https://eventroll.onrender.com/api/docs`.
 
-| Method | Endpoint | Auth | Description |
+| Método | Endpoint | Auth | Descripción |
 |--------|----------|------|-------------|
 | POST | `/api/auth/login` | — | Login |
-| GET | `/api/auth/me` | required | Get current user |
-| POST | `/api/auth/logout` | required | Logout and clear cookie |
-| GET | `/api/invitados` | required | List guests (paginated + filters) |
-| POST | `/api/invitados` | required | Create guest |
-| POST | `/api/invitados/import` | organizer+ | Bulk import guests |
-| PUT | `/api/invitados/:id` | required | Update guest |
-| DELETE | `/api/invitados/:id` | required | Delete guest |
-| GET | `/api/usuarios` | admin | List users |
-| POST | `/api/usuarios` | admin | Create user |
-| GET | `/health` | — | Health check (includes DB status) |
+| GET | `/api/auth/me` | requerida | Obtener usuario actual |
+| POST | `/api/auth/logout` | requerida | Cerrar sesión y limpiar cookie |
+| GET | `/api/invitados` | requerida | Listar invitados (paginado + filtros) |
+| POST | `/api/invitados` | requerida | Crear invitado |
+| POST | `/api/invitados/import` | organizador+ | Importación masiva |
+| PUT | `/api/invitados/:id` | requerida | Actualizar invitado |
+| DELETE | `/api/invitados/:id` | requerida | Eliminar invitado |
+| GET | `/api/usuarios` | admin | Listar usuarios |
+| POST | `/api/usuarios` | admin | Crear usuario |
+| GET | `/health` | — | Health check (incluye estado de BD) |
 
 ---
 
-## Environment variables
+## Variables de entorno
 
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `DATABASE_URL` | yes | PostgreSQL connection string |
-| `JWT_SECRET` | yes | Random secret, min 32 chars (64+ recommended) |
-| `JWT_EXPIRES_IN` | no | Token expiration, default `24h` |
-| `CORS_ORIGIN` | yes (prod) | Frontend URL |
-| `EMAIL_HOST` | no | SMTP server (for password recovery) |
-| `EMAIL_PORT` | no | SMTP port, default `587` |
-| `EMAIL_USER` | no | SMTP email address |
-| `EMAIL_PASS` | no | SMTP password or app password |
-| `DEFAULT_ADMIN_PASSWORD` | no | Initial password for seeded admin user |
+| Variable | Requerida | Descripción |
+|----------|-----------|-------------|
+| `DATABASE_URL` | sí | Cadena de conexión PostgreSQL |
+| `JWT_SECRET` | sí | Secreto aleatorio, mín. 32 caracteres (64+ recomendado) |
+| `JWT_EXPIRES_IN` | no | Expiración del token, por defecto `24h` |
+| `CORS_ORIGIN` | sí (prod) | URL del frontend |
+| `EMAIL_HOST` | no | Servidor SMTP (para recuperación de contraseña) |
+| `EMAIL_PORT` | no | Puerto SMTP, por defecto `587` |
+| `EMAIL_USER` | no | Dirección de correo SMTP |
+| `EMAIL_PASS` | no | Contraseña SMTP o app password |
+| `DEFAULT_ADMIN_PASSWORD` | no | Contraseña inicial para el admin del seed |
 
-See `backend/.env.example` for the full list.
-
----
-
-## Security
-
-- Passwords hashed with bcrypt (10 rounds)
-- JWT tokens stored in HttpOnly cookies — not accessible to JavaScript
-- Rate limiting: 100 req/15 min globally, 20 login attempts/15 min
-- SQL injection prevention via parameterized queries
-- CORS, Helmet, and CSP headers configured
-- Secrets scanning on every commit (gitleaks + husky pre-commit hook)
-- Sensitive fields (passwords, tokens) automatically redacted from logs
-- Unique `X-Request-ID` on every request for audit tracing
-
-Never commit your `.env` file. It is excluded by `.gitignore`.
+Ver `backend/.env.example` para la lista completa.
 
 ---
 
-## Contributing
+## Seguridad
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup, coding conventions, and how to open a pull request.
+- Contraseñas cifradas con **bcrypt** (10 rounds)
+- Tokens JWT en **cookies HttpOnly** — inaccesibles para JavaScript del cliente
+- **Rate limiting**: 100 req/15 min global · 20 intentos de login/15 min · 5 solicitudes de recovery/15 min
+- **SQL injection** prevenida con queries parametrizadas (`$1, $2…`) + whitelist explícita en ORDER BY
+- CORS, **Helmet** y cabeceras de seguridad configuradas
+- Escaneo de secretos en cada commit (**gitleaks** + hook pre-commit de Husky)
+- Campos sensibles (contraseñas, tokens, códigos de recovery) automáticamente **redactados en logs**
+- SQL no expuesto en logs de producción
+- `X-Request-ID` único en cada petición para trazabilidad de auditoría
+
+Nunca subas tu archivo `.env`. Está excluido por `.gitignore`.
+
+---
+
+## Estructura del proyecto
+
+```
+EventRoll/
+├── backend/                  # API REST (Node.js + Express)
+│   ├── src/
+│   │   ├── app.js            # Configuración Express (middleware, rutas)
+│   │   ├── server.js         # Punto de entrada
+│   │   ├── config/           # BD, migraciones, validación de env
+│   │   ├── controllers/      # Lógica de peticiones HTTP
+│   │   ├── services/         # Lógica de negocio
+│   │   ├── repositories/     # Acceso a datos (SQL parametrizado)
+│   │   ├── middleware/        # Auth JWT, validación, manejo de errores
+│   │   ├── routes/           # Definición de rutas
+│   │   └── utils/            # Logger (Winston), helpers
+│   └── tests/
+│       ├── unit/             # Tests unitarios (Vitest + mocks)
+│       └── integration/      # Tests de integración (Supertest + Postgres)
+├── src/                      # Frontend (Vue 3 + Vite)
+│   ├── components/           # Componentes Vue
+│   ├── services/             # Capa de API (Axios)
+│   ├── stores/               # Estado global (Pinia)
+│   └── composables/          # Composables reutilizables
+├── .github/workflows/        # CI: tests unitarios, integración y seguridad
+├── render.yaml               # Configuración de Render (infra como código)
+├── docker-compose.yml        # Stack completo local
+└── Dockerfile.frontend       # Imagen Docker del frontend
+```
+
+---
+
+## Contribuir
+
+Ver [CONTRIBUTING.md](CONTRIBUTING.md) para configuración de desarrollo, convenciones de código y cómo abrir un pull request.
 
 ## Changelog
 
-See [CHANGELOG.md](CHANGELOG.md) for the version history.
+Ver [CHANGELOG.md](CHANGELOG.md) para el historial de versiones.
 
-## License
+## Licencia
 
 [MIT](LICENSE)

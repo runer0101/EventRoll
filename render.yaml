@@ -3,7 +3,7 @@ services:
     name: eventroll-backend
     runtime: node
     rootDir: backend
-    buildCommand: npm ci
+    buildCommand: npm ci && npm run migrate && npm run migrate:v1.4 && npm run migrate:v1.5 && npm run migrate:v1.6
     startCommand: node src/server.js
     plan: free
     envVars:
