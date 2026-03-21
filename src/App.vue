@@ -209,7 +209,7 @@ watch(() => eventoStore.eventoId, cargarStats)
               <div class="stat-body">
                 <div class="stat-value">{{ stats.confirmados }}</div>
                 <div class="stat-label">Confirmados</div>
-                <div class="stat-pct" v-if="stats.totalInvitados > 0">
+                <div v-if="stats.totalInvitados > 0" class="stat-pct">
                   {{ Math.round((stats.confirmados / stats.totalInvitados) * 100) }}% del total
                 </div>
               </div>
@@ -219,13 +219,13 @@ watch(() => eventoStore.eventoId, cargarStats)
               <div class="stat-body">
                 <div class="stat-value">{{ stats.pendientes }}</div>
                 <div class="stat-label">Pendientes</div>
-                <div class="stat-pct" v-if="stats.totalInvitados > 0">
+                <div v-if="stats.totalInvitados > 0" class="stat-pct">
                   {{ Math.round((stats.pendientes / stats.totalInvitados) * 100) }}% del total
                 </div>
               </div>
             </div>
           </div>
-          <div class="progress-card" v-if="stats.totalInvitados > 0">
+          <div v-if="stats.totalInvitados > 0" class="progress-card">
             <div class="progress-header">
               <span>Progreso de confirmación</span>
               <span class="progress-pct">{{ Math.round((stats.confirmados / stats.totalInvitados) * 100) }}%</span>

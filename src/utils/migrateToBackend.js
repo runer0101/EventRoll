@@ -29,14 +29,14 @@ async function migrarInvitados() {
     const invitadosGuardados = localStorage.getItem('invitados')
 
     if (!invitadosGuardados) {
-      console.log('No hay invitados en localStorage para migrar')
+      console.warn('No hay invitados en localStorage para migrar')
       return resultado
     }
 
     const invitados = JSON.parse(invitadosGuardados)
     resultado.total = invitados.length
 
-    console.log(`Encontrados ${invitados.length} invitados en localStorage`)
+    console.warn(`Encontrados ${invitados.length} invitados en localStorage`)
 
     // Migrar cada invitado usando la API de importación (más eficiente)
     const invitadosParaImportar = invitados.map(inv => ({
@@ -54,10 +54,10 @@ async function migrarInvitados() {
       resultado.errores = response.data.errores || []
       resultado.migrados = invitados
 
-      console.log(`Migrados ${resultado.exitosos} invitados correctamente`)
+      console.warn(`Migrados ${resultado.exitosos} invitados correctamente`)
 
       if (response.data.duplicados > 0) {
-        console.log(`${response.data.duplicados} invitados duplicados omitidos`)
+        console.warn(`${response.data.duplicados} invitados duplicados omitidos`)
       }
     }
 
@@ -89,14 +89,14 @@ async function migrarUsuarios() {
     const usuariosGuardados = localStorage.getItem('usuarios')
 
     if (!usuariosGuardados) {
-      console.log('No hay usuarios en localStorage para migrar')
+      console.warn('No hay usuarios en localStorage para migrar')
       return resultado
     }
 
     const usuarios = JSON.parse(usuariosGuardados)
     resultado.total = usuarios.length
 
-    console.log(`Encontrados ${usuarios.length} usuarios en localStorage`)
+    console.warn(`Encontrados ${usuarios.length} usuarios en localStorage`)
 
     // Migrar cada usuario individualmente
     for (const usuario of usuarios) {
@@ -111,7 +111,7 @@ async function migrarUsuarios() {
         if (response.success) {
           resultado.exitosos++
           resultado.migrados.push(usuario)
-          console.log(`Usuario migrado: ${usuario.email}`)
+          console.warn(`Usuario migrado: ${usuario.email}`)
         }
       } catch (error) {
         console.error(`Error al migrar usuario ${usuario.email}:`, error)
@@ -144,8 +144,8 @@ async function migrarUsuarios() {
 export async function migrateToBackend(opciones = {}) {
   const { limpiarLocalStorage = false } = opciones
 
-  console.log('Iniciando migracion de localStorage a Backend...')
-  console.log('═'.repeat(50))
+  console.warn('Iniciando migracion de localStorage a Backend...')
+  console.warn('═'.repeat(50))
 
   const resultado = {
     invitados: null,
@@ -156,13 +156,13 @@ export async function migrateToBackend(opciones = {}) {
 
   try {
     // Migrar invitados
-    console.log('\nMIGRACION DE INVITADOS')
-    console.log('─'.repeat(50))
+    console.warn('\nMIGRACION DE INVITADOS')
+    console.warn('─'.repeat(50))
     resultado.invitados = await migrarInvitados()
 
     // Migrar usuarios
-    console.log('\nMIGRACION DE USUARIOS')
-    console.log('─'.repeat(50))
+    console.warn('\nMIGRACION DE USUARIOS')
+    console.warn('─'.repeat(50))
     resultado.usuarios = await migrarUsuarios()
 
     // Verificar éxito general
@@ -172,26 +172,26 @@ export async function migrateToBackend(opciones = {}) {
     resultado.exito = invitadosOk && usuariosOk
 
     // Resumen
-    console.log('\nRESUMEN DE MIGRACION')
-    console.log('═'.repeat(50))
-    console.log(`Invitados: ${resultado.invitados.exitosos}/${resultado.invitados.total} migrados`)
-    console.log(`Usuarios: ${resultado.usuarios.exitosos}/${resultado.usuarios.total} migrados`)
+    console.warn('\nRESUMEN DE MIGRACION')
+    console.warn('═'.repeat(50))
+    console.warn(`Invitados: ${resultado.invitados.exitosos}/${resultado.invitados.total} migrados`)
+    console.warn(`Usuarios: ${resultado.usuarios.exitosos}/${resultado.usuarios.total} migrados`)
 
     const totalErrores = resultado.invitados.errores.length + resultado.usuarios.errores.length
-    console.log(`Errores totales: ${totalErrores}`)
+    console.warn(`Errores totales: ${totalErrores}`)
 
     if (resultado.exito) {
-      console.log('\nMigracion completada exitosamente')
+      console.warn('\nMigracion completada exitosamente')
 
       // Limpiar localStorage si se solicitó
       if (limpiarLocalStorage) {
-        console.log('\nLimpiando localStorage...')
+        console.warn('\nLimpiando localStorage...')
         localStorage.removeItem('invitados')
         localStorage.removeItem('usuarios')
-        console.log('localStorage limpiado')
+        console.warn('localStorage limpiado')
       }
     } else {
-      console.log('\nMigracion completada con errores')
+      console.warn('\nMigracion completada con errores')
     }
 
   } catch (error) {
@@ -200,7 +200,7 @@ export async function migrateToBackend(opciones = {}) {
     resultado.error = error.message
   }
 
-  console.log('═'.repeat(50))
+  console.warn('═'.repeat(50))
   return resultado
 }
 

@@ -26,7 +26,7 @@
     </header>
 
     <!-- ══════════════ HERO ══════════════ -->
-    <section class="hero" id="inicio">
+    <section id="inicio" class="hero">
       <div class="hero-orb hero-orb-1"></div>
       <div class="hero-orb hero-orb-2"></div>
 
@@ -184,7 +184,7 @@
     </div>
 
     <!-- ══════════════ FEATURES ══════════════ -->
-    <section class="features" id="features">
+    <section id="features" class="features">
       <div class="section-inner">
         <p class="eyebrow">Funcionalidades</p>
         <h2 class="section-title">Todo lo que necesitas en un solo panel</h2>
@@ -228,7 +228,7 @@
     </section>
 
     <!-- ══════════════ COMO FUNCIONA ══════════════ -->
-    <section class="how-it-works" id="como-funciona">
+    <section id="como-funciona" class="how-it-works">
       <div class="section-inner">
         <p class="eyebrow">Proceso</p>
         <h2 class="section-title">Listo en minutos</h2>

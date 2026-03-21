@@ -10,8 +10,8 @@
       <a class="btn-header" href="#login-card">Ingresar</a>
     </header>
 
-    <main class="public-main" id="inicio">
-      <section class="hero-panel" id="funciones">
+    <main id="inicio" class="public-main">
+      <section id="funciones" class="hero-panel">
         <p class="hero-kicker">Plataforma web para organizar invitados y asistencia</p>
         <h1>Planifica tus eventos desde un solo lugar</h1>
         <p class="hero-description">
@@ -41,14 +41,14 @@
         </figure>
       </section>
 
-      <section class="login-panel" id="login-card">
+      <section id="login-card" class="login-panel">
         <div class="login-card">
           <div class="login-header">
             <h2>Acceso al Panel</h2>
             <p>Organizacion de Eventos</p>
           </div>
 
-          <form @submit.prevent="iniciarSesion" class="login-form">
+          <form class="login-form" @submit.prevent="iniciarSesion">
             <div class="form-group">
               <label for="email">Correo Electronico</label>
               <input
@@ -85,7 +85,7 @@
             </button>
 
             <div class="forgot-password">
-              <a href="#" @click.prevent="mostrarRecuperacion = true" class="link-recuperar">
+              <a href="#" class="link-recuperar" @click.prevent="mostrarRecuperacion = true">
                 Olvidaste tu contrasena?
               </a>
             </div>
@@ -150,7 +150,7 @@
               {{ cargandoRecuperacion ? 'Verificando...' : 'Verificar Código' }}
             </button>
 
-            <button type="button" @click="pasoRecuperacion = 1" class="btn-volver">
+            <button type="button" class="btn-volver" @click="pasoRecuperacion = 1">
               Volver
             </button>
           </form>

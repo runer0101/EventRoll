@@ -35,6 +35,9 @@ export default defineConfig({
     // Optimiza el tamaño del bundle usando esbuild (más rápido que terser)
     minify: 'esbuild',
 
+    // exceljs (~940KB) se carga dinámicamente en excelImporter.js — tamaño inevitable
+    chunkSizeWarningLimit: 1000,
+
     // Configuración de chunks para mejor caching
     rollupOptions: {
       output: {

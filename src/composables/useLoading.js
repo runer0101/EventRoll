@@ -1,3 +1,4 @@
+/* eslint-disable vue/one-component-per-file */
 import { ref } from 'vue'
 import { createApp } from 'vue'
 import LoadingSpinner from '../components/LoadingSpinner.vue'

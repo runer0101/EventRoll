@@ -11,7 +11,7 @@
           {{ nombreRol }}
         </span>
       </div>
-      <button @click="cerrarSesion" class="btn-logout">
+      <button class="btn-logout" @click="cerrarSesion">
         Cerrar Sesión
       </button>
     </div>

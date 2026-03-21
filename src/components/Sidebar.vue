@@ -1,6 +1,6 @@
 <template>
   <!-- Hamburger Menu Button (Mobile only) -->
-  <button class="hamburger-btn" @click="toggleMobile" :class="{ active: isMobileOpen }">
+  <button class="hamburger-btn" :class="{ active: isMobileOpen }" @click="toggleMobile">
     <span></span>
     <span></span>
     <span></span>
@@ -13,12 +13,12 @@
   <div class="sidebar" :class="{ collapsed: isCollapsed, 'mobile-open': isMobileOpen }">
     <!-- Header del Sidebar -->
     <div class="sidebar-header">
-      <div class="logo" v-if="!isCollapsed">
+      <div v-if="!isCollapsed" class="logo">
         <span class="logo-icon">E</span>
         <span class="logo-text">EventRoll</span>
       </div>
-      <span class="logo-icon-small" v-else>E</span>
-      <button @click="toggleSidebar" class="toggle-btn" :title="isCollapsed ? 'Expandir' : 'Colapsar'">
+      <span v-else class="logo-icon-small">E</span>
+      <button class="toggle-btn" :title="isCollapsed ? 'Expandir' : 'Colapsar'" @click="toggleSidebar">
         <span v-if="isCollapsed">›</span>
         <span v-else>‹</span>
       </button>
@@ -29,20 +29,20 @@
       <button
         v-for="item in menuItems"
         :key="item.id"
-        @click="selectMenuItem(item.id)"
         :class="['nav-item', { active: activeItem === item.id, disabled: !item.enabled }]"
         :disabled="!item.enabled"
         :title="item.tooltip"
+        @click="selectMenuItem(item.id)"
       >
         <component :is="item.icon" class="nav-icon" :size="18" />
         <span class="nav-text">{{ item.label }}</span>
-        <span class="nav-badge" v-if="item.badge && !isCollapsed">{{ item.badge }}</span>
+        <span v-if="item.badge && !isCollapsed" class="nav-badge">{{ item.badge }}</span>
       </button>
     </nav>
 
     <!-- Usuario Info (abajo) -->
     <div class="sidebar-footer">
-      <div class="user-info" v-if="!isCollapsed">
+      <div v-if="!isCollapsed" class="user-info">
         <div class="user-avatar">
           {{ usuario.nombre.charAt(0).toUpperCase() }}
         </div>
@@ -51,11 +51,11 @@
           <div class="user-role">{{ nombreRol }}</div>
         </div>
       </div>
-      <div class="user-avatar-small" v-else>
+      <div v-else class="user-avatar-small">
         {{ usuario.nombre.charAt(0).toUpperCase() }}
       </div>
 
-      <button @click="emit('logout')" class="btn-logout-sidebar" :title="isCollapsed ? 'Cerrar sesión' : ''">
+      <button class="btn-logout-sidebar" :title="isCollapsed ? 'Cerrar sesión' : ''" @click="emit('logout')">
         <span>Cerrar Sesión</span>
       </button>
     </div>

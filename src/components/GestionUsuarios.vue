@@ -8,7 +8,7 @@
     <!-- Formulario para agregar usuario -->
     <div class="formulario-card">
       <h3>{{ modoEdicion ? 'Editar Usuario' : 'Crear Nuevo Usuario' }}</h3>
-      <form @submit.prevent="guardarUsuario" class="form-usuario">
+      <form class="form-usuario" @submit.prevent="guardarUsuario">
         <div class="form-row">
           <div class="form-group">
             <label for="nombre">Nombre Completo *</label>
@@ -91,8 +91,8 @@
               <div class="permisos-list">
                 <label class="permiso-item">
                   <input
-                    type="checkbox"
                     v-model="formulario.permisos.ver_invitados"
+                    type="checkbox"
                   />
                   <span class="permiso-label">
                     <strong>Ver invitados</strong>
@@ -102,8 +102,8 @@
 
                 <label class="permiso-item">
                   <input
-                    type="checkbox"
                     v-model="formulario.permisos.crear_invitados"
+                    type="checkbox"
                   />
                   <span class="permiso-label">
                     <strong>Crear invitados</strong>
@@ -113,8 +113,8 @@
 
                 <label class="permiso-item">
                   <input
-                    type="checkbox"
                     v-model="formulario.permisos.editar_invitados"
+                    type="checkbox"
                   />
                   <span class="permiso-label">
                     <strong>Editar invitados</strong>
@@ -124,8 +124,8 @@
 
                 <label class="permiso-item">
                   <input
-                    type="checkbox"
                     v-model="formulario.permisos.eliminar_invitados"
+                    type="checkbox"
                   />
                   <span class="permiso-label">
                     <strong>Eliminar invitados</strong>
@@ -141,8 +141,8 @@
               <div class="permisos-list">
                 <label class="permiso-item">
                   <input
-                    type="checkbox"
                     v-model="formulario.permisos.importar_excel"
+                    type="checkbox"
                   />
                   <span class="permiso-label">
                     <strong>Importar Excel</strong>
@@ -152,8 +152,8 @@
 
                 <label class="permiso-item">
                   <input
-                    type="checkbox"
                     v-model="formulario.permisos.exportar_excel"
+                    type="checkbox"
                   />
                   <span class="permiso-label">
                     <strong>Exportar Excel</strong>
@@ -169,8 +169,8 @@
               <div class="permisos-list">
                 <label class="permiso-item">
                   <input
-                    type="checkbox"
                     v-model="formulario.permisos.confirmar_asistencia"
+                    type="checkbox"
                   />
                   <span class="permiso-label">
                     <strong>Confirmar asistencia</strong>
@@ -180,8 +180,8 @@
 
                 <label class="permiso-item">
                   <input
-                    type="checkbox"
                     v-model="formulario.permisos.marcar_asistencia"
+                    type="checkbox"
                   />
                   <span class="permiso-label">
                     <strong>Marcar asistencia</strong>
@@ -194,7 +194,7 @@
         </div>
 
         <div class="form-actions">
-          <button v-if="modoEdicion" type="button" @click="cancelarEdicion" class="btn-cancelar">
+          <button v-if="modoEdicion" type="button" class="btn-cancelar" @click="cancelarEdicion">
             Cancelar
           </button>
           <button type="submit" class="btn-guardar">
@@ -238,10 +238,10 @@
               </td>
               <td class="fecha-cell">{{ formatearFecha(usuario.fechaCreacion) }}</td>
               <td class="acciones-cell">
-                <button @click="editarUsuario(usuario)" class="btn-editar" title="Editar usuario">
+                <button class="btn-editar" title="Editar usuario" @click="editarUsuario(usuario)">
                   Editar
                 </button>
-                <button @click="eliminarUsuario(usuario)" class="btn-eliminar" title="Eliminar usuario">
+                <button class="btn-eliminar" title="Eliminar usuario" @click="eliminarUsuario(usuario)">
                   Eliminar
                 </button>
               </td>
@@ -367,7 +367,7 @@ async function cargarUsuarios() {
         creadoPor: 'admin'
       }))
       modoBackend.value = true
-      console.log('Usuarios cargados desde backend:', usuarios.value.length)
+      console.warn('Usuarios cargados desde backend:', usuarios.value.length)
     }
   } catch (err) {
     console.error('Error al cargar desde backend, usando localStorage:', err)

@@ -4,7 +4,7 @@
       <div class="modal-content" @click.stop>
         <div class="modal-header">
           <h2>Atajos de Teclado</h2>
-          <button @click="close" class="btn-close">×</button>
+          <button class="btn-close" @click="close">×</button>
         </div>
 
         <div class="modal-body">
@@ -66,7 +66,7 @@
         </div>
 
         <div class="modal-footer">
-          <button @click="close" class="btn-primary">Entendido</button>
+          <button class="btn-primary" @click="close">Entendido</button>
         </div>
       </div>
     </div>

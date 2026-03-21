@@ -37,18 +37,18 @@
     <div class="acciones-excel">
       <button
         v-if="permisos.exportarExcel"
-        @click="exportarExcel"
         class="btn-exportar"
         title="Exportar lista a formato Excel (.xlsx)"
+        @click="exportarExcel"
       >
         Exportar Excel
       </button>
 
       <button
         v-if="permisos.exportarExcel"
-        @click="exportarCSV"
         class="btn-exportar"
         title="Exportar lista a formato CSV"
+        @click="exportarCSV"
       >
         Exportar CSV
       </button>
@@ -58,20 +58,20 @@
         ref="inputArchivo"
         type="file"
         accept=".xlsx, .xls"
-        @change="importarExcel"
         style="display: none"
+        @change="importarExcel"
       />
 
       <button
         v-if="permisos.importarExcel"
-        @click="abrirSelectorArchivo"
         class="btn-importar"
         title="Importar invitados desde archivo Excel"
+        @click="abrirSelectorArchivo"
       >
         Importar Excel
       </button>
 
-      <button @click="descargarPlantilla" class="btn-plantilla" title="Descargar plantilla de ejemplo">
+      <button class="btn-plantilla" title="Descargar plantilla de ejemplo" @click="descargarPlantilla">
         Descargar Plantilla
       </button>
     </div>
@@ -83,18 +83,18 @@
         v-model="nuevoNombre"
         type="text"
         placeholder="Nombre(s)"
-        @keyup.enter="agregarInvitado"
         class="input-nombre"
         title="Ingresa el nombre del invitado (requerido)"
+        @keyup.enter="agregarInvitado"
       />
 
       <input
         v-model="nuevoApellido"
         type="text"
         placeholder="Apellido(s)"
-        @keyup.enter="agregarInvitado"
         class="input-nombre"
         title="Ingresa el apellido del invitado (opcional)"
+        @keyup.enter="agregarInvitado"
       />
 
       <!-- SELECT de categoría -->
@@ -106,7 +106,7 @@
         <option value="Trabajo">Trabajo - Colegas y socios</option>
       </select>
 
-      <button @click="agregarInvitado" class="btn-agregar" title="Agregar invitado a la lista">
+      <button class="btn-agregar" title="Agregar invitado a la lista" @click="agregarInvitado">
         + Agregar
       </button>
     </div>
@@ -128,7 +128,7 @@
         <div v-if="mostrarHistorial && getRecentSearches().length > 0" class="historial-dropdown">
           <div class="historial-header">
             <span>Búsquedas recientes</span>
-            <button @click="clearHistory(); mostrarHistorial = false" class="btn-limpiar-historial" title="Limpiar historial">Limpiar</button>
+            <button class="btn-limpiar-historial" title="Limpiar historial" @click="clearHistory(); mostrarHistorial = false">Limpiar</button>
           </div>
           <div
             v-for="item in getRecentSearches()"
@@ -137,7 +137,7 @@
             @click="aplicarBusquedaHistorial(item.text)"
           >
             <span class="historial-text">{{ item.text }}</span>
-            <button @click.stop="removeSearch(item.text)" class="btn-eliminar-historial" title="Eliminar">×</button>
+            <button class="btn-eliminar-historial" title="Eliminar" @click.stop="removeSearch(item.text)">×</button>
           </div>
         </div>
       </div>
@@ -157,15 +157,15 @@
         <option value="pendiente">Pendientes</option>
       </select>
 
-      <button @click="ordenarInvitados" class="btn-ordenar" title="Ordenar alfabéticamente">
+      <button class="btn-ordenar" title="Ordenar alfabéticamente" @click="ordenarInvitados">
         {{ ordenAscendente ? 'A-Z ↑' : 'Z-A ↓' }}
       </button>
 
-      <button @click="limpiarFiltros" class="btn-limpiar" title="Limpiar todos los filtros">
+      <button class="btn-limpiar" title="Limpiar todos los filtros" @click="limpiarFiltros">
         Limpiar
       </button>
 
-      <button @click="mostrarFiltrosGuardados = !mostrarFiltrosGuardados" class="btn-filtros-guardados" title="Gestionar filtros guardados">
+      <button class="btn-filtros-guardados" title="Gestionar filtros guardados" @click="mostrarFiltrosGuardados = !mostrarFiltrosGuardados">
         Filtros {{ savedFilters.length > 0 ? `(${savedFilters.length})` : '' }}
       </button>
     </div>
@@ -174,7 +174,7 @@
     <div v-if="mostrarFiltrosGuardados" class="panel-filtros-guardados">
       <div class="panel-header">
         <h3>Filtros Guardados</h3>
-        <button @click="mostrarFiltrosGuardados = false" class="btn-cerrar-panel">×</button>
+        <button class="btn-cerrar-panel" @click="mostrarFiltrosGuardados = false">×</button>
       </div>
 
       <!-- Guardar filtro actual -->
@@ -193,7 +193,7 @@
             class="input-nombre-filtro"
             @keyup.enter="guardarFiltroActual"
           />
-          <button @click="guardarFiltroActual" class="btn-guardar-filtro">Guardar</button>
+          <button class="btn-guardar-filtro" @click="guardarFiltroActual">Guardar</button>
         </div>
       </div>
 
@@ -214,8 +214,8 @@
             <div class="filtro-meta">Usado {{ filtro.usageCount }} veces</div>
           </div>
           <div class="filtro-acciones">
-            <button @click="aplicarFiltroGuardado(filtro.id)" class="btn-aplicar-filtro">Aplicar</button>
-            <button @click="eliminarFiltroGuardado(filtro.id)" class="btn-eliminar-filtro">Eliminar</button>
+            <button class="btn-aplicar-filtro" @click="aplicarFiltroGuardado(filtro.id)">Aplicar</button>
+            <button class="btn-eliminar-filtro" @click="eliminarFiltroGuardado(filtro.id)">Eliminar</button>
           </div>
         </div>
       </div>
@@ -269,8 +269,8 @@
             @keyup.enter="guardarEdicion"
             @keyup.esc="cancelarEdicion"
           />
-          <button @click="guardarEdicion" class="btn-guardar">Guardar</button>
-          <button @click="cancelarEdicion" class="btn-cancelar">Cancelar</button>
+          <button class="btn-guardar" @click="guardarEdicion">Guardar</button>
+          <button class="btn-cancelar" @click="cancelarEdicion">Cancelar</button>
         </div>
 
         <!-- Modo NORMAL -->
@@ -285,26 +285,26 @@
           <div class="acciones">
             <button
               v-if="permisos.editarInvitados"
-              @click="iniciarEdicion(invitado)"
               class="btn-editar"
               title="Editar nombre"
+              @click="iniciarEdicion(invitado)"
             >
               Editar
             </button>
 
             <button
               v-if="permisos.confirmarInvitados"
-              @click="toggleConfirmacion(invitado.id)"
               class="btn-confirmar"
               :class="{ activo: invitado.confirmado }"
+              @click="toggleConfirmacion(invitado.id)"
             >
               {{ invitado.confirmado ? 'Confirmado' : 'Pendiente' }}
             </button>
 
             <button
               v-if="permisos.eliminarInvitados"
-              @click="eliminarInvitado(invitado.id)"
               class="btn-eliminar"
+              @click="eliminarInvitado(invitado.id)"
             >
               Eliminar
             </button>
@@ -562,7 +562,7 @@ async function cargarDatos(page = currentPage.value) {
       }
 
       modoBackend.value = true
-      console.log('Invitados cargados desde backend:', invitados.value.length)
+      console.warn('Invitados cargados desde backend:', invitados.value.length)
     }
   } catch (err) {
     console.error('Error al cargar desde backend, usando localStorage:', err)
