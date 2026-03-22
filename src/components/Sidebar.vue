@@ -571,8 +571,11 @@ function closeMobile()   { isMobileOpen.value = false }
 
 /* ── COLLAPSED STATE ───────────────────────── */
 .sidebar.collapsed .sidebar-header {
+  flex-direction: column;
   justify-content: center;
-  padding: 1rem .5rem;
+  align-items: center;
+  gap: 5px;
+  padding: .65rem .25rem;
 }
 .sidebar.collapsed .sidebar-nav { padding: .5rem .375rem; }
 .sidebar.collapsed .nav-item { justify-content: center; padding: .6rem 0; }
