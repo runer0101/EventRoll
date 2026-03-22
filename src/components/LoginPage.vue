@@ -75,7 +75,7 @@
                 id="email"
                 v-model="email"
                 type="email"
-                placeholder="correo@ejemplo.com"
+                placeholder="tu_correo@gmail.com"
                 required
                 autocomplete="email"
                 :disabled="cargando"
@@ -212,7 +212,11 @@ async function iniciarSesion() {
     success(`Bienvenido, ${authStore.usuario.nombre}!`, 'Sesión iniciada')
     emit('login', authStore.usuario)
   } catch (err) {
-    error.value = err.message || 'Credenciales inválidas'
+    if (err.data?.errors?.length) {
+      error.value = err.data.errors[0].message
+    } else {
+      error.value = err.message || 'Credenciales inválidas'
+    }
     showError(error.value, 'Error de autenticación')
   } finally {
     cargando.value = false

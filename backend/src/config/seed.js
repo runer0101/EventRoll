@@ -26,7 +26,7 @@ const seedDatabase = async () => {
          password_hash = EXCLUDED.password_hash,
          rol = EXCLUDED.rol
        RETURNING id`,
-      ['Administrador', 'admin@prueba', passwordHash, 'admin']
+      ['Administrador', 'admin@prueba.com', passwordHash, 'admin']
     )
     const adminId = adminResult.rows[0].id
     console.log(`Usuario admin creado (ID: ${adminId})\n`)
@@ -95,7 +95,7 @@ const seedDatabase = async () => {
     console.log('Seed completado exitosamente')
     if (process.env.NODE_ENV === 'development') {
       console.log('\nCredenciales de prueba (desarrollo):')
-      console.log('   Email: admin@prueba')
+      console.log('   Email: admin@prueba.com')
       console.log('   Password: [GUARDADA EN VARIABLE DE ENTORNO]')
       console.log('   Usa DEFAULT_ADMIN_PASSWORD del .env o ejecuta: npm run cambiar-password')
       console.log('   Rol: admin\n')
