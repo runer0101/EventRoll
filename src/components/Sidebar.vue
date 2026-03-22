@@ -576,9 +576,9 @@ function closeMobile()   { isMobileOpen.value = false }
 }
 .sidebar.collapsed .sidebar-nav { padding: .5rem .375rem; }
 .sidebar.collapsed .nav-item { justify-content: center; padding: .6rem 0; }
-.sidebar.collapsed .sidebar-footer { padding: .4rem .25rem; gap: 2px; }
-.sidebar.collapsed .user-btn { padding: .35rem .25rem; }
-.sidebar.collapsed .btn-logout { padding: .35rem 0; }
+.sidebar.collapsed .sidebar-footer { padding: .15rem .2rem; gap: 0; }
+.sidebar.collapsed .user-btn { padding: .25rem 0; }
+.sidebar.collapsed .btn-logout { padding: .25rem 0; border: none; }
 
 /* ── MODAL PERFIL ──────────────────────────── */
 .modal-overlay {

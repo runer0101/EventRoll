@@ -1574,48 +1574,22 @@ function ordenarInvitados() {
 }
 
 h2 {
-  color: #1a1a1a;
+  color: #fff;
   text-align: center;
-  margin: 0 0 30px 0;
-  font-size: 2.2em;
+  margin: 0 0 20px 0;
+  font-size: 1.6rem;
   font-weight: 700;
-  letter-spacing: 1px;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-  background: #1a1a1a;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  letter-spacing: -0.01em;
 }
 
 /* ========== PANEL DE SILLAS ========== */
 .panel-sillas {
-  background: #1e1e1e;
+  background: #141414;
   color: #FFD700;
-  padding: 16px 20px;
-  border-radius: 10px;
-  margin-bottom: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
-  border: 1px solid rgba(255, 215, 0, 0.3);
-  position: relative;
-  overflow: hidden;
-}
-
-.panel-sillas::before {
-  content: '';
-  position: absolute;
-  top: -2px;
-  left: -2px;
-  right: -2px;
-  bottom: -2px;
-  background: #FFD700;
-  border-radius: 15px;
-  z-index: -1;
-  opacity: 0;
-  transition: opacity 0.3s;
-}
-
-.panel-sillas:hover::before {
-  opacity: 0.1;
+  padding: 14px 18px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  border: 1px solid rgba(255,215,0,0.15);
 }
 
 .silla-config {
@@ -1744,44 +1718,47 @@ h2 {
 .formulario {
   display: flex;
   gap: 8px;
-  margin-bottom: 14px;
-  background: #fff;
-  padding: 12px;
+  margin-bottom: 12px;
+  background: #141414;
+  padding: 10px;
   border-radius: 8px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  border: 1px solid rgba(255,255,255,0.07);
 }
 
 .input-nombre {
   flex: 1;
-  padding: 9px 12px;
+  padding: 8px 12px;
   font-size: 14px;
-  border: 1px solid #ddd;
+  border: 1px solid rgba(255,255,255,0.1);
   border-radius: 6px;
-  transition: all 0.15s;
-  background: white;
+  transition: border-color 0.15s;
+  background: #0f0f0f;
+  color: #fff;
+  font-family: inherit;
 }
+
+.input-nombre::placeholder { color: rgba(255,255,255,0.3); }
 
 .input-nombre:focus {
   outline: none;
-  border-color: #FFD700;
-  box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
-  background: #fffef8;
+  border-color: rgba(255,215,0,0.5);
 }
 
 .select-categoria {
-  padding: 9px 12px;
+  padding: 8px 12px;
   font-size: 14px;
-  border: 1px solid #ddd;
+  border: 1px solid rgba(255,255,255,0.1);
   border-radius: 6px;
   cursor: pointer;
-  background-color: white;
-  transition: all 0.15s;
+  background: #0f0f0f;
+  color: #fff;
+  font-family: inherit;
+  transition: border-color 0.15s;
 }
 
 .select-categoria:focus {
   outline: none;
-  border-color: #FFD700;
-  box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+  border-color: rgba(255,215,0,0.5);
 }
 
 .btn-agregar {
@@ -1806,44 +1783,47 @@ h2 {
 .barra-busqueda {
   display: flex;
   gap: 8px;
-  margin-bottom: 14px;
-  background: #fff;
-  padding: 10px 12px;
+  margin-bottom: 12px;
+  background: #141414;
+  padding: 10px;
   border-radius: 8px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  border: 1px solid rgba(255,255,255,0.07);
 }
 
 .input-busqueda {
   flex: 2;
   padding: 8px 12px;
   font-size: 14px;
-  border: 1px solid #ddd;
+  border: 1px solid rgba(255,255,255,0.1);
   border-radius: 6px;
-  background: white;
-  transition: all 0.15s;
+  background: #0f0f0f;
+  color: #fff;
+  font-family: inherit;
+  transition: border-color 0.15s;
 }
+
+.input-busqueda::placeholder { color: rgba(255,255,255,0.3); }
 
 .input-busqueda:focus {
   outline: none;
-  border-color: #FFD700;
-  box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
-  background: #fffef8;
+  border-color: rgba(255,215,0,0.5);
 }
 
 .select-filtro {
   padding: 8px 10px;
   font-size: 13px;
-  border: 1px solid #ddd;
+  border: 1px solid rgba(255,255,255,0.1);
   border-radius: 6px;
   cursor: pointer;
-  background-color: white;
-  transition: all 0.15s;
+  background: #0f0f0f;
+  color: #fff;
+  font-family: inherit;
+  transition: border-color 0.15s;
 }
 
 .select-filtro:focus {
   outline: none;
-  border-color: #FFD700;
-  box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+  border-color: rgba(255,215,0,0.5);
 }
 
 .btn-ordenar {
@@ -1967,25 +1947,22 @@ h2 {
 }
 
 .invitado-item {
-  background: #fff;
-  border: 1px solid #e8e8e8;
+  background: #141414;
+  border: 1px solid rgba(255,255,255,0.07);
   border-left: 3px solid transparent;
   border-radius: 8px;
-  padding: 12px 16px;
-  margin-bottom: 6px;
-  transition: border-color 0.15s, box-shadow 0.15s;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  padding: 10px 14px;
+  margin-bottom: 5px;
+  transition: border-color 0.15s;
 }
 
 .invitado-item:hover {
-  border-color: #e0e0e0;
+  border-color: rgba(255,255,255,0.12);
   border-left-color: #FFD700;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
 
 .invitado-item.confirmado {
   border-left-color: #FFD700;
-  background: #fff;
 }
 
 .info-invitado {
@@ -2001,9 +1978,9 @@ h2 {
 }
 
 .nombre {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
-  color: #111;
+  color: #fff;
 }
 
 .badge {
@@ -2047,32 +2024,34 @@ h2 {
 }
 
 .btn-editar {
-  padding: 6px 12px;
-  background: #fff;
-  color: #374151;
-  border: 1px solid #e5e7eb;
+  padding: 5px 11px;
+  background: transparent;
+  color: rgba(255,255,255,0.55);
+  border: 1px solid rgba(255,255,255,0.1);
   border-radius: 6px;
   cursor: pointer;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 500;
   transition: all 0.15s;
+  font-family: inherit;
 }
 
 .btn-editar:hover {
-  background: #f9fafb;
-  border-color: #d1d5db;
+  background: rgba(255,255,255,0.06);
+  color: #fff;
 }
 
 .btn-confirmar {
-  padding: 6px 12px;
-  background: #fff;
-  color: #374151;
-  border: 1px solid #e5e7eb;
+  padding: 5px 11px;
+  background: transparent;
+  color: rgba(255,255,255,0.55);
+  border: 1px solid rgba(255,255,255,0.1);
   border-radius: 6px;
   cursor: pointer;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 500;
   transition: all 0.15s;
+  font-family: inherit;
 }
 
 .btn-confirmar.activo {
@@ -2083,26 +2062,28 @@ h2 {
 }
 
 .btn-confirmar:hover {
-  background: #fffbeb;
-  border-color: #FFD700;
-  color: #111;
+  background: rgba(255,215,0,0.1);
+  border-color: rgba(255,215,0,0.4);
+  color: #FFD700;
 }
 
 .btn-eliminar {
-  padding: 6px 12px;
-  background: #fff;
-  color: #dc2626;
-  border: 1px solid #fee2e2;
+  padding: 5px 11px;
+  background: transparent;
+  color: rgba(239,68,68,0.65);
+  border: 1px solid rgba(239,68,68,0.2);
   border-radius: 6px;
   cursor: pointer;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 500;
   transition: all 0.15s;
+  font-family: inherit;
 }
 
 .btn-eliminar:hover {
-  background: #fef2f2;
-  border-color: #fca5a5;
+  background: rgba(239,68,68,0.08);
+  border-color: rgba(239,68,68,0.4);
+  color: #f87171;
 }
 
 /* ========== MODO EDICIÓN ========== */
@@ -2114,17 +2095,19 @@ h2 {
 
 .input-editar {
   flex: 1;
-  padding: 7px 10px;
+  padding: 6px 10px;
   font-size: 14px;
-  border: 1px solid #d1d5db;
+  border: 1px solid rgba(255,255,255,0.1);
   border-radius: 6px;
-  background: #fff;
+  background: #0f0f0f;
+  color: #fff;
+  font-family: inherit;
   transition: border-color 0.15s;
 }
 
 .input-editar:focus {
   outline: none;
-  border-color: #FFD700;
+  border-color: rgba(255,215,0,0.5);
 }
 
 .btn-guardar {
@@ -2144,20 +2127,21 @@ h2 {
 }
 
 .btn-cancelar {
-  padding: 7px 14px;
-  background: #fff;
-  color: #6b7280;
-  border: 1px solid #e5e7eb;
+  padding: 6px 12px;
+  background: transparent;
+  color: rgba(255,255,255,0.4);
+  border: 1px solid rgba(255,255,255,0.1);
   border-radius: 6px;
   cursor: pointer;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 500;
   transition: all 0.15s;
+  font-family: inherit;
 }
 
 .btn-cancelar:hover {
-  background: #f9fafb;
-  border-color: #d1d5db;
+  background: rgba(255,255,255,0.05);
+  color: rgba(255,255,255,0.75);
 }
 
 /* ========== MENSAJES VACÍOS ========== */
@@ -2239,11 +2223,11 @@ h2 {
   top: 100%;
   left: 0;
   right: 0;
-  background: white;
-  border: 2px solid #FFD700;
+  background: #1a1a1a;
+  border: 1px solid rgba(255,215,0,0.25);
   border-top: none;
   border-radius: 0 0 8px 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.4);
   z-index: 100;
   max-height: 300px;
   overflow-y: auto;
@@ -2253,12 +2237,12 @@ h2 {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 15px;
-  background: #f5f5f5;
-  border-bottom: 1px solid #ddd;
+  padding: 8px 12px;
+  background: rgba(255,255,255,0.04);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
   font-weight: 600;
-  font-size: 0.9em;
-  color: #666;
+  font-size: 0.8em;
+  color: rgba(255,255,255,0.35);
 }
 
 .btn-limpiar-historial {
@@ -2279,14 +2263,14 @@ h2 {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 15px;
+  padding: 9px 12px;
   cursor: pointer;
-  transition: background 0.2s;
-  border-bottom: 1px solid #f0f0f0;
+  transition: background 0.15s;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
 }
 
 .historial-item:hover {
-  background: #f9f9f9;
+  background: rgba(255,255,255,0.04);
 }
 
 .historial-item:last-child {
@@ -2295,8 +2279,8 @@ h2 {
 
 .historial-text {
   flex: 1;
-  color: #333;
-  font-size: 0.95em;
+  color: rgba(255,255,255,0.7);
+  font-size: 0.9em;
 }
 
 .btn-eliminar-historial {

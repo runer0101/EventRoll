@@ -484,8 +484,8 @@ main {
   top: 0;
   left: 0;
   right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, var(--color-primary) 0%, transparent 100%);
+  height: 2px;
+  background: #FFD700;
   opacity: 0;
   transition: opacity var(--transition-normal);
 }
@@ -505,7 +505,7 @@ main {
 }
 
 .stat-confirmados::before {
-  background: linear-gradient(90deg, #34d399 0%, transparent 100%);
+  background: #34d399;
 }
 
 .stat-pendientes:hover {
@@ -513,7 +513,7 @@ main {
 }
 
 .stat-pendientes::before {
-  background: linear-gradient(90deg, #FBBF24 0%, transparent 100%);
+  background: #FBBF24;
 }
 
 .stat-icon {
@@ -592,10 +592,9 @@ main {
 
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #FFD700 0%, #F59E0B 100%);
+  background: #FFD700;
   border-radius: var(--radius-full);
   transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 0 12px rgba(255, 215, 0, 0.5);
 }
 
 /* ===== VISTA DE CONFIGURACIÓN ===== */
@@ -693,7 +692,7 @@ main {
   border: 0;
   border-radius: var(--radius-md);
   padding: 0.7rem 1.25rem;
-  background: linear-gradient(135deg, #FFD700 0%, #F59E0B 100%);
+  background: #FFD700;
   color: #111;
   font-weight: 800;
   font-family: inherit;
