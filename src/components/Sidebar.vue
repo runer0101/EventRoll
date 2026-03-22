@@ -574,8 +574,8 @@ function closeMobile()   { isMobileOpen.value = false }
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: 5px;
-  padding: .65rem .25rem;
+  gap: 10px;
+  padding: .75rem .25rem;
 }
 .sidebar.collapsed .sidebar-nav { padding: .5rem .375rem; }
 .sidebar.collapsed .nav-item { justify-content: center; padding: .6rem 0; }
