@@ -326,10 +326,10 @@ watch(() => eventoStore.eventoId, cargarStats)
 
 /* ===== HEADER PRINCIPAL ===== */
 .main-header {
-  background: var(--color-dark);
+  background: #111;
   padding: 0 clamp(1rem, 3vw, 2rem);
-  border-bottom: 1px solid rgba(255, 215, 0, 0.2);
-  box-shadow: 0 1px 0 rgba(255, 215, 0, 0.08), 0 4px 20px rgba(0,0,0,0.3);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  box-shadow: 0 1px 0 rgba(0,0,0,0.2);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -370,9 +370,9 @@ watch(() => eventoStore.eventoId, cargarStats)
   align-items: center;
   padding: 0.2rem 0.65rem;
   border-radius: var(--radius-full);
-  background: rgba(255, 215, 0, 0.1);
-  border: 1px solid rgba(255, 215, 0, 0.25);
-  color: var(--color-primary);
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.5);
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.04em;
@@ -397,17 +397,16 @@ watch(() => eventoStore.eventoId, cargarStats)
 }
 
 .user-avatar-header {
-  width: 2.25rem;
-  height: 2.25rem;
+  width: 2rem;
+  height: 2rem;
   border-radius: var(--radius-full);
-  background: linear-gradient(135deg, #FFD700 0%, #F59E0B 100%);
+  background: #FFD700;
   color: #111;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 800;
-  font-size: 1rem;
-  box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.25);
+  font-weight: 700;
+  font-size: 0.875rem;
   flex-shrink: 0;
 }
 
