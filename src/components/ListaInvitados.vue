@@ -1589,13 +1589,13 @@ h2 {
 
 /* ========== PANEL DE SILLAS ========== */
 .panel-sillas {
-  background: #2a2a2a;
+  background: #1e1e1e;
   color: #FFD700;
-  padding: 25px;
-  border-radius: 15px;
-  margin-bottom: 30px;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4), 0 0 20px rgba(255, 215, 0, 0.1);
-  border: 3px solid #FFD700;
+  padding: 16px 20px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 215, 0, 0.3);
   position: relative;
   overflow: hidden;
 }
@@ -1622,7 +1622,7 @@ h2 {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 15px;
+  margin-bottom: 10px;
 }
 
 .silla-config label {
@@ -1631,15 +1631,15 @@ h2 {
 }
 
 .input-sillas {
-  padding: 8px 12px;
-  font-size: 16px;
-  border: 2px solid #FFD700;
-  border-radius: 8px;
-  width: 100px;
-  font-weight: bold;
-  background: #4a4a4a;
+  padding: 6px 10px;
+  font-size: 14px;
+  border: 1px solid rgba(255, 215, 0, 0.4);
+  border-radius: 6px;
+  width: 80px;
+  font-weight: 600;
+  background: #2a2a2a;
   color: #FFD700;
-  transition: all 0.3s;
+  transition: all 0.2s;
 }
 
 .input-sillas:focus {
@@ -1668,8 +1668,8 @@ h2 {
 
 .silla-stat .valor {
   display: block;
-  font-size: 24px;
-  font-weight: bold;
+  font-size: 20px;
+  font-weight: 700;
 }
 
 .valor.disponible {
@@ -1683,91 +1683,81 @@ h2 {
 /* ========== BOTONES DE EXCEL ========== */
 .acciones-excel {
   display: flex;
-  gap: 15px;
-  margin-bottom: 30px;
+  gap: 8px;
+  margin-bottom: 16px;
   justify-content: center;
   flex-wrap: wrap;
 }
 
 .btn-exportar {
-  padding: 14px 28px;
+  padding: 9px 18px;
   background: #FFD700;
-  color: #1a1a1a;
+  color: #111;
   border: none;
-  border-radius: 10px;
+  border-radius: 7px;
   cursor: pointer;
-  font-size: 15px;
-  font-weight: bold;
-  transition: all 0.3s;
-  box-shadow: 0 4px 10px rgba(255, 215, 0, 0.3);
+  font-size: 13px;
+  font-weight: 700;
+  transition: all 0.15s;
 }
 
 .btn-exportar:hover {
-  background: #FFA500;
-  transform: translateY(-3px);
-  box-shadow: 0 6px 20px rgba(255, 215, 0, 0.5);
+  background: #f0c800;
+  transform: translateY(-1px);
 }
 
 .btn-importar {
-  padding: 14px 28px;
-  background: #4a4a4a;
+  padding: 9px 18px;
+  background: transparent;
   color: #FFD700;
-  border: 2px solid #FFD700;
-  border-radius: 10px;
+  border: 1px solid rgba(255, 215, 0, 0.4);
+  border-radius: 7px;
   cursor: pointer;
-  font-size: 15px;
-  font-weight: bold;
-  transition: all 0.3s;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  font-size: 13px;
+  font-weight: 700;
+  transition: all 0.15s;
 }
 
 .btn-importar:hover {
-  background: #FFD700;
-  color: #1a1a1a;
-  border-color: transparent;
-  transform: translateY(-3px);
-  box-shadow: 0 6px 20px rgba(255, 215, 0, 0.5);
+  background: rgba(255, 215, 0, 0.1);
+  border-color: #FFD700;
 }
 
 .btn-plantilla {
-  padding: 14px 28px;
-  background: #6a6a6a;
-  color: #FFD700;
-  border: 2px solid #888;
-  border-radius: 10px;
+  padding: 9px 18px;
+  background: transparent;
+  color: rgba(255,255,255,0.45);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 7px;
   cursor: pointer;
-  font-size: 15px;
-  font-weight: bold;
-  transition: all 0.3s;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.15s;
 }
 
 .btn-plantilla:hover {
-  background: #FFD700;
-  color: #1a1a1a;
-  border-color: transparent;
-  transform: translateY(-3px);
-  box-shadow: 0 6px 20px rgba(255, 215, 0, 0.5);
+  background: rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.75);
 }
 
 /* ========== FORMULARIO ========== */
 .formulario {
   display: flex;
-  gap: 12px;
-  margin-bottom: 25px;
-  background: #ffffff;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  gap: 8px;
+  margin-bottom: 14px;
+  background: #fff;
+  padding: 12px;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
 }
 
 .input-nombre {
   flex: 1;
-  padding: 14px;
-  font-size: 16px;
-  border: 2px solid #c0c0c0;
-  border-radius: 10px;
-  transition: all 0.3s;
+  padding: 9px 12px;
+  font-size: 14px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  transition: all 0.15s;
   background: white;
 }
 
@@ -1779,13 +1769,13 @@ h2 {
 }
 
 .select-categoria {
-  padding: 14px;
-  font-size: 16px;
-  border: 2px solid #c0c0c0;
-  border-radius: 10px;
+  padding: 9px 12px;
+  font-size: 14px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
   cursor: pointer;
   background-color: white;
-  transition: all 0.3s;
+  transition: all 0.15s;
 }
 
 .select-categoria:focus {
@@ -1795,43 +1785,42 @@ h2 {
 }
 
 .btn-agregar {
-  padding: 14px 28px;
+  padding: 9px 18px;
   background: #FFD700;
-  color: #1a1a1a;
+  color: #111;
   border: none;
-  border-radius: 10px;
+  border-radius: 6px;
   cursor: pointer;
-  font-size: 16px;
-  font-weight: bold;
-  transition: all 0.3s;
-  box-shadow: 0 4px 10px rgba(255, 215, 0, 0.3);
+  font-size: 13px;
+  font-weight: 700;
+  transition: all 0.15s;
+  white-space: nowrap;
 }
 
 .btn-agregar:hover {
-  background: #FFA500;
-  transform: translateY(-3px);
-  box-shadow: 0 6px 20px rgba(255, 215, 0, 0.5);
+  background: #f0c800;
+  transform: translateY(-1px);
 }
 
 /* ========== BÚSQUEDA Y FILTROS ========== */
 .barra-busqueda {
   display: flex;
-  gap: 12px;
-  margin-bottom: 25px;
-  background: #ffffff;
-  padding: 15px;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  gap: 8px;
+  margin-bottom: 14px;
+  background: #fff;
+  padding: 10px 12px;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
 }
 
 .input-busqueda {
   flex: 2;
-  padding: 12px;
-  font-size: 16px;
-  border: 2px solid #c0c0c0;
-  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 14px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
   background: white;
-  transition: all 0.3s;
+  transition: all 0.15s;
 }
 
 .input-busqueda:focus {
@@ -1842,13 +1831,13 @@ h2 {
 }
 
 .select-filtro {
-  padding: 12px;
-  font-size: 14px;
-  border: 2px solid #c0c0c0;
-  border-radius: 10px;
+  padding: 8px 10px;
+  font-size: 13px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
   cursor: pointer;
   background-color: white;
-  transition: all 0.3s;
+  transition: all 0.15s;
 }
 
 .select-filtro:focus {
@@ -1858,64 +1847,58 @@ h2 {
 }
 
 .btn-ordenar {
-  padding: 12px 20px;
-  background: #6a6a6a;
+  padding: 8px 14px;
+  background: #1e1e1e;
   color: #FFD700;
-  border: 2px solid #888;
-  border-radius: 10px;
+  border: 1px solid rgba(255,215,0,0.3);
+  border-radius: 6px;
   cursor: pointer;
-  font-size: 14px;
-  font-weight: bold;
-  transition: all 0.3s;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.15s;
+  white-space: nowrap;
 }
 
 .btn-ordenar:hover {
-  background: #FFD700;
-  color: #1a1a1a;
-  border-color: transparent;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.5);
+  background: rgba(255,215,0,0.1);
+  border-color: #FFD700;
 }
 
 /* ========== ESTADÍSTICAS ========== */
 .estadisticas {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 15px;
-  margin-bottom: 25px;
+  gap: 10px;
+  margin-bottom: 16px;
 }
 
 .stat-card {
-  background: #3a3a3a;
-  padding: 25px;
-  border-radius: 15px;
+  background: #1e1e1e;
+  padding: 14px 16px;
+  border-radius: 8px;
   text-align: center;
-  border: 3px solid #888;
-  transition: all 0.3s;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255,255,255,0.07);
+  transition: all 0.15s;
 }
 
 .stat-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 20px rgba(255, 215, 0, 0.4);
-  border-color: #FFD700;
+  transform: translateY(-2px);
+  border-color: rgba(255,215,0,0.3);
 }
 
 .stat-card.confirmado {
-  background: #2a2a2a;
-  border-color: #FFD700;
-  border-width: 3px;
-  box-shadow: 0 6px 15px rgba(255, 215, 0, 0.3);
+  background: #1e1e1e;
+  border-color: rgba(255,215,0,0.25);
 }
 
 .stat-card.pendiente {
-  background: #4a4a4a;
-  border-color: #a0a0a0;
+  background: #1e1e1e;
+  border-color: rgba(255,255,255,0.07);
 }
 
 .stat-numero {
-  font-size: 36px;
-  font-weight: bold;
+  font-size: 26px;
+  font-weight: 700;
   color: #FFD700;
 }
 
