@@ -44,7 +44,7 @@ export const recoveryRequestLimiter = rateLimit({
 // Rate limiter para verificación de código
 export const recoveryVerifyLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 15, // margen mayor para códigos mal ingresados por usuarios legítimos
+  max: 5, // 5 intentos por IP — reduce ventana de fuerza bruta sobre códigos numéricos
   message: { success: false, message: 'Demasiados intentos de verificación. Intenta más tarde.' },
   standardHeaders: true,
   legacyHeaders: false,
@@ -72,8 +72,11 @@ export const codigoLimiter = rateLimit({
 // Acepta token desde: 1) cookie HttpOnly  2) header Authorization: Bearer <token>
 export const authenticateToken = async (req, res, next) => {
   try {
+    // Token exclusivamente desde cookie HttpOnly — el header Authorization queda
+    // disponible solo como fallback explícito para clientes no-web (API externa).
+    // En un deploy puramente web se puede eliminar la segunda parte.
     const authHeader = req.headers['authorization']
-    const token = req.cookies?.token || (authHeader && authHeader.split(' ')[1])
+    const token = req.cookies?.token || (process.env.ALLOW_BEARER_TOKEN === 'true' && authHeader && authHeader.split(' ')[1])
 
     if (!token) {
       return res.status(401).json({
@@ -90,7 +93,7 @@ export const authenticateToken = async (req, res, next) => {
       })
     }
 
-    // Verificar token
+    // Verificar token — solo se acepta desde cookie HttpOnly (no Authorization header en web)
     const decoded = jwt.verify(token, process.env.JWT_SECRET)
 
     // Intentar servir desde cache antes de ir a la BD

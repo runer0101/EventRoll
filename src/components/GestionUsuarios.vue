@@ -380,10 +380,8 @@ async function cargarUsuarios() {
         creadoPor: 'admin'
       }))
       modoBackend.value = true
-      console.warn('Usuarios cargados desde backend:', usuarios.value.length)
     }
-  } catch (err) {
-    console.error('Error al cargar desde backend, usando localStorage:', err)
+  } catch {
     modoBackend.value = false
     cargarUsuariosLocalStorage()
   }
@@ -395,8 +393,7 @@ function cargarUsuariosLocalStorage() {
     if (usuariosGuardados) {
       usuarios.value = JSON.parse(usuariosGuardados)
     }
-  } catch (error) {
-    console.error('Error al cargar usuarios:', error)
+  } catch {
     error('Error al cargar la lista de usuarios', 'Error')
   }
 }
@@ -406,8 +403,7 @@ function guardarUsuarios() {
   if (!modoBackend.value) {
     try {
       localStorage.setItem('usuarios', JSON.stringify(usuarios.value))
-    } catch (error) {
-      console.error('Error al guardar usuarios:', error)
+    } catch {
       error('Error al guardar los usuarios', 'Error')
     }
   }
@@ -563,7 +559,6 @@ async function guardarUsuario() {
       }
     }
   } catch (err) {
-    console.error('Error al guardar usuario:', err)
     error(err.message || 'Ocurrió un error al guardar el usuario', 'Error')
   } finally {
     hideLoading()
@@ -648,7 +643,6 @@ async function eliminarUsuario(usuario) {
         success(`Usuario "${usuario.nombre}" eliminado correctamente`, 'Usuario Eliminado')
       }
     } catch (err) {
-      console.error('Error al eliminar usuario:', err)
       error(err.message || 'Ocurrió un error al eliminar el usuario', 'Error')
     } finally {
       hideLoading()

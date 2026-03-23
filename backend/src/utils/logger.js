@@ -9,7 +9,7 @@ const isDev = process.env.NODE_ENV !== 'production'
 
 const { combine, timestamp, printf, colorize, errors, json } = winston.format
 
-const SENSITIVE_KEYS = new Set(['password', 'password_hash', 'token', 'authorization', 'secret', 'EMAIL_PASS', 'codigo', 'nuevaPassword', 'token_recuperacion'])
+const SENSITIVE_KEYS = new Set(['password', 'password_hash', 'token', 'authorization', 'secret', 'EMAIL_PASS', 'codigo', 'nuevaPassword', 'token_recuperacion', 'email', 'destinatario', 'access_code'])
 
 /** Recursively redact sensitive fields from log metadata objects. */
 const redact = (obj) => {

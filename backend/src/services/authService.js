@@ -59,8 +59,9 @@ export const authService = {
       try {
         const decoded = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString())
         const remainingMs = (decoded.exp * 1000) - Date.now()
+        // Solo revocar si el token aún tiene vida — si ya expiró no hay riesgo
         if (remainingMs > 0) revokeToken(token, remainingMs)
-      } catch { /* token malformado, ignorar */ }
+      } catch { /* token malformado o ya expirado, ignorar */ }
     }
     await activityService.register({
       usuarioId: user.id,

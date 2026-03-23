@@ -228,7 +228,7 @@ Si no solicitaste este cambio, ignora este correo y tu contraseña permanecerá 
     if (notifyList.length > 0) {
       const notifOptions = {
         from: `"${process.env.EMAIL_FROM_NAME || 'EventRoll'}" <${process.env.EMAIL_USER}>`,
-        to: notifyList.join(', '),
+        to: notifyList,
         subject: 'Aviso: solicitud de recuperación de contraseña',
         text: `Se solicitó recuperación de contraseña para la cuenta: ${destinatario}\nFecha: ${new Date().toISOString()}\n\n(Notificación automática — no contiene el código)`,
       }

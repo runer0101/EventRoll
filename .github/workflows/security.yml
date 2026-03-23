@@ -33,7 +33,7 @@ jobs:
         run: gitleaks detect --source . -c .gitleaks.toml
 
       - name: Run npm audit (backend)
-        run: npm audit --prefix backend --audit-level=moderate || true
+        run: npm audit --prefix backend --audit-level=high
 
       - name: Run npm audit (root)
-        run: npm audit --audit-level=moderate || true
+        run: npm audit --audit-level=high

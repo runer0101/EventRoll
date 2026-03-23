@@ -37,6 +37,18 @@ export const validateLogin = [
   handleValidationErrors
 ]
 
+export const validateLoginConCodigo = [
+  body('codigo')
+    .trim()
+    .notEmpty()
+    .withMessage('Código de acceso requerido')
+    .isLength({ min: 6, max: 12 })
+    .withMessage('Código inválido')
+    .matches(/^[A-Z0-9]+$/)
+    .withMessage('Código contiene caracteres inválidos'),
+  handleValidationErrors
+]
+
 /**
  * Validadores para Usuarios
  */

@@ -33,15 +33,21 @@ const corsOptions = {
 }
 app.use(cors(corsOptions))
 
-// Protección CSRF: verificar Origin en métodos mutantes (POST/PUT/DELETE/PATCH)
-// Permite localhost en development y el CORS_ORIGIN configurado en producción
-const allowedOrigin = process.env.CORS_ORIGIN || 'http://localhost:5173'
+// Protección CSRF: verificar Origin en métodos mutantes (POST/PUT/DELETE/PATCH).
+// Activo en todos los entornos para evitar que el desarrollo enmascare problemas.
+const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173')
+  .split(',').map(o => o.trim())
 app.use((req, res, next) => {
   const mutating = ['POST', 'PUT', 'DELETE', 'PATCH']
   if (!mutating.includes(req.method)) return next()
-  const origin = req.headers.origin || req.headers.referer || ''
-  const dev = process.env.NODE_ENV !== 'production'
-  if (dev || origin.startsWith(allowedOrigin)) return next()
+  const origin = req.headers.origin || ''
+  // Permitir requests sin Origin solo desde localhost (herramientas de testing locales)
+  if (!origin) {
+    const host = req.headers.host || ''
+    if (host.startsWith('localhost') || host.startsWith('127.0.0.1')) return next()
+    return res.status(403).json({ success: false, message: 'Origen no permitido' })
+  }
+  if (allowedOrigins.some(o => origin === o || origin.startsWith(o + '/'))) return next()
   return res.status(403).json({ success: false, message: 'Origen no permitido' })
 })
 
@@ -78,7 +84,7 @@ app.get('/health', async (req, res) => {
     success: dbOk,
     status: dbOk ? 'healthy' : 'degraded',
     timestamp: new Date().toISOString(),
-    version: process.env.npm_package_version || '1.3.0',
+    // Versión omitida intencionalmente para evitar fingerprinting en producción
     services: { database: dbOk ? 'up' : 'down' },
   })
 })
@@ -98,7 +104,6 @@ app.get('/', (req, res) => {
   res.json({
     success: true,
     message: 'EventRoll API',
-    version: '1.3.0',
     endpoints: {
       health: '/health',
       docs: '/api/docs',
