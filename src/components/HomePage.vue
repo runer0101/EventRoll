@@ -293,6 +293,7 @@ const year = new Date().getFullYear()
 ════════════════════════════════════════════ */
 .home {
   min-height: 100vh;
+  min-height: 100dvh;
   background: #070707;
   color: #e8e8e8;
   font-family: 'Manrope', 'Segoe UI', sans-serif;
@@ -419,6 +420,7 @@ const year = new Date().getFullYear()
 .hero {
   position: relative;
   min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   align-items: center;
   padding: 96px 0 80px;

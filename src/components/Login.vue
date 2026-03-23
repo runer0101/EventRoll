@@ -373,6 +373,7 @@ async function restablecerPassword() {
 ═══════════════════════════════════════════════ */
 .public-page {
   min-height: 100vh;
+  min-height: 100dvh;
   background:
     radial-gradient(ellipse at 10% 50%, rgba(255, 215, 0, 0.07) 0%, transparent 55%),
     radial-gradient(ellipse at 90% 10%, rgba(255, 215, 0, 0.04) 0%, transparent 50%),
@@ -799,6 +800,7 @@ async function restablecerPassword() {
   max-width: 460px;
   width: 100%;
   max-height: 90vh;
+  max-height: 90dvh;
   overflow-y: auto;
   box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5);
   animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);

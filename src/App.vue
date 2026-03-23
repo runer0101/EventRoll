@@ -306,6 +306,7 @@ watch(() => eventoStore.eventoId, cargarStats)
 .app-container {
   display: flex;
   min-height: 100vh;
+  min-height: 100dvh;
   background: #0f0f0f;
 }
 
@@ -315,6 +316,7 @@ watch(() => eventoStore.eventoId, cargarStats)
   margin-left: var(--sidebar-width);
   transition: margin-left var(--transition-normal);
   min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
 }

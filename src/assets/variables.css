@@ -100,7 +100,7 @@
   --container-max-width: 1400px;
   --container-padding: clamp(1rem, 3vw, 2rem);
 
-  --header-height: clamp(60px, 8vh, 80px);
+  --header-height: clamp(60px, 8dvh, 80px);
 
   /* ===== TRANSICIONES ===== */
   --transition-fast: 150ms ease-in-out;

@@ -334,6 +334,7 @@ function closeMobile()   { isMobileOpen.value = false }
 .sidebar {
   width: var(--sidebar-width, 220px);
   height: 100vh;
+  height: 100dvh;
   background: #0f0f0f;
   border-right: 1px solid rgba(255,255,255,.07);
   display: flex;

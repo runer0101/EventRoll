@@ -408,6 +408,7 @@ async function restablecerPassword() {
   display: grid;
   grid-template-columns: 1fr 1fr;
   min-height: 100vh;
+  min-height: 100dvh;
   font-family: 'Manrope', 'Segoe UI', sans-serif;
   position: relative;
 }
@@ -908,6 +909,7 @@ async function restablecerPassword() {
   width: 100%;
   max-width: 440px;
   max-height: 90vh;
+  max-height: 90dvh;
   overflow-y: auto;
   box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7);
   animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
