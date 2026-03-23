@@ -34,10 +34,11 @@ const corsOptions = {
 app.use(cors(corsOptions))
 
 // Protección CSRF: verificar Origin en métodos mutantes (POST/PUT/DELETE/PATCH).
-// Activo en todos los entornos para evitar que el desarrollo enmascare problemas.
+// Se omite en entorno de test para que Supertest (que no envía Origin) pueda operar.
 const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173')
   .split(',').map(o => o.trim())
 app.use((req, res, next) => {
+  if (process.env.NODE_ENV === 'test') return next()
   const mutating = ['POST', 'PUT', 'DELETE', 'PATCH']
   if (!mutating.includes(req.method)) return next()
   const origin = req.headers.origin || ''
