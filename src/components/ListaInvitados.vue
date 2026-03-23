@@ -308,10 +308,15 @@
         <!-- Modo NORMAL -->
         <div v-else class="info-invitado">
           <div class="nombre-categoria">
-            <span class="nombre">{{ invitado.nombre }} {{ invitado.apellido }}</span>
-            <span class="badge" :class="invitado.categoria.toLowerCase()">
-              {{ invitado.categoria }}
-            </span>
+            <div class="invitado-avatar" :class="invitado.confirmado ? 'avatar--confirmed' : 'avatar--pending'">
+              {{ (invitado.nombre || '?').charAt(0).toUpperCase() }}
+            </div>
+            <div class="invitado-name-wrap">
+              <span class="nombre">{{ invitado.nombre }} {{ invitado.apellido }}</span>
+              <span class="badge" :class="invitado.categoria.toLowerCase()">
+                {{ invitado.categoria }}
+              </span>
+            </div>
           </div>
 
           <div class="acciones">
@@ -393,14 +398,20 @@
 
     <!-- Mensaje cuando no hay invitados -->
     <div v-if="totalFiltrados === 0 && !hayFiltrosActivos" class="vacio">
-      <p>No hay invitados aún</p>
-      <p class="subtexto">Agrega el primero usando el formulario de arriba o importa un archivo Excel</p>
+      <div class="vacio-icon">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      </div>
+      <p class="vacio-title">Sin invitados aún</p>
+      <p class="subtexto">Agrega el primero con el formulario de arriba<br>o importa un archivo Excel</p>
     </div>
 
     <!-- Mensaje cuando la búsqueda no tiene resultados -->
     <div v-else-if="totalFiltrados === 0 && hayFiltrosActivos" class="vacio">
-      <p>No se encontraron invitados con esos criterios</p>
-      <p class="subtexto">Intenta cambiar los filtros de búsqueda</p>
+      <div class="vacio-icon vacio-icon--search">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+      </div>
+      <p class="vacio-title">Sin resultados</p>
+      <p class="subtexto">No se encontraron invitados con esos criterios.<br>Intenta cambiar los filtros de búsqueda.</p>
     </div>
 
   </div>
@@ -1941,50 +1952,48 @@ h2 {
   border-color: #FFD700;
 }
 
-/* ========== ESTADÍSTICAS ========== */
+/* ========== ESTADÍSTICAS (barra de resultados filtrados) ========== */
 .estadisticas {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  margin-bottom: 16px;
+  display: flex;
+  gap: 0;
+  margin-bottom: 12px;
+  background: #141414;
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 10px;
+  overflow: hidden;
 }
 
 .stat-card {
-  background: #1e1e1e;
-  padding: 14px 16px;
-  border-radius: 8px;
+  flex: 1;
+  padding: 12px 16px;
   text-align: center;
-  border: 1px solid rgba(255,255,255,0.07);
-  transition: all 0.15s;
+  border-right: 1px solid rgba(255,255,255,0.06);
+  transition: background 0.15s;
 }
 
-.stat-card:hover {
-  transform: translateY(-2px);
-  border-color: rgba(255,215,0,0.3);
-}
+.stat-card:last-child { border-right: none; }
+.stat-card:hover { background: rgba(255,255,255,0.02); }
 
-.stat-card.confirmado {
-  background: #1e1e1e;
-  border-color: rgba(255,215,0,0.25);
-}
+.stat-card.confirmado .stat-numero { color: #4ade80; }
+.stat-card.confirmado .stat-label  { color: rgba(74,222,128,0.5); }
 
-.stat-card.pendiente {
-  background: #1e1e1e;
-  border-color: rgba(255,255,255,0.07);
-}
+.stat-card.pendiente .stat-numero { color: rgba(255,255,255,0.5); }
+.stat-card.pendiente .stat-label  { color: rgba(255,255,255,0.25); }
 
 .stat-numero {
-  font-size: 26px;
+  font-size: 22px;
   font-weight: 700;
   color: #FFD700;
+  line-height: 1;
 }
 
 .stat-label {
-  font-size: 14px;
-  color: #FFD700;
+  font-size: 10px;
+  font-weight: 600;
+  color: rgba(255,215,0,0.5);
   text-transform: uppercase;
-  letter-spacing: 1px;
-  margin-top: 5px;
+  letter-spacing: 0.08em;
+  margin-top: 4px;
 }
 
 /* ========== LISTA DE INVITADOS ========== */
@@ -2043,6 +2052,84 @@ h2 {
   position: relative;
 }
 
+/* ========== PAGINACIÓN ========== */
+.paginacion {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.paginacion-info {
+  text-align: center;
+  font-size: 12px;
+  color: rgba(255,255,255,0.35);
+  letter-spacing: 0.02em;
+}
+
+.paginacion-controles {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.btn-paginacion {
+  padding: 7px 14px;
+  background: #1a1a1a;
+  color: rgba(255,255,255,0.65);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: inherit;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.btn-paginacion:hover:not(:disabled) {
+  background: rgba(255,215,0,0.08);
+  border-color: rgba(255,215,0,0.3);
+  color: #FFD700;
+}
+
+.btn-paginacion:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.pagina-actual {
+  padding: 7px 16px;
+  background: rgba(255,215,0,0.08);
+  border: 1px solid rgba(255,215,0,0.2);
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #FFD700;
+  white-space: nowrap;
+}
+
+.paginacion-tamanio {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 12px;
+  color: rgba(255,255,255,0.35);
+}
+
+.paginacion-tamanio select {
+  background: #1a1a1a;
+  color: rgba(255,255,255,0.6);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+}
+
 .invitado-item {
   background: #141414;
   border: 1px solid rgba(255,255,255,0.07);
@@ -2059,7 +2146,11 @@ h2 {
 }
 
 .invitado-item.confirmado {
-  border-left-color: #FFD700;
+  border-left-color: #4ade80;
+}
+
+.invitado-item:not(.confirmado) {
+  border-left-color: rgba(255,255,255,0.12);
 }
 
 .info-invitado {
@@ -2071,7 +2162,8 @@ h2 {
 .nombre-categoria {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
+  min-width: 0;
 }
 
 .nombre {
@@ -2112,6 +2204,39 @@ h2 {
 .badge.general {
   background: #f3f4f6;
   color: #4b5563;
+}
+
+/* ========== AVATAR ========== */
+.invitado-avatar {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.avatar--confirmed {
+  background: rgba(74,222,128,0.12);
+  color: #4ade80;
+  border: 1px solid rgba(74,222,128,0.25);
+}
+
+.avatar--pending {
+  background: rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.4);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.invitado-name-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 /* ========== ACCIONES ========== */
@@ -2244,19 +2369,44 @@ h2 {
 /* ========== MENSAJES VACÍOS ========== */
 .vacio {
   text-align: center;
-  padding: 60px 20px;
-  color: #6b7280;
+  padding: 56px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
 }
 
-.vacio p {
-  font-size: 20px;
-  margin-bottom: 10px;
+.vacio-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.07);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255,255,255,0.2);
+  margin-bottom: 4px;
+}
+
+.vacio-icon--search {
+  color: rgba(255,215,0,0.3);
+  background: rgba(255,215,0,0.04);
+  border-color: rgba(255,215,0,0.1);
+}
+
+.vacio-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.6);
+  margin: 0;
 }
 
 .subtexto {
-  font-size: 14px;
-  font-style: italic;
-  color: #9ca3af;
+  font-size: 13px;
+  color: rgba(255,255,255,0.3);
+  line-height: 1.6;
+  margin: 0;
 }
 
 /* ========== ANIMACIONES ========== */

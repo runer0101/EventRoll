@@ -420,6 +420,7 @@ function closeMobile()   { isMobileOpen.value = false }
   padding: .55rem .75rem;
   background: transparent;
   border: none;
+  border-left: 3px solid transparent;
   border-radius: 8px;
   color: rgba(255,255,255,.45);
   cursor: pointer;
@@ -433,9 +434,10 @@ function closeMobile()   { isMobileOpen.value = false }
   color: rgba(255,255,255,.9);
 }
 .nav-item.active {
-  background: rgba(255,215,0,.12);
+  background: rgba(255, 215, 0, 0.1);
   color: #FFD700;
-  font-weight: 600;
+  border-left: 3px solid #FFD700;
+  padding-left: calc(12px - 3px);
 }
 .nav-item.disabled {
   opacity: .3;
