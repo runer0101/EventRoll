@@ -107,41 +107,6 @@
       </button>
     </div>
 
-    <!-- ========== FORMULARIO PARA AGREGAR ========== -->
-    <div v-if="permisos.agregarInvitados" class="formulario">
-      <input
-        ref="nombreInput"
-        v-model="nuevoNombre"
-        type="text"
-        placeholder="Nombre(s)"
-        class="input-nombre"
-        title="Ingresa el nombre del invitado (requerido)"
-        @keyup.enter="agregarInvitado"
-      />
-
-      <input
-        v-model="nuevoApellido"
-        type="text"
-        placeholder="Apellido(s)"
-        class="input-nombre"
-        title="Ingresa el apellido del invitado (opcional)"
-        @keyup.enter="agregarInvitado"
-      />
-
-      <!-- SELECT de categoría -->
-      <select v-model="nuevaCategoria" class="select-categoria" title="Selecciona la categoría del invitado">
-        <option value="General">General</option>
-        <option value="VIP">VIP - Invitados especiales</option>
-        <option value="Familia">Familia - Familiares cercanos</option>
-        <option value="Amigos">Amigos - Círculo social</option>
-        <option value="Trabajo">Trabajo - Colegas y socios</option>
-      </select>
-
-      <button class="btn-agregar" title="Agregar invitado a la lista" @click="agregarInvitado">
-        + Agregar
-      </button>
-    </div>
-
     <!-- ========== BÚSQUEDA Y FILTROS ========== -->
     <div class="barra-busqueda">
       <div class="search-container">
@@ -202,6 +167,47 @@
       </button>
     </div>
 
+    <!-- ========== FORMULARIO PARA AGREGAR ========== -->
+    <div v-if="permisos.agregarInvitados" class="seccion-agregar">
+      <div class="seccion-agregar__header">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Agregar invitado
+      </div>
+      <div class="formulario">
+        <input
+          ref="nombreInput"
+          v-model="nuevoNombre"
+          type="text"
+          placeholder="Nombre(s)"
+          class="input-nombre"
+          title="Ingresa el nombre del invitado (requerido)"
+          @keyup.enter="agregarInvitado"
+        />
+
+        <input
+          v-model="nuevoApellido"
+          type="text"
+          placeholder="Apellido(s)"
+          class="input-nombre"
+          title="Ingresa el apellido del invitado (opcional)"
+          @keyup.enter="agregarInvitado"
+        />
+
+        <!-- SELECT de categoría -->
+        <select v-model="nuevaCategoria" class="select-categoria" title="Selecciona la categoría del invitado">
+          <option value="General">General</option>
+          <option value="VIP">VIP - Invitados especiales</option>
+          <option value="Familia">Familia - Familiares cercanos</option>
+          <option value="Amigos">Amigos - Círculo social</option>
+          <option value="Trabajo">Trabajo - Colegas y socios</option>
+        </select>
+
+        <button class="btn-agregar" title="Agregar invitado a la lista" @click="agregarInvitado">
+          + Agregar
+        </button>
+      </div>
+    </div>
+
     <!-- Panel de filtros guardados -->
     <div v-if="mostrarFiltrosGuardados" class="panel-filtros-guardados">
       <div class="panel-header">
@@ -255,15 +261,15 @@
 
     <!-- ========== ESTADÍSTICAS ========== -->
     <div class="estadisticas">
-      <div class="stat-card">
+      <div class="estadisticas-card">
         <div class="stat-numero">{{ totalFiltrados }}</div>
         <div class="stat-label">Total</div>
       </div>
-      <div class="stat-card confirmado">
+      <div class="estadisticas-card confirmado">
         <div class="stat-numero">{{ invitadosConfirmados }}</div>
         <div class="stat-label">Confirmados</div>
       </div>
-      <div class="stat-card pendiente">
+      <div class="estadisticas-card pendiente">
         <div class="stat-numero">{{ invitadosPendientes }}</div>
         <div class="stat-label">Pendientes</div>
       </div>
@@ -1744,6 +1750,7 @@ h2 {
   margin-bottom: 14px;
   align-items: center;
   flex-wrap: wrap;
+  justify-content: flex-start;
 }
 
 .acciones-group {
@@ -1822,15 +1829,34 @@ h2 {
   background: rgba(255,255,255,0.04);
 }
 
+/* ========== SECCIÓN AGREGAR INVITADO ========== */
+.seccion-agregar {
+  margin-bottom: 12px;
+  background: #141414;
+  border: 1px solid rgba(255,215,0,0.15);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.seccion-agregar__header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(255,215,0,0.6);
+  background: rgba(255,215,0,0.04);
+  border-bottom: 1px solid rgba(255,215,0,0.1);
+}
+
 /* ========== FORMULARIO ========== */
 .formulario {
   display: flex;
   gap: 8px;
-  margin-bottom: 12px;
-  background: #141414;
   padding: 10px;
-  border-radius: 8px;
-  border: 1px solid rgba(255,255,255,0.07);
 }
 
 .input-nombre {
@@ -1963,7 +1989,7 @@ h2 {
   overflow: hidden;
 }
 
-.stat-card {
+.estadisticas-card {
   flex: 1;
   padding: 12px 16px;
   text-align: center;
@@ -1971,14 +1997,14 @@ h2 {
   transition: background 0.15s;
 }
 
-.stat-card:last-child { border-right: none; }
-.stat-card:hover { background: rgba(255,255,255,0.02); }
+.estadisticas-card:last-child { border-right: none; }
+.estadisticas-card:hover { background: rgba(255,255,255,0.02); }
 
-.stat-card.confirmado .stat-numero { color: #4ade80; }
-.stat-card.confirmado .stat-label  { color: rgba(74,222,128,0.5); }
+.estadisticas-card.confirmado .stat-numero { color: #4ade80; }
+.estadisticas-card.confirmado .stat-label  { color: rgba(74,222,128,0.5); }
 
-.stat-card.pendiente .stat-numero { color: rgba(255,255,255,0.5); }
-.stat-card.pendiente .stat-label  { color: rgba(255,255,255,0.25); }
+.estadisticas-card.pendiente .stat-numero { color: rgba(255,255,255,0.5); }
+.estadisticas-card.pendiente .stat-label  { color: rgba(255,255,255,0.25); }
 
 .stat-numero {
   font-size: 22px;
@@ -2431,32 +2457,79 @@ h2 {
 }
 
 /* ========== RESPONSIVE ========== */
-@media (max-width: 768px) {
-  .estadisticas {
-    grid-template-columns: 1fr;
-  }
 
-  .formulario {
-    flex-direction: column;
-  }
-
-  .barra-busqueda {
-    flex-direction: column;
-  }
-
+/* ── Mobile S (≤480px) ── */
+@media (max-width: 480px) {
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
   }
-
-  .info-invitado {
-    flex-direction: column;
-    gap: 12px;
-    align-items: flex-start;
-  }
+  .stat-card { padding: 10px 10px 8px; }
+  .stat-card__number { font-size: 22px; }
+  .stat-card__icon { width: 26px; height: 26px; }
 
   .acciones-excel {
     flex-direction: column;
+    align-items: stretch;
   }
+  .acciones-excel button { width: 100%; justify-content: center; }
+
+  .formulario { flex-direction: column; }
+  .barra-busqueda { flex-direction: column; }
+  .barra-busqueda select { width: 100%; }
+
+  .info-invitado {
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-start;
+  }
+
+  .estadisticas { flex-direction: column; gap: 0; }
+  .estadisticas-card { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.06); }
+  .estadisticas-card:last-child { border-bottom: none; }
+
+  .panel-filtros-guardados { padding: 10px; }
+}
+
+/* ── Mobile M–L (481–768px) ── */
+@media (min-width: 481px) and (max-width: 768px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .formulario { flex-direction: column; }
+
+  .barra-busqueda {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .barra-busqueda select { flex: 1 1 140px; }
+  .search-container { flex: 1 1 100%; }
+
+  .info-invitado {
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+  }
+
+  .acciones-excel { flex-wrap: wrap; gap: 8px; }
+
+  .estadisticas { flex-wrap: wrap; }
+  .estadisticas-card { flex: 1 1 45%; }
+}
+
+/* ── Tablet (769–1024px) ── */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .stats-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+  }
+  .stat-card { padding: 12px 12px 10px; }
+  .stat-card__number { font-size: 24px; }
+
+  .barra-busqueda { flex-wrap: wrap; gap: 8px; }
+  .barra-busqueda select { flex: 1 1 160px; }
 }
 
 /* Estilos para historial de búsqueda y filtros guardados */
@@ -2792,68 +2865,5 @@ h2 {
   color: #f44336;
 }
 
-.paginacion {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  flex-wrap: wrap;
-  margin-top: 16px;
-  padding: 14px;
-  border: 2px solid #FFD700;
-  border-radius: 12px;
-  background: #f8f8f8;
-}
 
-.paginacion-info {
-  font-size: 0.95em;
-  color: #1a1a1a;
-  font-weight: 600;
-}
-
-.paginacion-controles {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.btn-paginacion {
-  padding: 8px 12px;
-  border: 2px solid #FFD700;
-  border-radius: 8px;
-  background: #fff;
-  color: #1a1a1a;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.btn-paginacion:hover:not(:disabled) {
-  background: #FFD700;
-}
-
-.btn-paginacion:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.pagina-actual {
-  font-size: 0.9em;
-  color: #4a4a4a;
-  font-weight: 600;
-}
-
-.paginacion-tamanio {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.paginacion-tamanio select {
-  padding: 6px 10px;
-  border: 2px solid #FFD700;
-  border-radius: 8px;
-  background: #fff;
-}
 </style>
