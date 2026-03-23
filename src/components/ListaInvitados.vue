@@ -1682,9 +1682,9 @@ h2 {
 
 .btn-importar {
   padding: 9px 18px;
-  background: transparent;
-  color: #FFD700;
-  border: 1px solid rgba(255, 215, 0, 0.4);
+  background: #FFD700;
+  color: #111;
+  border: none;
   border-radius: 7px;
   cursor: pointer;
   font-size: 13px;
@@ -1693,8 +1693,7 @@ h2 {
 }
 
 .btn-importar:hover {
-  background: rgba(255, 215, 0, 0.1);
-  border-color: #FFD700;
+  background: #f0c800;
 }
 
 .btn-plantilla {
@@ -2300,97 +2299,100 @@ h2 {
 .btn-limpiar,
 .btn-filtros-guardados {
   padding: 8px 14px;
-  border: 1px solid #e5e7eb;
-  background: #fff;
-  color: #374151;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: transparent;
+  color: rgba(255,255,255,0.55);
   border-radius: 6px;
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.15s;
   white-space: nowrap;
+  font-family: inherit;
 }
 
 .btn-limpiar:hover,
 .btn-filtros-guardados:hover {
-  background: #f9fafb;
-  border-color: #d1d5db;
+  background: rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.9);
+  border-color: rgba(255,255,255,0.2);
 }
 
 .panel-filtros-guardados {
-  background: #fff;
-  border: 1px solid #e5e7eb;
-  border-radius: 10px;
-  padding: 16px 20px;
-  margin: 12px 0;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  background: #141414;
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 8px;
+  padding: 14px 18px;
+  margin: 10px 0;
 }
 
 .panel-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 14px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid #f3f4f6;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
 }
 
 .panel-header h3 {
   margin: 0;
-  color: #111;
-  font-size: 1rem;
+  color: #fff;
+  font-size: 0.95rem;
   font-weight: 700;
 }
 
 .btn-cerrar-panel {
-  background: none;
+  background: rgba(255,255,255,0.05);
   border: none;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   cursor: pointer;
-  color: #9ca3af;
+  color: rgba(255,255,255,0.4);
   transition: color 0.15s;
   padding: 0;
-  width: 28px;
-  height: 28px;
+  width: 26px;
+  height: 26px;
+  border-radius: 5px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .btn-cerrar-panel:hover {
-  color: #ef4444;
+  color: #f87171;
+  background: rgba(239,68,68,0.08);
 }
 
 .guardar-filtro-section {
-  background: #f9fafb;
+  background: rgba(255,255,255,0.04);
   border-radius: 6px;
-  padding: 12px 14px;
-  margin-bottom: 14px;
+  padding: 10px 12px;
+  margin-bottom: 12px;
 }
 
 .guardar-filtro-section h4 {
-  margin: 0 0 10px 0;
-  color: #111;
-  font-size: 0.9rem;
+  margin: 0 0 8px 0;
+  color: rgba(255,255,255,0.7);
+  font-size: 0.85rem;
   font-weight: 600;
 }
 
 .filtro-actual-info {
-  background: #fff;
-  border: 1px solid #e5e7eb;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
   border-radius: 6px;
-  padding: 10px 12px;
-  margin-bottom: 10px;
+  padding: 8px 10px;
+  margin-bottom: 8px;
 }
 
 .filtro-actual-info p {
-  margin: 4px 0;
-  color: #6b7280;
-  font-size: 0.85rem;
+  margin: 3px 0;
+  color: rgba(255,255,255,0.4);
+  font-size: 0.82rem;
 }
 
 .filtro-actual-info strong {
-  color: #111;
+  color: rgba(255,255,255,0.8);
 }
 
 .guardar-filtro-form {
@@ -2401,15 +2403,20 @@ h2 {
 .input-nombre-filtro {
   flex: 1;
   padding: 8px 12px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid rgba(255,255,255,0.1);
   border-radius: 6px;
   font-size: 0.9rem;
+  background: #0f0f0f;
+  color: #fff;
+  font-family: inherit;
   transition: border-color 0.15s;
 }
 
+.input-nombre-filtro::placeholder { color: rgba(255,255,255,0.3); }
+
 .input-nombre-filtro:focus {
   outline: none;
-  border-color: #FFD700;
+  border-color: rgba(255,215,0,0.5);
 }
 
 .btn-guardar-filtro {
@@ -2434,33 +2441,34 @@ h2 {
 }
 
 .lista-filtros-guardados h4 {
-  margin: 0 0 15px 0;
-  color: #1a1a1a;
-  font-size: 1.1em;
+  margin: 0 0 10px 0;
+  color: rgba(255,255,255,0.7);
+  font-size: 0.85rem;
+  font-weight: 600;
 }
 
 .filtros-vacio {
   text-align: center;
-  padding: 40px;
-  color: #999;
+  padding: 30px;
+  color: rgba(255,255,255,0.3);
   font-style: italic;
+  font-size: 0.875rem;
 }
 
 .filtro-guardado-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #f9f9f9;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 15px;
-  margin-bottom: 10px;
-  transition: all 0.3s;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 7px;
+  padding: 10px 12px;
+  margin-bottom: 6px;
+  transition: border-color 0.15s;
 }
 
 .filtro-guardado-item:hover {
-  border-color: #FFD700;
-  box-shadow: 0 2px 8px rgba(255, 215, 0, 0.2);
+  border-color: rgba(255,215,0,0.3);
 }
 
 .filtro-info {
@@ -2469,20 +2477,20 @@ h2 {
 
 .filtro-nombre {
   font-weight: 600;
-  color: #1a1a1a;
-  margin-bottom: 5px;
-  font-size: 1.05em;
+  color: rgba(255,255,255,0.85);
+  margin-bottom: 3px;
+  font-size: 0.875rem;
 }
 
 .filtro-descripcion {
-  color: #666;
-  font-size: 0.9em;
-  margin-bottom: 5px;
+  color: rgba(255,255,255,0.4);
+  font-size: 0.8rem;
+  margin-bottom: 3px;
 }
 
 .filtro-meta {
-  color: #999;
-  font-size: 0.85em;
+  color: rgba(255,255,255,0.25);
+  font-size: 0.75rem;
 }
 
 .filtro-acciones {

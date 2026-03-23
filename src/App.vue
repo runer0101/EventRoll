@@ -306,7 +306,7 @@ watch(() => eventoStore.eventoId, cargarStats)
 .app-container {
   display: flex;
   min-height: 100vh;
-  background: var(--color-bg-light);
+  background: #0f0f0f;
 }
 
 /* ===== WRAPPER DEL CONTENIDO PRINCIPAL ===== */
