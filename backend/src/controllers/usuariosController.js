@@ -2,6 +2,7 @@ import { asyncHandler } from '../utils/asyncHandler.js'
 import { usuariosService } from '../services/usuariosService.js'
 import { usuariosRepository } from '../repositories/usuariosRepository.js'
 import { invalidateCachedUser } from '../middleware/auth.js'
+import crypto from 'crypto'
 
 // @desc    Obtener todos los usuarios
 // @route   GET /api/usuarios
@@ -56,12 +57,14 @@ export const deleteUsuario = asyncHandler(async (req, res) => {
   })
 })
 
-// Genera un código alfanumérico único de 8 caracteres
+// Genera un código alfanumérico único de 8 caracteres usando CSPRNG
+const CHARSET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789' // 32 chars, sin ambigüedad
 const generarCodigoAleatorio = () => {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
-  let code = ''
-  for (let i = 0; i < 8; i++) code += chars[Math.floor(Math.random() * chars.length)]
-  return code
+  // crypto.randomBytes produce bytes criptográficamente seguros (CSPRNG).
+  // Se descarta el sesgo de módulo usando rejection sampling implícito:
+  // con charset de 32 chars (potencia de 2) cada byte tiene distribución uniforme.
+  const bytes = crypto.randomBytes(8)
+  return Array.from(bytes, b => CHARSET[b & 31]).join('')
 }
 
 // @desc    Generar código de acceso para un usuario
