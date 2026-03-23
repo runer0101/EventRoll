@@ -5,53 +5,92 @@
     <!-- Título principal -->
     <h2>Gestión de Invitados</h2>
 
-    <!-- ========== PANEL DE SILLAS ========== -->
-    <div class="panel-sillas">
-      <div class="silla-config">
-        <label>Sillas Totales:</label>
-        <input
-          v-model.number="sillasDisponibles"
-          type="number"
-          min="0"
-          class="input-sillas"
-          :disabled="!permisos.configurarSillas"
-        />
+    <!-- ========== STATS GRID ========== -->
+    <div class="stats-grid">
+      <div class="stat-card stat-card--total">
+        <div class="stat-card__icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="12" y1="12" x2="12" y2="12"/></svg>
+        </div>
+        <div class="stat-card__body">
+          <span class="stat-card__label">Capacidad</span>
+          <div class="stat-card__value-row">
+            <input
+              v-if="permisos.configurarSillas"
+              v-model.number="sillasDisponibles"
+              type="number"
+              min="0"
+              class="input-sillas"
+            />
+            <span v-else class="stat-card__number">{{ sillasDisponibles }}</span>
+          </div>
+        </div>
       </div>
-      <div class="silla-info">
-        <div class="silla-stat">
-          <span class="label">Disponibles:</span>
-          <span class="valor disponible">{{ sillasRestantes }}</span>
+
+      <div class="stat-card stat-card--available">
+        <div class="stat-card__icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
         </div>
-        <div class="silla-stat">
-          <span class="label">Ocupadas:</span>
-          <span class="valor ocupada">{{ invitadosConfirmados }}</span>
+        <div class="stat-card__body">
+          <span class="stat-card__label">Disponibles</span>
+          <span class="stat-card__number">{{ sillasRestantes }}</span>
         </div>
-        <div class="silla-stat">
-          <span class="label">% Ocupación:</span>
-          <span class="valor">{{ porcentajeOcupacion }}%</span>
+      </div>
+
+      <div class="stat-card stat-card--confirmed">
+        <div class="stat-card__icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+        </div>
+        <div class="stat-card__body">
+          <span class="stat-card__label">Confirmados</span>
+          <span class="stat-card__number">{{ invitadosConfirmados }}</span>
+        </div>
+      </div>
+
+      <div class="stat-card stat-card--occupation">
+        <div class="stat-card__icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        </div>
+        <div class="stat-card__body">
+          <span class="stat-card__label">Ocupación</span>
+          <span class="stat-card__number">{{ porcentajeOcupacion }}<small>%</small></span>
+        </div>
+        <div class="stat-progress">
+          <div class="stat-progress__fill" :style="{ width: Math.min(porcentajeOcupacion, 100) + '%' }"></div>
         </div>
       </div>
     </div>
 
-    <!-- ========== BOTONES DE IMPORTAR/EXPORTAR ========== -->
+    <!-- ========== ACCIONES ========== -->
     <div class="acciones-excel">
-      <button
-        v-if="permisos.exportarExcel"
-        class="btn-exportar"
-        title="Exportar lista a formato Excel (.xlsx)"
-        @click="exportarExcel"
-      >
-        Exportar Excel
-      </button>
-
-      <button
-        v-if="permisos.exportarExcel"
-        class="btn-exportar"
-        title="Exportar lista a formato CSV"
-        @click="exportarCSV"
-      >
-        Exportar CSV
-      </button>
+      <div v-if="permisos.exportarExcel || permisos.importarExcel" class="acciones-group">
+        <button
+          v-if="permisos.importarExcel"
+          class="btn-importar"
+          title="Importar invitados desde archivo Excel"
+          @click="abrirSelectorArchivo"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          Importar Excel
+        </button>
+        <button
+          v-if="permisos.exportarExcel"
+          class="btn-exportar"
+          title="Exportar lista a formato Excel (.xlsx)"
+          @click="exportarExcel"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Excel
+        </button>
+        <button
+          v-if="permisos.exportarExcel"
+          class="btn-exportar"
+          title="Exportar lista a formato CSV"
+          @click="exportarCSV"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          CSV
+        </button>
+      </div>
 
       <!-- Input oculto para seleccionar archivo -->
       <input
@@ -62,17 +101,9 @@
         @change="importarExcel"
       />
 
-      <button
-        v-if="permisos.importarExcel"
-        class="btn-importar"
-        title="Importar invitados desde archivo Excel"
-        @click="abrirSelectorArchivo"
-      >
-        Importar Excel
-      </button>
-
       <button class="btn-plantilla" title="Descargar plantilla de ejemplo" @click="descargarPlantilla">
-        Descargar Plantilla
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M15 3v18M3 9h18M3 15h18"/></svg>
+        Plantilla
       </button>
     </div>
 
@@ -114,6 +145,7 @@
     <!-- ========== BÚSQUEDA Y FILTROS ========== -->
     <div class="barra-busqueda">
       <div class="search-container">
+        <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         <input
           ref="searchInput"
           v-model="textoBusqueda"
@@ -1589,106 +1621,135 @@ h2 {
   letter-spacing: -0.01em;
 }
 
-/* ========== PANEL DE SILLAS ========== */
-.panel-sillas {
-  background: #141414;
-  color: #FFD700;
-  padding: 14px 18px;
-  border-radius: 8px;
+/* ========== STATS GRID (Refactoring UI: metric cards) ========== */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
   margin-bottom: 16px;
-  border: 1px solid rgba(255,215,0,0.15);
 }
 
-.silla-config {
+.stat-card {
+  background: #141414;
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 10px;
+  padding: 14px 14px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+
+.stat-card:hover { border-color: rgba(255,215,0,0.25); }
+
+.stat-card__icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 10px;
+  justify-content: center;
+  margin-bottom: 4px;
+  color: #FFD700;
+  background: rgba(255,215,0,0.08);
 }
 
-.silla-config label {
-  font-weight: bold;
-  font-size: 16px;
+.stat-card--available .stat-card__icon { color: #4ade80; background: rgba(74,222,128,0.08); }
+.stat-card--confirmed .stat-card__icon { color: #60a5fa; background: rgba(96,165,250,0.08); }
+.stat-card--occupation .stat-card__icon { color: #f97316; background: rgba(249,115,22,0.08); }
+
+.stat-card__label {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.45);
 }
 
-.input-sillas {
-  padding: 6px 10px;
+.stat-card__number {
+  font-size: 26px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1;
+}
+
+.stat-card--available .stat-card__number { color: #4ade80; }
+.stat-card--confirmed .stat-card__number { color: #60a5fa; }
+.stat-card--occupation .stat-card__number { color: #f97316; }
+
+.stat-card__number small {
   font-size: 14px;
-  border: 1px solid rgba(255, 215, 0, 0.4);
+  font-weight: 500;
+  opacity: 0.7;
+  margin-left: 1px;
+}
+
+.stat-card__value-row {
+  display: flex;
+  align-items: center;
+}
+
+/* Progress bar inside occupation card */
+.stat-progress {
+  height: 4px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 4px;
+}
+
+.stat-progress__fill {
+  height: 100%;
+  background: linear-gradient(90deg, #f97316, #ef4444);
+  border-radius: 2px;
+  transition: width 0.4s ease;
+}
+
+/* Input sillas within card */
+.input-sillas {
+  padding: 4px 8px;
+  font-size: 22px;
+  font-weight: 700;
+  border: 1px solid rgba(255,215,0,0.3);
   border-radius: 6px;
   width: 80px;
-  font-weight: 600;
-  background: #2a2a2a;
+  background: rgba(255,215,0,0.06);
   color: #FFD700;
   transition: all 0.2s;
 }
 
 .input-sillas:focus {
   outline: none;
-  background: #5a5a5a;
-  box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+  border-color: rgba(255,215,0,0.6);
+  background: rgba(255,215,0,0.1);
 }
 
-.silla-info {
-  display: flex;
-  justify-content: space-around;
-  gap: 15px;
-}
-
-.silla-stat {
-  text-align: center;
-  flex: 1;
-}
-
-.silla-stat .label {
-  display: block;
-  font-size: 14px;
-  opacity: 0.9;
-  margin-bottom: 5px;
-}
-
-.silla-stat .valor {
-  display: block;
-  font-size: 20px;
-  font-weight: 700;
-}
-
-.valor.disponible {
-  color: #FFD700;
-}
-
-.valor.ocupada {
-  color: #FFD700;
-}
-
-/* ========== BOTONES DE EXCEL ========== */
+/* ========== ACTION BUTTONS (Refactoring UI: visual hierarchy) ========== */
 .acciones-excel {
   display: flex;
   gap: 8px;
-  margin-bottom: 16px;
-  justify-content: center;
+  margin-bottom: 14px;
+  align-items: center;
   flex-wrap: wrap;
 }
 
-.btn-exportar {
-  padding: 9px 18px;
-  background: #FFD700;
-  color: #111;
-  border: none;
-  border-radius: 7px;
-  cursor: pointer;
-  font-size: 13px;
-  font-weight: 700;
-  transition: all 0.15s;
+.acciones-group {
+  display: flex;
+  gap: 6px;
+  padding: 4px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 9px;
 }
 
-.btn-exportar:hover {
-  background: #f0c800;
-  transform: translateY(-1px);
-}
-
+/* Primary action = Importar */
 .btn-importar {
-  padding: 9px 18px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
   background: #FFD700;
   color: #111;
   border: none;
@@ -1700,13 +1761,19 @@ h2 {
 }
 
 .btn-importar:hover {
-  background: #f0c800;
+  background: #ffe033;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255,215,0,0.25);
 }
 
-.btn-plantilla {
-  padding: 9px 18px;
+/* Secondary action = Exportar */
+.btn-exportar {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
   background: transparent;
-  color: rgba(255,255,255,0.45);
+  color: rgba(255,255,255,0.75);
   border: 1px solid rgba(255,255,255,0.12);
   border-radius: 7px;
   cursor: pointer;
@@ -1715,9 +1782,33 @@ h2 {
   transition: all 0.15s;
 }
 
+.btn-exportar:hover {
+  background: rgba(255,255,255,0.07);
+  border-color: rgba(255,255,255,0.25);
+  color: #fff;
+}
+
+/* Ghost = Plantilla */
+.btn-plantilla {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: transparent;
+  color: rgba(255,255,255,0.35);
+  border: 1px dashed rgba(255,255,255,0.1);
+  border-radius: 7px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.15s;
+  margin-left: auto;
+}
+
 .btn-plantilla:hover {
-  background: rgba(255,255,255,0.06);
-  color: rgba(255,255,255,0.75);
+  color: rgba(255,255,255,0.65);
+  border-color: rgba(255,255,255,0.2);
+  background: rgba(255,255,255,0.04);
 }
 
 /* ========== FORMULARIO ========== */
@@ -2203,8 +2294,8 @@ h2 {
     flex-direction: column;
   }
 
-  .silla-info {
-    flex-direction: column;
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 
   .info-invitado {
@@ -2222,6 +2313,21 @@ h2 {
 .search-container {
   position: relative;
   flex: 1;
+  min-width: 180px;
+}
+
+.search-icon {
+  position: absolute;
+  left: 11px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: rgba(255,255,255,0.3);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.input-busqueda {
+  padding-left: 34px;
 }
 
 .historial-dropdown {

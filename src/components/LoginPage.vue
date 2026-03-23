@@ -733,16 +733,17 @@ async function restablecerPassword() {
 }
 
 .error-msg {
-  background: rgba(239, 68, 68, 0.08);
-  border: 1px solid rgba(239, 68, 68, 0.2);
-  color: #fca5a5;
-  padding: 0.65rem 0.9rem;
-  border-radius: 8px;
-  font-size: 0.85rem;
-  font-weight: 500;
   display: flex;
-  gap: 0.5rem;
   align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  border-radius: 8px;
+  color: #fca5a5;
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 4px;
   animation: shake 0.35s cubic-bezier(0.36, 0.07, 0.19, 0.97);
 }
 
