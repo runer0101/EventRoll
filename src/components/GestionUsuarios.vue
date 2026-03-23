@@ -6,7 +6,7 @@
     </div>
 
     <!-- Formulario para agregar usuario -->
-    <div class="formulario-card">
+    <div :class="['formulario-card', { 'formulario-card--editing': modoEdicion }]">
       <h3>{{ modoEdicion ? 'Editar Usuario' : 'Crear Nuevo Usuario' }}</h3>
       <form class="form-usuario" @submit.prevent="guardarUsuario">
         <div class="form-row">
@@ -206,11 +206,26 @@
 
     <!-- Lista de usuarios -->
     <div class="usuarios-lista">
-      <h3>Usuarios Registrados ({{ usuarios.length }})</h3>
+      <div class="lista-header">
+        <h3>Usuarios Registrados <span class="count-badge">{{ usuarios.length }}</span></h3>
+        <div v-if="usuarios.length > 0" class="role-pills">
+          <span v-if="contarRol('organizador')" class="role-pill organizador">{{ contarRol('organizador') }} Org.</span>
+          <span v-if="contarRol('asistente')" class="role-pill asistente">{{ contarRol('asistente') }} Asist.</span>
+          <span v-if="contarRol('guardia')" class="role-pill guardia">{{ contarRol('guardia') }} Guard.</span>
+        </div>
+      </div>
 
       <div v-if="usuarios.length === 0" class="empty-state">
-        <p>No hay usuarios creados todavía.</p>
-        <p>Usa el formulario de arriba para crear el primer usuario.</p>
+        <div class="vacio-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <line x1="19" y1="8" x2="19" y2="14"/>
+            <line x1="22" y1="11" x2="16" y2="11"/>
+          </svg>
+        </div>
+        <p class="vacio-title">Sin usuarios creados</p>
+        <p class="vacio-hint">Usa el formulario de arriba para crear el primer usuario.</p>
       </div>
 
       <div v-else class="tabla-container">
@@ -252,9 +267,11 @@
               </td>
               <td class="acciones-cell">
                 <button class="btn-editar" title="Editar usuario" @click="editarUsuario(usuario)">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                   Editar
                 </button>
                 <button class="btn-eliminar" title="Eliminar usuario" @click="eliminarUsuario(usuario)">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
                   Eliminar
                 </button>
               </td>
@@ -304,6 +321,11 @@ const esEmailValido = computed(() => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
   return emailRegex.test(formulario.value.email)
 })
+
+// Contador por rol
+function contarRol(rol) {
+  return usuarios.value.filter(u => u.rol === rol).length
+}
 
 onMounted(() => {
   cargarUsuarios()
@@ -939,12 +961,7 @@ function copiarCodigo(codigo) {
   border: 1px solid rgba(255,255,255,0.07);
 }
 
-.usuarios-lista h3 {
-  color: #fff;
-  margin: 0 0 16px 0;
-  font-size: 1rem;
-  font-weight: 700;
-}
+/* .usuarios-lista h3 moved to .lista-header h3 */
 
 .empty-state {
   text-align: center;
@@ -1139,5 +1156,125 @@ function copiarCodigo(codigo) {
   .btn-guardar, .btn-cancelar { width: 100%; }
   .tabla-usuarios { font-size: 0.85rem; }
   .tabla-usuarios th, .tabla-usuarios td { padding: 9px 8px; }
+}
+
+/* Edit mode form highlight */
+.formulario-card--editing {
+  border-color: rgba(99,179,237,0.35);
+  box-shadow: 0 0 0 1px rgba(99,179,237,0.15);
+}
+
+/* Lista header */
+.lista-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.lista-header h3 {
+  color: #fff;
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  background: rgba(255,215,0,0.12);
+  border: 1px solid rgba(255,215,0,0.25);
+  border-radius: 20px;
+  color: #FFD700;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.role-pills {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.role-pill {
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.role-pill.organizador {
+  background: rgba(249,115,22,0.12);
+  color: #fb923c;
+  border: 1px solid rgba(249,115,22,0.2);
+}
+
+.role-pill.asistente {
+  background: rgba(168,85,247,0.12);
+  color: #c084fc;
+  border: 1px solid rgba(168,85,247,0.2);
+}
+
+.role-pill.guardia {
+  background: rgba(59,130,246,0.12);
+  color: #60a5fa;
+  border: 1px solid rgba(59,130,246,0.2);
+}
+
+/* Empty state */
+.vacio-icon {
+  width: 60px;
+  height: 60px;
+  margin: 0 auto 14px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255,255,255,0.2);
+}
+
+.vacio-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.55);
+  margin: 0 0 6px 0;
+}
+
+.vacio-hint {
+  font-size: 0.875rem;
+  color: rgba(255,255,255,0.28);
+  margin: 0;
+}
+
+/* Action button improvements */
+.btn-editar {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #60a5fa;
+  font-weight: 600;
+  font-family: inherit;
+}
+
+.btn-eliminar {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #f87171;
+  font-weight: 600;
+  font-family: inherit;
 }
 </style>
