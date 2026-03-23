@@ -52,6 +52,7 @@ jobs:
     env:
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/eventroll_test
       JWT_SECRET: test-secret-key-for-integration-tests-must-be-32chars
+      ALLOW_BEARER_TOKEN: 'true'
       NODE_ENV: test
 
     steps:

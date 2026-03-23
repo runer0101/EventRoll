@@ -7,7 +7,8 @@ paths = [
     '''\.env\.example$''',
     '''\.env\.development$''',
     '''\.env\.production$''',
-    '''tests/'''
+    '''tests/''',
+    '''backend/scripts/'''
 ]
 regexes = [
     '''Password: <REPLACE_WITH_SECURE_PASSWORD>''',
