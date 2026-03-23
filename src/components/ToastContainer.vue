@@ -7,7 +7,7 @@
       :title="toast.title"
       :type="toast.type"
       :duration="0"
-      :style="{ top: `${20 + toasts.indexOf(toast) * 100}px` }"
+      :style="{ top: `${16 + toasts.indexOf(toast) * 80}px` }"
       @close="removeToast(toast.id)"
     />
   </div>

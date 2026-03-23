@@ -9,7 +9,7 @@
 
         <div class="modal-body">
           <div class="shortcuts-section">
-            <h3>Busqueda y Navegacion</h3>
+            <h3>Búsqueda y Navegación</h3>
             <div class="shortcut-item">
               <kbd>Ctrl + F</kbd>
               <span>Enfocar búsqueda</span>
@@ -25,7 +25,7 @@
           </div>
 
           <div class="shortcuts-section">
-            <h3>Exportacion e Importacion</h3>
+            <h3>Exportación e Importación</h3>
             <div class="shortcut-item">
               <kbd>Ctrl + E</kbd>
               <span>Exportar a Excel</span>
@@ -41,7 +41,7 @@
           </div>
 
           <div class="shortcuts-section">
-            <h3>Gestion de Invitados</h3>
+            <h3>Gestión de Invitados</h3>
             <div class="shortcut-item">
               <kbd>Ctrl + N</kbd>
               <span>Nuevo invitado (enfocar nombre)</span>
@@ -95,12 +95,9 @@ defineExpose({
 <style scoped>
 .modal-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(4px);
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(6px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -109,137 +106,160 @@ defineExpose({
 }
 
 .modal-content {
-  background: white;
-  border-radius: 16px;
-  max-width: 700px;
+  background: #141414;
+  border: 1px solid rgba(255, 215, 0, 0.2);
+  border-radius: 14px;
+  max-width: 680px;
   width: 100%;
-  max-height: 90vh;
+  max-height: 88vh;
   overflow-y: auto;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255,255,255,0.04);
 }
+
+/* Scrollbar for dark modal */
+.modal-content::-webkit-scrollbar { width: 6px; }
+.modal-content::-webkit-scrollbar-track { background: transparent; }
+.modal-content::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
 
 .modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 25px 30px;
-  border-bottom: 3px solid #FFD700;
+  padding: 22px 28px;
+  border-bottom: 1px solid rgba(255, 215, 0, 0.15);
 }
 
 .modal-header h2 {
   margin: 0;
-  color: #1a1a1a;
-  font-size: 1.8em;
+  color: #fff;
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
 }
 
 .btn-close {
-  background: none;
+  background: rgba(255,255,255,0.06);
   border: none;
-  font-size: 2.5em;
+  font-size: 1.4rem;
   cursor: pointer;
-  color: #999;
-  transition: color 0.2s;
+  color: rgba(255,255,255,0.4);
+  transition: all 0.15s;
   padding: 0;
-  width: 40px;
-  height: 40px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
   line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
 .btn-close:hover {
-  color: #f44336;
+  background: rgba(239,68,68,0.15);
+  color: #f87171;
 }
 
 .modal-body {
-  padding: 30px;
+  padding: 24px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
 
 .shortcuts-section {
-  margin-bottom: 30px;
-}
-
-.shortcuts-section:last-child {
-  margin-bottom: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .shortcuts-section h3 {
-  color: #1a1a1a;
-  margin: 0 0 15px 0;
-  font-size: 1.2em;
-  padding-bottom: 10px;
-  border-bottom: 2px solid #f0f0f0;
+  color: rgba(255,255,255,0.4);
+  margin: 0 0 10px 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
 }
 
 .shortcut-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 15px;
-  margin-bottom: 8px;
-  background: #f9f9f9;
+  padding: 10px 12px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.05);
   border-radius: 8px;
-  transition: all 0.2s;
+  transition: all 0.15s;
+  gap: 16px;
 }
 
 .shortcut-item:hover {
-  background: #f0f0f0;
-  transform: translateX(5px);
+  background: rgba(255,215,0,0.05);
+  border-color: rgba(255,215,0,0.15);
+  transform: translateX(3px);
 }
 
 .shortcut-item kbd {
-  background: linear-gradient(180deg, #fff, #f0f0f0);
-  border: 2px solid #ddd;
+  background: #1e1e1e;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-bottom: 2px solid rgba(255,255,255,0.08);
   border-radius: 6px;
-  padding: 6px 12px;
+  padding: 5px 10px;
   font-family: 'Courier New', monospace;
-  font-weight: 600;
-  font-size: 0.9em;
-  color: #333;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  min-width: 120px;
+  font-weight: 700;
+  font-size: 0.78rem;
+  color: #FFD700;
+  min-width: 130px;
   text-align: center;
+  flex-shrink: 0;
+  letter-spacing: 0.03em;
 }
 
 .shortcut-item span {
   flex: 1;
-  margin-left: 20px;
-  color: #666;
-  font-size: 0.95em;
+  color: rgba(255,255,255,0.65);
+  font-size: 0.875rem;
+  line-height: 1.4;
 }
 
 .modal-footer {
-  padding: 20px 30px;
-  border-top: 2px solid #f0f0f0;
+  padding: 18px 28px;
+  border-top: 1px solid rgba(255,255,255,0.06);
   display: flex;
-  justify-content: center;
+  justify-content: flex-end;
 }
 
 .btn-primary {
   background: #FFD700;
   border: none;
-  padding: 12px 40px;
+  padding: 10px 28px;
   border-radius: 8px;
-  font-weight: 600;
-  font-size: 1.05em;
+  font-weight: 700;
+  font-size: 0.9rem;
+  font-family: inherit;
   cursor: pointer;
-  transition: all 0.3s;
-  color: #1a1a1a;
+  transition: all 0.2s;
+  color: #111;
 }
 
 .btn-primary:hover {
-  background: #FFA500;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
+  background: #f0c800;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(255, 215, 0, 0.3);
 }
 
-/* Animaciones del modal */
+/* Animations */
 .modal-enter-active,
 .modal-leave-active {
-  transition: opacity 0.3s ease;
+  transition: opacity 0.25s ease;
 }
 
 .modal-enter-active .modal-content,
 .modal-leave-active .modal-content {
-  transition: transform 0.3s ease;
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease;
 }
 
 .modal-enter-from,
@@ -248,44 +268,32 @@ defineExpose({
 }
 
 .modal-enter-from .modal-content {
-  transform: scale(0.9) translateY(-20px);
+  transform: scale(0.95) translateY(-12px);
+  opacity: 0;
 }
 
 .modal-leave-to .modal-content {
-  transform: scale(0.9) translateY(20px);
+  transform: scale(0.95) translateY(8px);
+  opacity: 0;
 }
 
 /* Responsive */
-@media (max-width: 768px) {
-  .modal-content {
-    max-width: 95%;
-    margin: 10px;
-  }
+@media (max-width: 640px) {
+  .modal-content { max-width: 100%; }
 
-  .modal-header {
-    padding: 20px;
-  }
+  .modal-header,
+  .modal-body,
+  .modal-footer { padding-left: 18px; padding-right: 18px; }
 
-  .modal-header h2 {
-    font-size: 1.4em;
-  }
-
-  .modal-body {
-    padding: 20px;
-  }
+  .modal-header h2 { font-size: 1.1rem; }
 
   .shortcut-item {
     flex-direction: column;
     align-items: flex-start;
-    gap: 10px;
+    gap: 8px;
   }
 
-  .shortcut-item kbd {
-    min-width: auto;
-  }
-
-  .shortcut-item span {
-    margin-left: 0;
-  }
+  .shortcut-item kbd { min-width: auto; }
+  .shortcut-item span { margin-left: 0; }
 }
 </style>
