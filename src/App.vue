@@ -174,8 +174,8 @@ watch(() => eventoStore.eventoId, cargarStats)
     <div class="main-wrapper" :class="{ 'sidebar-collapsed': sidebarCollapsed }">
       <header class="main-header">
         <div class="header-content">
-          <h1>Organizacion de Eventos</h1>
-          <span class="header-subtitle">Panel de gestion</span>
+          <h1>Organización de Eventos</h1>
+          <span class="header-subtitle">Panel de gestión</span>
           <span class="header-evento">Evento activo: ID {{ eventoIdActual }}</span>
         </div>
         <div class="header-user">
@@ -363,6 +363,15 @@ watch(() => eventoStore.eventoId, cargarStats)
 
 .header-subtitle {
   display: none;
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.3);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+@media (min-width: 640px) {
+  .header-subtitle { display: inline-block; }
 }
 
 .header-evento {
@@ -484,9 +493,9 @@ main {
   top: 0;
   left: 0;
   right: 0;
-  height: 2px;
+  height: 3px;
   background: #FFD700;
-  opacity: 0;
+  opacity: 0.6;
   transition: opacity var(--transition-normal);
 }
 
