@@ -17,8 +17,7 @@ export function useSearchHistory() {
           searchHistory.value = parsed
         }
       }
-    } catch (error) {
-      console.error('Error al cargar historial de búsqueda:', error)
+    } catch {
       searchHistory.value = []
     }
   }
@@ -27,8 +26,8 @@ export function useSearchHistory() {
   function saveHistory() {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(searchHistory.value))
-    } catch (error) {
-      console.error('Error al guardar historial de búsqueda:', error)
+    } catch {
+      // localStorage no disponible — fallo silencioso, no es crítico
     }
   }
 

@@ -642,8 +642,8 @@ function cargarDatosLocalStorage() {
         sillasDisponibles.value = parsed
       }
     }
-  } catch (error) {
-    console.error('Error al cargar datos del localStorage:', error)
+  } catch {
+
     // En caso de error, usar valores por defecto
     invitados.value = []
     sillasDisponibles.value = 100
@@ -656,11 +656,11 @@ function guardarDatos() {
     try {
       localStorage.setItem('invitados', JSON.stringify(invitados.value))
       localStorage.setItem('sillasDisponibles', sillasDisponibles.value.toString())
-    } catch (error) {
-      console.error('Error al guardar datos en localStorage:', error)
+    } catch (storageErr) {
+
       // Posible causa: localStorage lleno o no disponible
-      if (error.name === 'QuotaExceededError') {
-        alert('Espacio de almacenamiento lleno. Algunos datos pueden no guardarse.')
+      if (storageErr.name === 'QuotaExceededError') {
+        warning('Espacio de almacenamiento lleno. Algunos datos pueden no guardarse.', 'Almacenamiento')
       }
     }
   }
@@ -730,8 +730,8 @@ async function exportarCSV() {
 
     registrarActividad(`Exportó ${invitados.value.length} invitados a CSV`)
     success(`Se exportaron ${invitados.value.length} invitados a CSV`, 'Exportación Exitosa', 4000)
-  } catch (err) {
-    console.error('Error al exportar CSV:', err)
+  } catch {
+
     error('Ocurrió un error al exportar el archivo CSV', 'Error de Exportación')
   } finally {
     hideLoading()
@@ -816,8 +816,8 @@ async function exportarExcel() {
 
     registrarActividad(`Exportó ${invitados.value.length} invitados a Excel`)
     success(`Se exportaron ${invitados.value.length} invitados a Excel`, 'Exportación Exitosa', 4000)
-  } catch (err) {
-    console.error('Error al exportar Excel:', err)
+  } catch {
+
     error('Ocurrió un error al exportar el archivo Excel', 'Error de Exportación')
   } finally {
     hideLoading()
@@ -874,7 +874,7 @@ async function importarExcel(evento) {
         parsed = await parseExcelBuffer(e.target.result, { maxRows: MAX_ROWS, maxFieldLength: 1000 })
       } catch (parseErr) {
         hideLoading()
-        console.error('Error al parsear archivo Excel (helper):', parseErr)
+
         if (String(parseErr.message).includes('Too many rows')) {
           error(`El archivo contiene demasiadas filas. Límite: ${MAX_ROWS}`, 'Archivo Demasiado Grande')
         } else {
@@ -1002,8 +1002,8 @@ async function importarExcel(evento) {
             evento.target.value = ''
             return
           }
-        } catch (importError) {
-          console.error('Error al importar con backend:', importError)
+        } catch {
+
           warning('Error al importar con backend, usando modo local', 'Modo Local', 4000)
           modoBackend.value = false
           // Continuar con importación local
@@ -1134,7 +1134,7 @@ async function importarExcel(evento) {
       }
 
       error(mensajeError, 'Error al Procesar Archivo', 6000)
-      console.error('Error de importación:', err)
+
     }
 
     // Limpiar el input para poder importar el mismo archivo de nuevo
@@ -1166,10 +1166,10 @@ async function descargarPlantilla() {
     a.click()
     a.remove()
     URL.revokeObjectURL(url)
-    alert('Plantilla descargada. Editala y luego importa el archivo.')
-  } catch (err) {
-    console.error('Error al generar plantilla Excel:', err)
-    alert('Error generando la plantilla. Intenta nuevamente.')
+    success('Plantilla descargada. Editala y luego importa el archivo.', 'Plantilla lista')
+  } catch {
+
+    error('Error generando la plantilla. Intenta nuevamente.', 'Error')
   }
 }
 
@@ -1450,7 +1450,7 @@ async function agregarInvitado() {
     nuevaCategoria.value = 'General'
   } catch (err) {
     hideLoading()
-    console.error('Error al agregar invitado:', err)
+
     error(err.message || 'No se pudo agregar el invitado', 'Error')
   }
 }
@@ -1492,7 +1492,7 @@ async function toggleConfirmacion(id) {
       const estado = nuevoEstado ? 'confirmó' : 'marcó como pendiente'
       registrarActividad(`${estado} a: ${invitado.nombre} ${invitado.apellido}`)
     } catch (err) {
-      console.error('Error al actualizar confirmación:', err)
+
       error(err.message || 'No se pudo actualizar el estado', 'Error')
     }
   }
@@ -1534,7 +1534,7 @@ async function eliminarInvitado(id) {
       registrarActividad(`Eliminó invitado: ${invitado.nombre} ${invitado.apellido}`)
     } catch (err) {
       hideLoading()
-      console.error('Error al eliminar invitado:', err)
+
       error(err.message || 'No se pudo eliminar el invitado', 'Error')
     }
   }
@@ -1545,7 +1545,7 @@ async function eliminarInvitado(id) {
 function iniciarEdicion(invitado) {
   // Verificar permiso
   if (!permisos.value.editarInvitados) {
-    alert('No tienes permiso para editar invitados')
+    warning('No tienes permiso para editar invitados', 'Sin permiso')
     return
   }
 
@@ -1594,7 +1594,7 @@ async function guardarEdicion() {
       cancelarEdicion()
     } catch (err) {
       hideLoading()
-      console.error('Error al guardar edición:', err)
+
       error(err.message || 'No se pudo guardar los cambios', 'Error')
     }
   }

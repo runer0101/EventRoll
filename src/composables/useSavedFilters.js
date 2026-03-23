@@ -17,8 +17,7 @@ export function useSavedFilters() {
           savedFilters.value = parsed
         }
       }
-    } catch (error) {
-      console.error('Error al cargar filtros guardados:', error)
+    } catch {
       savedFilters.value = []
     }
   }
@@ -27,8 +26,8 @@ export function useSavedFilters() {
   function saveFiltersToStorage() {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(savedFilters.value))
-    } catch (error) {
-      console.error('Error al guardar filtros:', error)
+    } catch {
+      // localStorage no disponible — fallo silencioso, no es crítico
     }
   }
 
