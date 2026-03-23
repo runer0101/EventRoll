@@ -16,12 +16,12 @@ router.use(authenticateToken)
 
 router.route('/')
   .get(validateGetInvitados, getInvitados)
-  .post(validateCreateInvitado, createInvitado)
+  .post(requireOrganizer, validateCreateInvitado, createInvitado)
 
-router.post('/import', validateImportInvitados, requireOrganizer, importInvitados)
+router.post('/import', requireOrganizer, validateImportInvitados, importInvitados)
 
 router.route('/:id')
-  .put(validateUpdateInvitado, updateInvitado)
-  .delete(validateDeleteInvitado, deleteInvitado)
+  .put(requireOrganizer, validateUpdateInvitado, updateInvitado)
+  .delete(requireOrganizer, validateDeleteInvitado, deleteInvitado)
 
 export default router

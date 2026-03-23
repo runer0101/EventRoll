@@ -10,7 +10,7 @@ export const requestRecoveryCode = asyncHandler(async (req, res) => {
 export const verifyRecoveryCode = asyncHandler(async (req, res) => {
   const result = await passwordRecoveryService.verifyRecoveryCode(req.body.email, req.body.codigo)
 
-  res.json(result)
+  res.status(result.statusCode || 200).json(result)
 })
 
 export const resetPassword = asyncHandler(async (req, res) => {

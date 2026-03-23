@@ -24,9 +24,9 @@ const buildFilters = ({ evento_id, categoria, confirmado, search }) => {
   }
 
   if (search) {
-    whereClause += ` AND (nombre ILIKE $${paramCount} OR apellido ILIKE $${paramCount})`
-    params.push(`%${search}%`)
-    paramCount++
+    whereClause += ` AND (nombre ILIKE $${paramCount} OR apellido ILIKE $${paramCount + 1})`
+    params.push(`%${search}%`, `%${search}%`)
+    paramCount += 2
   }
 
   return { whereClause, params, paramCount }
