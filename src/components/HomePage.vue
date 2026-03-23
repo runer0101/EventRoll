@@ -299,6 +299,13 @@ const year = new Date().getFullYear()
   overflow-x: hidden;
 }
 
+/* Top gradient brand line */
+.top-gradient-line {
+  height: 3px;
+  background: linear-gradient(90deg, transparent 0%, #FFD700 30%, #f0c800 60%, transparent 100%);
+  opacity: 0.7;
+}
+
 /* ════════════════════════════════════════════
    NAVBAR — sin tinte dorado, completamente neutro
 ════════════════════════════════════════════ */
@@ -431,7 +438,7 @@ const year = new Date().getFullYear()
 .hero-orb-1 {
   width: 700px;
   height: 700px;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.025) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(255, 215, 0, 0.04) 0%, transparent 70%);
   top: -200px;
   left: -200px;
 }
@@ -505,10 +512,10 @@ const year = new Date().getFullYear()
   margin: 0 0 1.5rem;
 }
 
-/* Acento del título — blanco con sutil opacidad, no dorado */
+/* Acento del título — color de marca para enfatizar la propuesta de valor */
 .hero-accent {
-  color: rgba(255, 255, 255, 0.65);
-  font-weight: 700;
+  color: #FFD700;
+  font-weight: 800;
 }
 
 .hero-desc {
@@ -846,7 +853,7 @@ const year = new Date().getFullYear()
   font-family: 'Sora', sans-serif;
   font-size: 1.35rem;
   font-weight: 800;
-  color: #ffffff;
+  color: #FFD700;
   letter-spacing: -0.02em;
   line-height: 1;
 }
@@ -996,12 +1003,11 @@ const year = new Date().getFullYear()
   border-radius: 14px;
 }
 
-/* Número de paso — sutil, sin dorado */
 .step-num {
   font-family: 'Sora', sans-serif;
   font-size: 2rem;
   font-weight: 800;
-  color: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 215, 0, 0.2);
   letter-spacing: -0.04em;
   margin-bottom: 0.75rem;
 }
@@ -1042,7 +1048,7 @@ const year = new Date().getFullYear()
 .cta-glow {
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse at 50% 0%, rgba(255, 255, 255, 0.02) 0%, transparent 60%);
+  background: radial-gradient(ellipse at 50% 0%, rgba(255, 215, 0, 0.06) 0%, transparent 65%);
   pointer-events: none;
 }
 
