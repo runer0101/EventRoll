@@ -26,13 +26,15 @@ const buildCookieOptions = () => ({
 export const login = asyncHandler(async (req, res) => {
   const result = await authService.login(req.body)
 
-  // Token en cookie HttpOnly (principal) + en body para clientes que no usen cookies
+  // Token en cookie HttpOnly (principal) + en body cuando ALLOW_BEARER_TOKEN está activo
+  // (clientes no-web, tests de integración, herramientas CLI)
   res.cookie('token', result.token, buildCookieOptions())
 
   res.json({
     success: true,
     data: {
       usuario: result.usuario,
+      ...(process.env.ALLOW_BEARER_TOKEN === 'true' && { token: result.token }),
     },
   })
 })
