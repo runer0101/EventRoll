@@ -39,6 +39,23 @@ export const login = asyncHandler(async (req, res) => {
   })
 })
 
+// @desc    Login con código de acceso (sin email/password)
+// @route   POST /api/auth/login-con-codigo
+// @access  Public
+export const loginConCodigo = asyncHandler(async (req, res) => {
+  const result = await authService.loginConCodigo(req.body)
+
+  res.cookie('token', result.token, buildCookieOptions())
+
+  res.json({
+    success: true,
+    data: {
+      usuario: result.usuario,
+      token: result.token,
+    },
+  })
+})
+
 // @desc    Obtener usuario actual
 // @route   GET /api/auth/me
 // @access  Private

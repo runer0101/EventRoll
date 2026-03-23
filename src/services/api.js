@@ -57,6 +57,12 @@ export const authAPI = {
   logout: async () => {
     const response = await api.post('/auth/logout')
     return response.data
+  },
+
+  // Login con código de acceso
+  loginConCodigo: async (codigo) => {
+    const response = await api.post('/auth/login-con-codigo', { codigo })
+    return response.data
   }
 }
 
@@ -84,6 +90,18 @@ export const usuariosAPI = {
   // Eliminar usuario
   delete: async (id) => {
     const response = await api.delete(`/usuarios/${id}`)
+    return response.data
+  },
+
+  // Generar código de acceso
+  generarCodigo: async (id) => {
+    const response = await api.post(`/usuarios/${id}/generar-codigo`)
+    return response.data
+  },
+
+  // Revocar código de acceso
+  revocarCodigo: async (id) => {
+    const response = await api.delete(`/usuarios/${id}/revocar-codigo`)
     return response.data
   }
 }

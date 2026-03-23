@@ -68,7 +68,8 @@
             <p>Ingresa tus credenciales para acceder al panel</p>
           </div>
 
-          <form class="login-form" @submit.prevent="iniciarSesion">
+          <!-- ── FORM: email + contraseña ── -->
+          <form v-if="!modoId" class="login-form" @submit.prevent="iniciarSesion">
             <div class="field">
               <label for="email">Correo electrónico</label>
               <input
@@ -117,6 +118,53 @@
               </span>
             </button>
           </form>
+
+          <!-- ── FORM: código de acceso ── -->
+          <form v-else class="login-form" @submit.prevent="iniciarSesionConCodigo">
+            <div class="field">
+              <label for="codigo">Código de acceso</label>
+              <input
+                id="codigo"
+                v-model="codigo"
+                type="text"
+                placeholder="Ej: AB3X9K2M"
+                required
+                autocomplete="off"
+                maxlength="12"
+                class="input-code-login"
+                :disabled="cargando"
+                @input="codigo = codigo.toUpperCase()"
+              />
+              <span class="field-hint">El administrador te proporcionó este código</span>
+            </div>
+
+            <div v-if="error" class="error-msg">
+              <span>⚠</span> {{ error }}
+            </div>
+
+            <button type="submit" class="btn-submit" :disabled="cargando">
+              <span v-if="!cargando">Entrar con código</span>
+              <span v-else class="loading-text">
+                <span class="spinner"></span> Verificando...
+              </span>
+            </button>
+          </form>
+
+          <!-- ── divisor + toggle modo ── -->
+          <div class="modo-divisor">
+            <span></span><em>o</em><span></span>
+          </div>
+
+          <button class="btn-modo-toggle" type="button" @click="toggleModo">
+            <span v-if="!modoId">
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              Entrar con ID
+            </span>
+            <span v-else>
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              Usar correo y contraseña
+            </span>
+          </button>
 
           <p class="card-footer">
             Sistema de gestión de eventos &nbsp;·&nbsp; v1.3.0
@@ -200,9 +248,17 @@ const BACKEND_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
 // ─── Login ────────────────────────────────
 const email       = ref('')
 const password    = ref('')
+const codigo      = ref('')
+const modoId      = ref(false)
 const error       = ref('')
 const cargando    = ref(false)
 const verPassword = ref(false)
+
+function toggleModo() {
+  modoId.value = !modoId.value
+  error.value = ''
+  codigo.value = ''
+}
 
 async function iniciarSesion() {
   error.value = ''
@@ -217,6 +273,21 @@ async function iniciarSesion() {
     } else {
       error.value = err.message || 'Credenciales inválidas'
     }
+    showError(error.value, 'Error de autenticación')
+  } finally {
+    cargando.value = false
+  }
+}
+
+async function iniciarSesionConCodigo() {
+  error.value = ''
+  cargando.value = true
+  try {
+    await authStore.loginConCodigo(codigo.value.trim())
+    success(`Bienvenido, ${authStore.usuario.nombre}!`, 'Acceso concedido')
+    emit('login', authStore.usuario)
+  } catch (err) {
+    error.value = err.message || 'Código de acceso incorrecto'
     showError(error.value, 'Error de autenticación')
   } finally {
     cargando.value = false
@@ -736,9 +807,76 @@ async function restablecerPassword() {
   text-align: center;
   color: rgba(255, 255, 255, 0.2);
   font-size: 0.75rem;
-  margin: 1.5rem 0 0;
-  padding-top: 1.25rem;
+  margin: 1.25rem 0 0;
+  padding-top: 1rem;
   border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* ── código de acceso ── */
+.input-code-login {
+  text-align: center;
+  letter-spacing: 0.25rem;
+  font-size: 1.1rem !important;
+  font-weight: 700 !important;
+  text-transform: uppercase;
+}
+
+.field-hint {
+  font-size: 0.76rem;
+  color: rgba(255,255,255,0.3);
+  margin-top: 2px;
+}
+
+/* ── divisor o ── */
+.modo-divisor {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 1.1rem 0 0.75rem;
+}
+
+.modo-divisor span {
+  flex: 1;
+  height: 1px;
+  background: rgba(255,255,255,0.07);
+}
+
+.modo-divisor em {
+  font-style: normal;
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.25);
+  font-weight: 600;
+}
+
+/* ── botón toggle modo ── */
+.btn-modo-toggle {
+  width: 100%;
+  padding: 0.7rem;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  color: rgba(255,255,255,0.45);
+  font-size: 0.85rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+.btn-modo-toggle span {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.btn-modo-toggle:hover {
+  border-color: rgba(255,215,0,0.3);
+  color: rgba(255,215,0,0.8);
+  background: rgba(255,215,0,0.03);
 }
 
 /* ════════════════════════════════════════════

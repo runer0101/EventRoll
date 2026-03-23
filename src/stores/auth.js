@@ -104,6 +104,15 @@ export const useAuthStore = defineStore('auth', () => {
     return response
   }
 
+  /** Login con código de acceso (sin email/password). */
+  async function loginConCodigo(codigo) {
+    const response = await authAPI.loginConCodigo(codigo)
+    if (response.success && response.data) {
+      usuario.value = response.data.usuario
+    }
+    return response
+  }
+
   /** Ejecuta logout, limpia el store y la cookie en el servidor. */
   async function logout() {
     try {
@@ -122,6 +131,7 @@ export const useAuthStore = defineStore('auth', () => {
     permisos,
     initSession,
     login,
+    loginConCodigo,
     logout,
   }
 })

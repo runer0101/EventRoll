@@ -1,5 +1,6 @@
 import { asyncHandler } from '../utils/asyncHandler.js'
 import { usuariosService } from '../services/usuariosService.js'
+import { usuariosRepository } from '../repositories/usuariosRepository.js'
 import { invalidateCachedUser } from '../middleware/auth.js'
 
 // @desc    Obtener todos los usuarios
@@ -52,5 +53,50 @@ export const deleteUsuario = asyncHandler(async (req, res) => {
   res.json({
     success: true,
     message: 'Usuario eliminado correctamente'
+  })
+})
+
+// Genera un código alfanumérico único de 8 caracteres
+const generarCodigoAleatorio = () => {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
+  let code = ''
+  for (let i = 0; i < 8; i++) code += chars[Math.floor(Math.random() * chars.length)]
+  return code
+}
+
+// @desc    Generar código de acceso para un usuario
+// @route   POST /api/usuarios/:id/generar-codigo
+// @access  Private (admin)
+export const generarCodigo = asyncHandler(async (req, res) => {
+  const code = generarCodigoAleatorio()
+  const usuario = await usuariosRepository.setAccessCode(req.params.id, code)
+
+  if (!usuario) {
+    return res.status(404).json({ success: false, message: 'Usuario no encontrado' })
+  }
+
+  invalidateCachedUser(req.params.id)
+
+  res.json({
+    success: true,
+    data: { access_code: usuario.access_code }
+  })
+})
+
+// @desc    Revocar código de acceso de un usuario
+// @route   DELETE /api/usuarios/:id/revocar-codigo
+// @access  Private (admin)
+export const revocarCodigo = asyncHandler(async (req, res) => {
+  const usuario = await usuariosRepository.clearAccessCode(req.params.id)
+
+  if (!usuario) {
+    return res.status(404).json({ success: false, message: 'Usuario no encontrado' })
+  }
+
+  invalidateCachedUser(req.params.id)
+
+  res.json({
+    success: true,
+    message: 'Código revocado correctamente'
   })
 })

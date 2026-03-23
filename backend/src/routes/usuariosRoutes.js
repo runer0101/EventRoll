@@ -3,7 +3,9 @@ import {
   getUsuarios,
   createUsuario,
   updateUsuario,
-  deleteUsuario
+  deleteUsuario,
+  generarCodigo,
+  revocarCodigo
 } from '../controllers/usuariosController.js'
 import { authenticateToken, requireAdmin } from '../middleware/auth.js'
 import { validateCreateUsuario, validateUpdateUsuario, validateDeleteUsuario } from '../middleware/validators.js'
@@ -21,5 +23,8 @@ router.route('/')
 router.route('/:id')
   .put(validateUpdateUsuario, updateUsuario)
   .delete(validateDeleteUsuario, deleteUsuario)
+
+router.post('/:id/generar-codigo', generarCodigo)
+router.delete('/:id/revocar-codigo', revocarCodigo)
 
 export default router

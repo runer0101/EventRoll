@@ -220,7 +220,7 @@
               <th>Nombre</th>
               <th>Email</th>
               <th>Rol</th>
-              <th>Fecha Creación</th>
+              <th>ID de acceso</th>
               <th>Acciones</th>
             </tr>
           </thead>
@@ -236,7 +236,20 @@
                   {{ nombreRol(usuario.rol) }}
                 </span>
               </td>
-              <td class="fecha-cell">{{ formatearFecha(usuario.fechaCreacion) }}</td>
+              <td class="codigo-cell">
+                <div v-if="usuario.access_code" class="codigo-badge">
+                  <span class="codigo-texto">{{ usuario.access_code }}</span>
+                  <button class="btn-copiar" title="Copiar código" @click="copiarCodigo(usuario.access_code)">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                  </button>
+                  <button class="btn-revocar" title="Revocar código" @click="revocarCodigo(usuario)">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  </button>
+                </div>
+                <button v-else class="btn-generar-codigo" @click="generarCodigo(usuario)">
+                  + Generar ID
+                </button>
+              </td>
               <td class="acciones-cell">
                 <button class="btn-editar" title="Editar usuario" @click="editarUsuario(usuario)">
                   Editar
@@ -661,6 +674,32 @@ function formatearFecha(fecha) {
     day: 'numeric'
   })
 }
+
+async function generarCodigo(usuario) {
+  try {
+    const res = await usuariosAPI.generarCodigo(usuario.id)
+    usuario.access_code = res.data.access_code
+    success(`Código generado: ${res.data.access_code}`, 'Listo')
+  } catch (err) {
+    error(err.message || 'Error al generar código', 'Error')
+  }
+}
+
+async function revocarCodigo(usuario) {
+  try {
+    await usuariosAPI.revocarCodigo(usuario.id)
+    usuario.access_code = null
+    success('Código revocado', 'Listo')
+  } catch (err) {
+    error(err.message || 'Error al revocar código', 'Error')
+  }
+}
+
+function copiarCodigo(codigo) {
+  navigator.clipboard.writeText(codigo)
+    .then(() => success(`Código ${codigo} copiado`, 'Copiado'))
+    .catch(() => error('No se pudo copiar', 'Error'))
+}
 </script>
 
 <style scoped>
@@ -1026,6 +1065,64 @@ function formatearFecha(fecha) {
 .acciones-cell {
   display: flex;
   gap: 8px;
+}
+
+/* Columna código de acceso */
+.codigo-cell { min-width: 160px; }
+
+.codigo-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(255,215,0,0.07);
+  border: 1px solid rgba(255,215,0,0.2);
+  border-radius: 6px;
+  padding: 4px 8px;
+}
+
+.codigo-texto {
+  font-family: 'Courier New', monospace;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #FFD700;
+  letter-spacing: 0.1em;
+}
+
+.btn-copiar, .btn-revocar {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  transition: color 0.15s;
+}
+
+.btn-copiar { color: rgba(255,255,255,0.35); }
+.btn-copiar:hover { color: #FFD700; }
+
+.btn-revocar { color: rgba(255,255,255,0.25); }
+.btn-revocar:hover { color: #f87171; }
+
+.btn-generar-codigo {
+  background: transparent;
+  border: 1px dashed rgba(255,255,255,0.15);
+  border-radius: 6px;
+  color: rgba(255,255,255,0.35);
+  font-size: 0.78rem;
+  font-weight: 600;
+  font-family: inherit;
+  padding: 4px 10px;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.btn-generar-codigo:hover {
+  border-color: rgba(255,215,0,0.35);
+  color: rgba(255,215,0,0.8);
+  background: rgba(255,215,0,0.04);
 }
 
 .btn-editar,

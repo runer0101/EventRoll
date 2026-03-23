@@ -3,7 +3,7 @@ import { query } from '../config/database.js'
 export const usuariosRepository = {
   async findAll() {
     const result = await query(
-      'SELECT id, nombre, email, rol, permisos, created_at FROM usuarios ORDER BY created_at DESC'
+      'SELECT id, nombre, email, rol, permisos, access_code, created_at FROM usuarios ORDER BY created_at DESC'
     )
     return result.rows
   },
@@ -90,5 +90,30 @@ export const usuariosRepository = {
 
   async deleteById(id) {
     await query('DELETE FROM usuarios WHERE id = $1', [id])
+  },
+
+  async findByAccessCode(code) {
+    const result = await query('SELECT * FROM usuarios WHERE access_code = $1', [code])
+    return result.rows[0] || null
+  },
+
+  async setAccessCode(id, code) {
+    const result = await query(
+      `UPDATE usuarios SET access_code = $1
+       WHERE id = $2
+       RETURNING id, nombre, email, rol, access_code`,
+      [code, id]
+    )
+    return result.rows[0] || null
+  },
+
+  async clearAccessCode(id) {
+    const result = await query(
+      `UPDATE usuarios SET access_code = NULL
+       WHERE id = $1
+       RETURNING id, nombre, email, rol, access_code`,
+      [id]
+    )
+    return result.rows[0] || null
   }
 }
