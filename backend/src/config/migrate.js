@@ -71,12 +71,10 @@ const createTables = async () => {
     `)
     console.log('Tabla actividad creada\n')
 
-    // 4b. Añadir columna access_code si no existe (migración incremental)
-    await query(`
-      ALTER TABLE usuarios
-      ADD COLUMN IF NOT EXISTS access_code VARCHAR(12) UNIQUE
-    `)
-    console.log('Columna access_code verificada\n')
+    // 4b. Añadir columnas access_code y su expiración (migración incremental)
+    await query(`ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS access_code VARCHAR(12) UNIQUE`)
+    await query(`ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS access_code_expires_at TIMESTAMP`)
+    console.log('Columnas access_code verificadas\n')
 
     // 5. Crear índices para mejorar performance
     console.log('Creando índices...')

@@ -33,8 +33,6 @@ export const login = asyncHandler(async (req, res) => {
     success: true,
     data: {
       usuario: result.usuario,
-      // token incluido para compatibilidad con clientes móviles / modo demo
-      token: result.token,
     },
   })
 })
@@ -51,7 +49,6 @@ export const loginConCodigo = asyncHandler(async (req, res) => {
     success: true,
     data: {
       usuario: result.usuario,
-      token: result.token,
     },
   })
 })
@@ -71,7 +68,8 @@ export const getMe = asyncHandler(async (req, res) => {
 // @access  Private
 export const logout = asyncHandler(async (req, res) => {
   invalidateCachedUser(req.user.id)
-  await authService.logout(req.user)
+  const token = req.cookies?.token || req.headers['authorization']?.split(' ')[1]
+  await authService.logout(req.user, token)
 
   res.clearCookie('token', {
     httpOnly: true,

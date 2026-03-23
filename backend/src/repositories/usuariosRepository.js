@@ -93,15 +93,21 @@ export const usuariosRepository = {
   },
 
   async findByAccessCode(code) {
-    const result = await query('SELECT * FROM usuarios WHERE access_code = $1', [code])
+    const result = await query(
+      `SELECT id, nombre, email, rol FROM usuarios
+       WHERE access_code = $1
+         AND (access_code_expires_at IS NULL OR access_code_expires_at > NOW())`,
+      [code]
+    )
     return result.rows[0] || null
   },
 
   async setAccessCode(id, code) {
     const result = await query(
-      `UPDATE usuarios SET access_code = $1
+      `UPDATE usuarios
+       SET access_code = $1, access_code_expires_at = NOW() + INTERVAL '30 days'
        WHERE id = $2
-       RETURNING id, nombre, email, rol, access_code`,
+       RETURNING id, nombre, email, rol, access_code, access_code_expires_at`,
       [code, id]
     )
     return result.rows[0] || null
@@ -109,9 +115,7 @@ export const usuariosRepository = {
 
   async clearAccessCode(id) {
     const result = await query(
-      `UPDATE usuarios SET access_code = NULL
-       WHERE id = $1
-       RETURNING id, nombre, email, rol, access_code`,
+      'UPDATE usuarios SET access_code = NULL, access_code_expires_at = NULL WHERE id = $1 RETURNING id',
       [id]
     )
     return result.rows[0] || null

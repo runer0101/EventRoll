@@ -9,15 +9,19 @@ const { Pool } = pg
 // SSL solo en producción — en test/development el Postgres local no tiene SSL
 const isProduction = process.env.NODE_ENV === 'production'
 
-// Reemplaza sslmode=require por sslmode=no-verify para evitar error de certificado auto-firmado
+// En producción con Render/Heroku la URL trae sslmode=require.
+// DB_SSL_REJECT_UNAUTHORIZED=true valida el certificado (recomendado con CA provisto).
+// Por defecto false para compatibilidad con servicios que usan certificados auto-firmados.
 const dbUrl = process.env.DATABASE_URL
   ? process.env.DATABASE_URL.replace('sslmode=require', 'sslmode=no-verify')
   : undefined
 
+const sslRejectUnauthorized = process.env.DB_SSL_REJECT_UNAUTHORIZED === 'true'
+
 // Configuración del pool de conexiones
 const pool = new Pool({
   connectionString: dbUrl,
-  ssl: isProduction ? { rejectUnauthorized: false } : false,
+  ssl: isProduction ? { rejectUnauthorized: sslRejectUnauthorized } : false,
   max: 10,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 10000,

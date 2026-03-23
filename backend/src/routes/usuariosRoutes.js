@@ -7,7 +7,7 @@ import {
   generarCodigo,
   revocarCodigo
 } from '../controllers/usuariosController.js'
-import { authenticateToken, requireAdmin } from '../middleware/auth.js'
+import { authenticateToken, requireAdmin, codigoLimiter } from '../middleware/auth.js'
 import { validateCreateUsuario, validateUpdateUsuario, validateDeleteUsuario } from '../middleware/validators.js'
 
 const router = express.Router()
@@ -24,7 +24,7 @@ router.route('/:id')
   .put(validateUpdateUsuario, updateUsuario)
   .delete(validateDeleteUsuario, deleteUsuario)
 
-router.post('/:id/generar-codigo', generarCodigo)
+router.post('/:id/generar-codigo', codigoLimiter, generarCodigo)
 router.delete('/:id/revocar-codigo', revocarCodigo)
 
 export default router

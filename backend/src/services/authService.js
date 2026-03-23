@@ -1,6 +1,7 @@
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import { authRepository } from '../repositories/authRepository.js'
+import { revokeToken } from '../middleware/auth.js'
 import { usuariosRepository } from '../repositories/usuariosRepository.js'
 import { activityService } from './activityService.js'
 import { unauthorizedError } from '../core/errors/AppError.js'
@@ -52,7 +53,15 @@ export const authService = {
     }
   },
 
-  async logout(user) {
+  async logout(user, token) {
+    if (token) {
+      // Calcular tiempo restante de vida del token para limpiar la blacklist automáticamente
+      try {
+        const decoded = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString())
+        const remainingMs = (decoded.exp * 1000) - Date.now()
+        if (remainingMs > 0) revokeToken(token, remainingMs)
+      } catch { /* token malformado, ignorar */ }
+    }
     await activityService.register({
       usuarioId: user.id,
       accion: 'Logout',

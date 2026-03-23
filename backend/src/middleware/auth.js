@@ -3,6 +3,17 @@ import { query } from '../config/database.js'
 import { logger } from '../utils/logger.js'
 import rateLimit from 'express-rate-limit'
 
+// Blacklist en memoria de JWTs revocados al hacer logout.
+// Cada entrada se limpia automáticamente cuando el token hubiera expirado.
+const revokedTokens = new Set()
+
+export const revokeToken = (token, expiresInMs) => {
+  revokedTokens.add(token)
+  setTimeout(() => revokedTokens.delete(token), expiresInMs)
+}
+
+export const isTokenRevoked = (token) => revokedTokens.has(token)
+
 // Cache en memoria para evitar una query a BD en cada request autenticado
 // TTL de 5 minutos — se invalida en logout, update y delete de usuario
 const userCache = new Map()
@@ -48,6 +59,15 @@ export const recoveryResetLimiter = rateLimit({
   legacyHeaders: false,
 })
 
+// Rate limiter para generación de códigos de acceso
+export const codigoLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minuto
+  max: 10, // 10 generaciones por IP por minuto
+  message: { success: false, message: 'Demasiadas generaciones de código. Espera un momento.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+})
+
 // Middleware para verificar JWT
 // Acepta token desde: 1) cookie HttpOnly  2) header Authorization: Bearer <token>
 export const authenticateToken = async (req, res, next) => {
@@ -59,6 +79,14 @@ export const authenticateToken = async (req, res, next) => {
       return res.status(401).json({
         success: false,
         message: 'Token de autenticación no proporcionado'
+      })
+    }
+
+    // Rechazar tokens revocados (logout explícito)
+    if (isTokenRevoked(token)) {
+      return res.status(401).json({
+        success: false,
+        message: 'Sesión cerrada. Inicia sesión nuevamente.'
       })
     }
 

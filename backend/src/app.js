@@ -33,6 +33,18 @@ const corsOptions = {
 }
 app.use(cors(corsOptions))
 
+// Protección CSRF: verificar Origin en métodos mutantes (POST/PUT/DELETE/PATCH)
+// Permite localhost en development y el CORS_ORIGIN configurado en producción
+const allowedOrigin = process.env.CORS_ORIGIN || 'http://localhost:5173'
+app.use((req, res, next) => {
+  const mutating = ['POST', 'PUT', 'DELETE', 'PATCH']
+  if (!mutating.includes(req.method)) return next()
+  const origin = req.headers.origin || req.headers.referer || ''
+  const dev = process.env.NODE_ENV !== 'production'
+  if (dev || origin.startsWith(allowedOrigin)) return next()
+  return res.status(403).json({ success: false, message: 'Origen no permitido' })
+})
+
 const limiter = rateLimit({
   windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000,
   max: parseInt(process.env.RATE_LIMIT_MAX) || 100,
