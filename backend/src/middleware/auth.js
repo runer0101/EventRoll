@@ -16,7 +16,7 @@ export const invalidateCachedUser = (userId) => {
 export const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutos
   max: 20, // 20 intentos por IP
-  message: 'Demasiados intentos de login. Intenta más tarde.',
+  message: { success: false, message: 'Demasiados intentos de inicio de sesión. Espera 15 minutos e intenta de nuevo.' },
   standardHeaders: true,
   legacyHeaders: false,
 })
@@ -25,7 +25,7 @@ export const loginLimiter = rateLimit({
 export const recoveryRequestLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutos
   max: 5, // 5 solicitudes por IP
-  message: 'Demasiadas solicitudes de recuperación. Intenta más tarde.',
+  message: { success: false, message: 'Demasiadas solicitudes de recuperación. Intenta más tarde.' },
   standardHeaders: true,
   legacyHeaders: false,
 })
@@ -34,7 +34,7 @@ export const recoveryRequestLimiter = rateLimit({
 export const recoveryVerifyLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutos
   max: 15, // margen mayor para códigos mal ingresados por usuarios legítimos
-  message: 'Demasiados intentos de verificación. Intenta más tarde.',
+  message: { success: false, message: 'Demasiados intentos de verificación. Intenta más tarde.' },
   standardHeaders: true,
   legacyHeaders: false,
 })
@@ -43,7 +43,7 @@ export const recoveryVerifyLimiter = rateLimit({
 export const recoveryResetLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutos
   max: 5, // limitar reintentos de cambio de clave por IP
-  message: 'Demasiados intentos de restablecimiento. Intenta más tarde.',
+  message: { success: false, message: 'Demasiados intentos de restablecimiento. Intenta más tarde.' },
   standardHeaders: true,
   legacyHeaders: false,
 })
