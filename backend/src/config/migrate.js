@@ -83,6 +83,16 @@ const createTables = async () => {
     await query(`CREATE INDEX IF NOT EXISTS idx_invitados_nombre ON invitados(nombre)`)
     await query(`CREATE INDEX IF NOT EXISTS idx_actividad_usuario ON actividad(usuario_id)`)
     await query(`CREATE INDEX IF NOT EXISTS idx_actividad_fecha ON actividad(created_at DESC)`)
+
+    // Unique constraint: un mismo nombre+apellido no se repite dentro del mismo evento
+    await query(`
+      CREATE UNIQUE INDEX IF NOT EXISTS idx_invitados_unique_per_event
+      ON invitados (evento_id, LOWER(nombre), LOWER(COALESCE(apellido, '')))
+    `)
+
+    // Índice compuesto para acelerar búsquedas ILIKE en nombre y apellido
+    await query(`CREATE INDEX IF NOT EXISTS idx_invitados_nombre_lower ON invitados(LOWER(nombre))`)
+    await query(`CREATE INDEX IF NOT EXISTS idx_invitados_apellido_lower ON invitados(LOWER(apellido))`)
     console.log('Índices creados\n')
 
     // 6. Crear función para actualizar updated_at automáticamente

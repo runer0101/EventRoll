@@ -6,7 +6,7 @@ const CATEGORIAS_VALIDAS = ['General', 'VIP', 'Familia', 'Amigos', 'Trabajo']
 
 const parsePagination = ({ page = 1, limit = 50, order = 'asc' }) => {
   const pageNum = Math.max(1, parseInt(page, 10))
-  const limitNum = Math.min(200, Math.max(1, parseInt(limit, 10)))
+  const limitNum = Math.min(100, Math.max(1, parseInt(limit, 10)))
 
   return {
     page: pageNum,

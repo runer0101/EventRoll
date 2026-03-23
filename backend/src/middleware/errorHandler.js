@@ -16,19 +16,28 @@ export const errorHandler = (err, req, res, next) => {
     ? 'Error interno del servidor'
     : err.message
 
-  // Log 5xx como error, 4xx como warn
+  const reqId = req.requestId || null
+  const userId = req.user?.id || null
+
+  // Log 5xx como error, 4xx como warn — incluye requestId y userId para trazabilidad
   if (statusCode >= 500) {
     logger.error(`${req.method} ${req.originalUrl} → ${statusCode}`, {
+      requestId: reqId,
+      userId,
       message: err.message,
       stack: err.stack,
     })
   } else if (statusCode >= 400) {
-    logger.warn(`${req.method} ${req.originalUrl} → ${statusCode}: ${err.message}`)
+    logger.warn(`${req.method} ${req.originalUrl} → ${statusCode}: ${err.message}`, {
+      requestId: reqId,
+      userId,
+    })
   }
 
   res.status(statusCode).json({
     success: false,
     message: responseMessage,
+    ...(reqId && { requestId: reqId }),
     ...(err.details && { details: err.details }),
     ...(showStack && { stack: err.stack }),
   })

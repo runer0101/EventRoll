@@ -512,7 +512,11 @@ function configurarAtajosTeclado() {
   }, 'Nuevo invitado')
 }
 
+// Counter para descartar respuestas obsoletas (race condition en búsquedas rápidas)
+let _fetchSeq = 0
+
 async function cargarDatos(page = currentPage.value) {
+  const mySeq = ++_fetchSeq
   isFetching.value = true
 
   try {
@@ -530,6 +534,9 @@ async function cargarDatos(page = currentPage.value) {
     if (filtroEstado.value === 'pendiente') filters.confirmado = false
 
     const response = await invitadosAPI.getAll(filters)
+
+    // Si ya se lanzó una request más reciente, ignorar esta respuesta
+    if (mySeq !== _fetchSeq) return
 
     if (response.success && Array.isArray(response.data)) {
       invitados.value = response.data.map(inv => ({
@@ -562,14 +569,13 @@ async function cargarDatos(page = currentPage.value) {
       }
 
       modoBackend.value = true
-      console.warn('Invitados cargados desde backend:', invitados.value.length)
     }
-  } catch (err) {
-    console.error('Error al cargar desde backend, usando localStorage:', err)
+  } catch {
+    if (mySeq !== _fetchSeq) return
     modoBackend.value = false
     cargarDatosLocalStorage()
   } finally {
-    isFetching.value = false
+    if (mySeq === _fetchSeq) isFetching.value = false
   }
 }
 
@@ -1228,7 +1234,7 @@ watch(textoBusqueda, (newValue, oldValue) => {
 
 let recargaBackendTimer = null
 
-function programarRecargaBackend(resetPage = true) {
+function programarRecargaBackend(resetPage = true, delay = 250) {
   if (!modoBackend.value) return
 
   if (recargaBackendTimer) {
@@ -1241,15 +1247,16 @@ function programarRecargaBackend(resetPage = true) {
       return
     }
     await cargarDatos(currentPage.value)
-  }, 250)
+  }, delay)
 }
 
 watch([filtroCategoria, filtroEstado, ordenAscendente, pageSize, eventoIdActual], () => {
-  programarRecargaBackend(true)
+  programarRecargaBackend(true, 250)
 })
 
+// Búsqueda con debounce mayor: el usuario suele escribir varias letras seguidas
 watch(textoBusqueda, () => {
-  programarRecargaBackend(true)
+  programarRecargaBackend(true, 400)
 })
 
 watch(currentPage, (newPage, oldPage) => {

@@ -53,7 +53,7 @@ describe('getInvitados', () => {
     expect(result.pagination.totalPages).toBe(0)
   })
 
-  it('aplica límite máximo de 200 al parsear paginación', async () => {
+  it('aplica límite máximo de 100 al parsear paginación', async () => {
     invitadosRepository.findAllPaginated = vi.fn().mockResolvedValue({
       rows: [],
       counters: { total: '0', confirmados: '0', pendientes: '0' },
@@ -62,7 +62,7 @@ describe('getInvitados', () => {
     await invitadosService.getInvitados({ limit: 9999 })
 
     const callArgs = invitadosRepository.findAllPaginated.mock.calls[0][1]
-    expect(callArgs.limit).toBe(200)
+    expect(callArgs.limit).toBe(100)
   })
 })
 

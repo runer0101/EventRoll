@@ -29,11 +29,22 @@ api.interceptors.response.use(
       window.location.href = '/'
     }
 
-    const errorMessage = error.response?.data?.message || error.message || 'Error desconocido'
+    // Determinar mensaje según el tipo de fallo
+    let errorMessage
+    if (error.code === 'ECONNABORTED' || error.message?.includes('timeout')) {
+      errorMessage = 'La solicitud tardó demasiado. Verifica tu conexión e inténtalo de nuevo.'
+    } else if (!error.response) {
+      errorMessage = 'Sin conexión al servidor. Verifica tu red e inténtalo de nuevo.'
+    } else if (error.response.status >= 500) {
+      errorMessage = error.response.data?.message || 'Error interno del servidor. Inténtalo más tarde.'
+    } else {
+      errorMessage = error.response.data?.message || error.message || 'Error desconocido'
+    }
 
     return Promise.reject({
       message: errorMessage,
       status: error.response?.status,
+      requestId: error.response?.data?.requestId || error.response?.headers?.['x-request-id'] || null,
       data: error.response?.data,
     })
   }
