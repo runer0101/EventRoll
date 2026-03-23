@@ -132,7 +132,6 @@
 import { ref, computed, onMounted } from 'vue'
 import { Users, BarChart2, Settings, ShieldCheck, ClipboardList,
          ChevronLeft, ChevronRight, LogOut, Pencil, Camera, Trash2, X } from 'lucide-vue-next'
-import { useAuthStore } from '../stores/auth'
 
 const props = defineProps({
   usuario: { type: Object, required: true },
@@ -144,8 +143,6 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['logout', 'select-menu', 'toggle'])
-const authStore = useAuthStore()
-
 // ── Sidebar state ──────────────────────────────
 const isCollapsed  = ref(false)
 const isMobileOpen = ref(false)

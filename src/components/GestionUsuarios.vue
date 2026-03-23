@@ -666,15 +666,6 @@ function nombreRol(rol) {
   return roles[rol] || rol
 }
 
-function formatearFecha(fecha) {
-  const date = new Date(fecha)
-  return date.toLocaleDateString('es-ES', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric'
-  })
-}
-
 async function generarCodigo(usuario) {
   try {
     const res = await usuariosAPI.generarCodigo(usuario.id)
