@@ -1677,6 +1677,12 @@ h2 {
 .stat-card--confirmed .stat-card__icon { color: #60a5fa; background: rgba(96,165,250,0.08); }
 .stat-card--occupation .stat-card__icon { color: #f97316; background: rgba(249,115,22,0.08); }
 
+.stat-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
 .stat-card__label {
   font-size: 11px;
   font-weight: 500;
@@ -1724,23 +1730,24 @@ h2 {
   transition: width 0.4s ease;
 }
 
-/* Input sillas within card */
+/* Input de sillas integrado en la tarjeta — parece un número, no un input */
 .input-sillas {
-  padding: 4px 8px;
-  font-size: 22px;
+  padding: 0;
+  font-size: 26px;
   font-weight: 700;
-  border: 1px solid rgba(255,215,0,0.3);
-  border-radius: 6px;
+  line-height: 1;
+  border: none;
+  border-bottom: 1px dashed rgba(255,215,0,0.35);
+  border-radius: 0;
   width: 80px;
-  background: rgba(255,215,0,0.06);
+  background: transparent;
   color: #FFD700;
-  transition: all 0.2s;
+  transition: border-color 0.2s;
 }
 
 .input-sillas:focus {
   outline: none;
-  border-color: rgba(255,215,0,0.6);
-  background: rgba(255,215,0,0.1);
+  border-bottom-color: rgba(255,215,0,0.8);
 }
 
 /* ========== ACTION BUTTONS (Refactoring UI: visual hierarchy) ========== */
