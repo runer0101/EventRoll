@@ -2,23 +2,24 @@
 
 > Plataforma web para gestión de invitados en eventos — administra listas, registra asistencia, asigna roles al equipo e importa invitados en masa desde Excel.
 
+[![Tests](https://github.com/runer0101/EventRoll/actions/workflows/test.yml/badge.svg)](https://github.com/runer0101/EventRoll/actions/workflows/test.yml)
+[![Security](https://github.com/runer0101/EventRoll/actions/workflows/security.yml/badge.svg)](https://github.com/runer0101/EventRoll/actions/workflows/security.yml)
 ![Node.js](https://img.shields.io/badge/Node.js-22-339933?logo=node.js&logoColor=white)
 ![Vue 3](https://img.shields.io/badge/Vue-3-4FC08D?logo=vue.js&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-336791?logo=postgresql&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-ready-2496ED?logo=docker&logoColor=white)
 ![Licencia](https://img.shields.io/badge/licencia-MIT-blue)
-[![Tests](https://github.com/runer0101/EventRoll/actions/workflows/test.yml/badge.svg)](https://github.com/runer0101/EventRoll/actions/workflows/test.yml)
-[![Security](https://github.com/runer0101/EventRoll/actions/workflows/security.yml/badge.svg)](https://github.com/runer0101/EventRoll/actions/workflows/security.yml)
 
 ---
 
-## Demo
+## Demo en vivo
 
 | Servicio | URL |
 |----------|-----|
+| **Frontend** | **https://runer0101.github.io/EventRoll** |
 | Backend API | https://eventroll.onrender.com |
 | Health check | https://eventroll.onrender.com/health |
-| API Docs | https://eventroll.onrender.com/api/docs |
+| API Docs (Swagger) | https://eventroll.onrender.com/api/docs |
 
 > El backend corre en Render Free tier — la primera petición tras inactividad puede tardar ~50 segundos mientras despierta.
 
@@ -26,16 +27,32 @@
 
 ## Funcionalidades
 
-- **Control de acceso por roles** — admin, organizador, asistente, guardia
+- **Control de acceso por roles** — 5 niveles: admin, organizador, asistente, guardia, visualizador
 - **Gestión de invitados** — crear, editar, eliminar, filtrar, buscar y confirmar asistencia
-- **Registro de asistencia en tiempo real** — confirma llegadas al instante
+- **Registro de asistencia en tiempo real** — confirma llegadas al instante desde cualquier dispositivo
 - **Importación/exportación masiva desde Excel** — importa cientos de invitados con un clic
-- **Recuperación de contraseña** — código de 6 dígitos enviado por email exclusivamente al usuario
+- **Recuperación de contraseña** — código de 6 dígitos enviado por email
+- **Códigos de acceso de un solo uso** — login rápido para guardias sin contraseña
 - **Soporte multi-evento** — listas independientes por evento
 - **Auth JWT con cookies HttpOnly** — tokens nunca expuestos a JavaScript del cliente
 - **Trazabilidad con Request ID** — cada petición recibe un ID único para correlación de logs
+- **Paginación y búsqueda server-side** — eficiente con cualquier volumen de invitados
 - **Documentación Swagger** — disponible en `/api/docs`
 - **Docker ready** — stack completo (API + DB + Nginx) con un solo comando
+
+---
+
+## Roles y permisos
+
+| Permiso | Admin | Organizador | Asistente | Guardia | Visualizador |
+|---------|:-----:|:-----------:|:---------:|:-------:|:------------:|
+| Ver invitados | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Crear / editar invitados | ✓ | ✓ | ✓ | — | — |
+| Eliminar invitados | ✓ | ✓ | — | — | — |
+| Confirmar asistencia | ✓ | ✓ | ✓ | ✓ | — |
+| Importar / exportar Excel | ✓ | ✓ | exportar | — | exportar |
+| Gestionar usuarios | ✓ | — | — | — | — |
+| Cambiar evento activo | ✓ | ✓ | — | — | — |
 
 ---
 
@@ -43,7 +60,7 @@
 
 | Capa | Tecnología |
 |------|------------|
-| Frontend | Vue 3, Vite, Pinia, Axios, ExcelJS |
+| Frontend | Vue 3, Vite, Pinia, Axios, ExcelJS, Lucide Icons |
 | Backend | Node.js 22, Express, PostgreSQL, bcryptjs, JWT |
 | Infraestructura | Docker, Nginx, Winston |
 | Tests | Vitest, Supertest |
@@ -82,7 +99,6 @@ npm install --prefix backend   # backend
 cp backend/.env.example backend/.env
 # Editar backend/.env — completar DATABASE_URL, JWT_SECRET y opciones de email
 
-# Frontend
 cp .env.example .env
 # VITE_API_URL=http://localhost:3000/api  (ya configurado por defecto)
 ```
@@ -96,11 +112,11 @@ node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
 
 ```bash
 cd backend
-npm run migrate
-npm run migrate:v1.4
-npm run migrate:v1.5
-npm run migrate:v1.6
-npm run seed          # opcional: carga datos de ejemplo
+npm run migrate          # esquema base + tablas principales
+npm run migrate:v1.4     # log de actividad
+npm run migrate:v1.5     # recuperación de contraseña
+npm run migrate:v1.6     # índices y restricciones únicas
+npm run seed             # opcional: carga datos de ejemplo
 ```
 
 ### 5. Iniciar servidores de desarrollo
@@ -175,17 +191,27 @@ Documentación interactiva completa en `https://eventroll.onrender.com/api/docs`
 
 | Método | Endpoint | Auth | Descripción |
 |--------|----------|------|-------------|
-| POST | `/api/auth/login` | — | Login |
+| POST | `/api/auth/login` | — | Login (devuelve cookie HttpOnly) |
+| POST | `/api/auth/login-con-codigo` | — | Login rápido con código de acceso |
 | GET | `/api/auth/me` | requerida | Obtener usuario actual |
 | POST | `/api/auth/logout` | requerida | Cerrar sesión y limpiar cookie |
 | GET | `/api/invitados` | requerida | Listar invitados (paginado + filtros) |
-| POST | `/api/invitados` | requerida | Crear invitado |
-| POST | `/api/invitados/import` | organizador+ | Importación masiva |
-| PUT | `/api/invitados/:id` | requerida | Actualizar invitado |
-| DELETE | `/api/invitados/:id` | requerida | Eliminar invitado |
+| POST | `/api/invitados` | organizador+ | Crear invitado |
+| POST | `/api/invitados/import` | organizador+ | Importación masiva desde Excel |
+| PUT | `/api/invitados/:id` | organizador+ | Actualizar invitado |
+| DELETE | `/api/invitados/:id` | organizador+ | Eliminar invitado |
 | GET | `/api/usuarios` | admin | Listar usuarios |
 | POST | `/api/usuarios` | admin | Crear usuario |
+| PUT | `/api/usuarios/:id` | admin | Actualizar usuario |
+| DELETE | `/api/usuarios/:id` | admin | Eliminar usuario |
+| POST | `/api/usuarios/:id/generar-codigo` | admin | Generar código de acceso |
+| DELETE | `/api/usuarios/:id/revocar-codigo` | admin | Revocar código de acceso |
+| POST | `/api/auth/recovery/request` | — | Solicitar código de recuperación |
+| POST | `/api/auth/recovery/verify` | — | Verificar código |
+| POST | `/api/auth/recovery/reset` | — | Resetear contraseña |
 | GET | `/health` | — | Health check (incluye estado de BD) |
+
+> La autenticación usa **cookies HttpOnly** (`withCredentials: true`). No se requiere header `Authorization` en condiciones normales.
 
 ---
 
@@ -216,10 +242,9 @@ Ver `backend/.env.example` para la lista completa.
 - CORS, **Helmet** y cabeceras de seguridad configuradas
 - Escaneo de secretos en cada commit (**gitleaks** + hook pre-commit de Husky)
 - Campos sensibles (contraseñas, tokens, códigos de recovery) automáticamente **redactados en logs**
-- SQL no expuesto en logs de producción
 - `X-Request-ID` único en cada petición para trazabilidad de auditoría
 
-Nunca subas tu archivo `.env`. Está excluido por `.gitignore`.
+> Nunca subas tu archivo `.env`. Está excluido por `.gitignore`.
 
 ---
 

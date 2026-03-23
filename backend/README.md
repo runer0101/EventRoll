@@ -1,10 +1,10 @@
-# 🚀 YSSEL Backend API
+# EventRoll — Backend API
 
-Backend REST API para el sistema de gestión de eventos YSSEL.
+REST API para la plataforma de gestión de eventos EventRoll.
 
 ## 📋 Stack Tecnológico
 
-- **Node.js** 18+
+- **Node.js** 22+
 - **Express.js** - Framework web
 - **PostgreSQL** - Base de datos
 - **JWT** - Autenticación
@@ -101,7 +101,6 @@ Content-Type: application/json
 {
   "success": true,
   "data": {
-    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
     "usuario": {
       "id": "uuid",
       "nombre": "Administrador",
@@ -112,16 +111,18 @@ Content-Type: application/json
 }
 ```
 
+> El token JWT se almacena en una **cookie HttpOnly** — no se expone al JavaScript del cliente. Las peticiones deben enviarse con `withCredentials: true`.
+
 #### Obtener usuario actual
 ```http
 GET /api/auth/me
-Authorization: Bearer {token}
+Cookie: token=<jwt> (enviada automáticamente por el navegador)
 ```
 
 #### Logout
 ```http
 POST /api/auth/logout
-Authorization: Bearer {token}
+Cookie: token=<jwt> (enviada automáticamente por el navegador)
 ```
 
 ### Usuarios (Solo Admin)
@@ -129,13 +130,13 @@ Authorization: Bearer {token}
 #### Listar usuarios
 ```http
 GET /api/usuarios
-Authorization: Bearer {token}
+Cookie: token=<jwt> (enviada automáticamente por el navegador)
 ```
 
 #### Crear usuario
 ```http
 POST /api/usuarios
-Authorization: Bearer {token}
+Cookie: token=<jwt> (enviada automáticamente por el navegador)
 Content-Type: application/json
 
 {
@@ -149,7 +150,7 @@ Content-Type: application/json
 #### Actualizar usuario
 ```http
 PUT /api/usuarios/:id
-Authorization: Bearer {token}
+Cookie: token=<jwt> (enviada automáticamente por el navegador)
 Content-Type: application/json
 
 {
@@ -161,7 +162,7 @@ Content-Type: application/json
 #### Eliminar usuario
 ```http
 DELETE /api/usuarios/:id
-Authorization: Bearer {token}
+Cookie: token=<jwt> (enviada automáticamente por el navegador)
 ```
 
 ### Invitados
@@ -169,13 +170,13 @@ Authorization: Bearer {token}
 #### Listar invitados (con filtros)
 ```http
 GET /api/invitados?categoria=VIP&confirmado=true&search=Juan
-Authorization: Bearer {token}
+Cookie: token=<jwt> (enviada automáticamente por el navegador)
 ```
 
 #### Crear invitado
 ```http
 POST /api/invitados
-Authorization: Bearer {token}
+Cookie: token=<jwt> (enviada automáticamente por el navegador)
 Content-Type: application/json
 
 {
@@ -189,7 +190,7 @@ Content-Type: application/json
 #### Actualizar invitado
 ```http
 PUT /api/invitados/:id
-Authorization: Bearer {token}
+Cookie: token=<jwt> (enviada automáticamente por el navegador)
 Content-Type: application/json
 
 {
@@ -200,13 +201,13 @@ Content-Type: application/json
 #### Eliminar invitado
 ```http
 DELETE /api/invitados/:id
-Authorization: Bearer {token}
+Cookie: token=<jwt> (enviada automáticamente por el navegador)
 ```
 
 #### Importar múltiples invitados
 ```http
 POST /api/invitados/import
-Authorization: Bearer {token}
+Cookie: token=<jwt> (enviada automáticamente por el navegador)
 Content-Type: application/json
 
 {
@@ -428,8 +429,8 @@ MIT
 
 <div align="center">
 
-**YSSEL Backend API v1.0.0**
+**EventRoll Backend API**
 
-*Sistema de Gestión de Eventos Profesional*
+*Sistema de gestión de eventos — https://eventroll.onrender.com/api/docs*
 
 </div>
