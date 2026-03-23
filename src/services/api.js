@@ -18,11 +18,12 @@ const api = axios.create({
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    // /auth/me se usa para verificar si hay sesión activa — un 401 ahí es
-    // comportamiento esperado (usuario no autenticado), no un error de sesión expirada.
-    const isSessionCheck = error.config?.url?.includes('/auth/me')
+    // Los endpoints de login devuelven 401 por credenciales incorrectas — no son
+    // sesiones expiradas, así que no deben redirigir al home.
+    const isLoginEndpoint = error.config?.url?.includes('/auth/login')
+    const isSessionCheck  = error.config?.url?.includes('/auth/me')
 
-    if (error.response?.status === 401 && !isSessionCheck) {
+    if (error.response?.status === 401 && !isSessionCheck && !isLoginEndpoint) {
       localStorage.removeItem('token')
       localStorage.removeItem('usuario')
       window.location.href = '/'
