@@ -10,13 +10,17 @@ const { Pool } = pg
 const isProduction = process.env.NODE_ENV === 'production'
 
 // En producción con Render/Heroku la URL trae sslmode=require.
-// DB_SSL_REJECT_UNAUTHORIZED=true valida el certificado (recomendado con CA provisto).
-// Por defecto false para compatibilidad con servicios que usan certificados auto-firmados.
+// DB_SSL_REJECT_UNAUTHORIZED=false desactiva la validación del certificado (no recomendado).
+// Por defecto true en producción para validar el certificado SSL del servidor de BD.
 const dbUrl = process.env.DATABASE_URL
   ? process.env.DATABASE_URL.replace('sslmode=require', 'sslmode=no-verify')
   : undefined
 
-const sslRejectUnauthorized = process.env.DB_SSL_REJECT_UNAUTHORIZED === 'true'
+// En producción: true por defecto (seguro), false solo si se define explícitamente.
+// En otros entornos: false por defecto (BD local sin SSL).
+const sslRejectUnauthorized = isProduction
+  ? process.env.DB_SSL_REJECT_UNAUTHORIZED !== 'false'
+  : process.env.DB_SSL_REJECT_UNAUTHORIZED === 'true'
 
 // Configuración del pool de conexiones
 const pool = new Pool({
