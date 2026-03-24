@@ -31,8 +31,9 @@ const migrarV16 = async () => {
     console.log(`Duplicados eliminados: ${deleted.rowCount}\n`)
 
     // 2. Índice UNIQUE para prevenir race conditions en creación de invitados
-    // NULLS NOT DISTINCT trata todos los NULL como iguales (PostgreSQL 15+)
-    console.log('Creando restricción UNIQUE en invitados (evento_id, nombre, apellido)...')
+    // Elimina el índice anterior de migrate.js que usaba una expresión diferente
+    console.log('Reemplazando índice UNIQUE anterior en invitados...')
+    await query(`DROP INDEX IF EXISTS idx_invitados_unique_per_event`)
     await query(`
       CREATE UNIQUE INDEX IF NOT EXISTS idx_invitados_unique_nombre
         ON invitados (
@@ -41,7 +42,7 @@ const migrarV16 = async () => {
           LOWER(COALESCE(apellido, ''))
         )
     `)
-    console.log('Restricción UNIQUE creada\n')
+    console.log('Restricción UNIQUE actualizada\n')
 
     // 3. Índice compuesto (evento_id, confirmado) — filtro más usado en la app
     console.log('Creando índice compuesto (evento_id, confirmado)...')

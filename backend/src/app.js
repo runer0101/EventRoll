@@ -12,6 +12,7 @@ import invitadosRoutes from './routes/invitadosRoutes.js'
 import passwordRecoveryRoutes from './routes/password-recovery.js'
 import { notFound, errorHandler } from './middleware/errorHandler.js'
 import { requestId } from './middleware/requestId.js'
+import { authenticateToken, requireAdmin } from './middleware/auth.js'
 import { logger } from './utils/logger.js'
 import { swaggerSpec } from './config/swagger.js'
 import { query } from './config/database.js'
@@ -90,11 +91,15 @@ app.get('/health', async (req, res) => {
   })
 })
 
-app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+// Swagger: público en dev/test, protegido con auth en producción
+const swaggerMiddleware = process.env.NODE_ENV === 'production'
+  ? [authenticateToken, requireAdmin]
+  : []
+app.use('/api/docs', ...swaggerMiddleware, swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
   customSiteTitle: 'EventRoll API Docs',
   swaggerOptions: { persistAuthorization: true },
 }))
-app.get('/api/docs.json', (req, res) => res.json(swaggerSpec))
+app.get('/api/docs.json', ...swaggerMiddleware, (req, res) => res.json(swaggerSpec))
 
 app.use('/api/auth', authRoutes)
 app.use('/api/usuarios', usuariosRoutes)

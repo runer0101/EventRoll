@@ -136,8 +136,8 @@ describe('updateInvitado', () => {
 // ─── deleteInvitado ────────────────────────────────────────────────
 describe('deleteInvitado', () => {
   it('elimina un invitado existente y registra actividad', async () => {
-    invitadosRepository.findById = vi.fn().mockResolvedValue(mockInvitado)
-    invitadosRepository.deleteById = vi.fn().mockResolvedValue(undefined)
+    // deleteById ahora hace DELETE...RETURNING y devuelve el registro eliminado
+    invitadosRepository.deleteById = vi.fn().mockResolvedValue(mockInvitado)
 
     await invitadosService.deleteInvitado(mockInvitado.id, ACTOR_ID)
 
@@ -146,7 +146,8 @@ describe('deleteInvitado', () => {
   })
 
   it('lanza 404 si el invitado no existe', async () => {
-    invitadosRepository.findById = vi.fn().mockResolvedValue(null)
+    // deleteById devuelve null cuando no encuentra el registro
+    invitadosRepository.deleteById = vi.fn().mockResolvedValue(null)
 
     await expect(
       invitadosService.deleteInvitado('no-existe', ACTOR_ID)

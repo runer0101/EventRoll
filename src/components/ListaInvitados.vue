@@ -16,10 +16,11 @@
           <div class="stat-card__value-row">
             <input
               v-if="permisos.configurarSillas"
-              v-model.number="sillasDisponibles"
               type="number"
-              min="0"
+              min="1"
               class="input-sillas"
+              :value="sillasDisponibles"
+              @change="sillasDisponibles = Math.max(1, parseInt($event.target.value) || 1)"
             />
             <span v-else class="stat-card__number">{{ sillasDisponibles }}</span>
           </div>
@@ -329,7 +330,8 @@
             <button
               v-if="permisos.editarInvitados"
               class="btn-editar"
-              title="Editar nombre"
+              :title="`Editar: ${invitado.nombre} ${invitado.apellido || ''}`"
+              :aria-label="`Editar invitado: ${invitado.nombre} ${invitado.apellido || ''}`"
               @click="iniciarEdicion(invitado)"
             >
               Editar
@@ -339,6 +341,8 @@
               v-if="permisos.confirmarInvitados"
               class="btn-confirmar"
               :class="{ activo: invitado.confirmado }"
+              :aria-label="`${invitado.confirmado ? 'Quitar confirmación' : 'Confirmar asistencia'} de ${invitado.nombre} ${invitado.apellido || ''}`"
+              :aria-pressed="invitado.confirmado"
               @click="toggleConfirmacion(invitado.id)"
             >
               {{ invitado.confirmado ? 'Confirmado' : 'Pendiente' }}
@@ -347,6 +351,7 @@
             <button
               v-if="permisos.eliminarInvitados"
               class="btn-eliminar"
+              :aria-label="`Eliminar invitado: ${invitado.nombre} ${invitado.apellido || ''}`"
               @click="eliminarInvitado(invitado.id)"
             >
               Eliminar
@@ -710,10 +715,16 @@ async function exportarCSV() {
     updateProgress(60, 'Generando archivo...')
     await new Promise(resolve => setTimeout(resolve, 300))
 
-    // Combinar encabezados y filas
+    // Escapado RFC 4180: envuelve en comillas y dobla las comillas internas
+    const csvEscape = (val) => {
+      const str = val == null ? '' : String(val)
+      return /[,"\n\r]/.test(str) ? `"${str.replace(/"/g, '""')}"` : str
+    }
+
+    // Combinar encabezados y filas con escaping correcto
     const csvContent = [
-      headers.join(','),
-      ...rows.map(row => row.join(','))
+      headers.map(csvEscape).join(','),
+      ...rows.map(row => row.map(csvEscape).join(','))
     ].join('\n')
 
     // Crear blob y descargar

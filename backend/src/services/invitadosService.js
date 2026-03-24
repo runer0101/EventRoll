@@ -96,20 +96,19 @@ export const invitadosService = {
   },
 
   async deleteInvitado(id, actorId) {
-    const existingInvitado = await invitadosRepository.findById(id)
+    // DELETE ... RETURNING elimina la carrera entre findById y deleteById
+    const deleted = await invitadosRepository.deleteById(id)
 
-    if (!existingInvitado) {
+    if (!deleted) {
       throw notFoundError('Invitado no encontrado')
     }
-
-    await invitadosRepository.deleteById(id)
 
     await activityService.register({
       usuarioId: actorId,
       accion: 'Eliminó invitado',
       detalles: {
-        nombre: existingInvitado.nombre,
-        apellido: existingInvitado.apellido
+        nombre: deleted.nombre,
+        apellido: deleted.apellido
       }
     })
   },

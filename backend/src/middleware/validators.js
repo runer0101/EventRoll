@@ -10,7 +10,7 @@ export const handleValidationErrors = (req, res, next) => {
       success: false,
       message: 'Validación fallida',
       errors: errors.array().map(err => ({
-        field: err.param,
+        field: err.path ?? err.param,
         message: err.msg
       }))
     })

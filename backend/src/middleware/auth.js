@@ -133,9 +133,9 @@ export const authenticateToken = async (req, res, next) => {
     }
 
     if (error.name === 'TokenExpiredError') {
-      return res.status(403).json({
+      return res.status(401).json({
         success: false,
-        message: 'Token expirado'
+        message: 'Sesión expirada. Inicia sesión nuevamente.'
       })
     }
 
@@ -173,3 +173,35 @@ export const requireAdmin = requireRole('admin')
 
 // Middleware para verificar que el usuario es admin u organizador
 export const requireOrganizer = requireRole('admin', 'organizador')
+
+// Permisos por defecto según rol (espejo del frontend, pero aplicado en el servidor)
+const PERMISOS_DEFAULT_POR_ROL = {
+  admin:        { ver_invitados: true,  confirmar_invitados: true,  crear_invitados: true,  editar_invitados: true,  eliminar_invitados: true,  importar_invitados: true  },
+  organizador:  { ver_invitados: true,  confirmar_invitados: true,  crear_invitados: true,  editar_invitados: true,  eliminar_invitados: true,  importar_invitados: true  },
+  asistente:    { ver_invitados: true,  confirmar_invitados: true,  crear_invitados: true,  editar_invitados: true,  eliminar_invitados: false, importar_invitados: false },
+  guardia:      { ver_invitados: true,  confirmar_invitados: true,  crear_invitados: false, editar_invitados: false, eliminar_invitados: false, importar_invitados: false },
+  visualizador: { ver_invitados: true,  confirmar_invitados: false, crear_invitados: false, editar_invitados: false, eliminar_invitados: false, importar_invitados: false },
+}
+
+// Middleware para verificar un permiso granular.
+// Primero revisa req.user.permisos (overrides por usuario),
+// si no existe el campo cae al default del rol.
+export const requirePermiso = (permiso) => {
+  return (req, res, next) => {
+    if (!req.user) {
+      return res.status(401).json({ success: false, message: 'No autenticado' })
+    }
+
+    const overrides = req.user.permisos || {}
+    const defaults  = PERMISOS_DEFAULT_POR_ROL[req.user.rol] || {}
+    const allowed   = permiso in overrides ? overrides[permiso] : (defaults[permiso] ?? false)
+
+    if (!allowed) {
+      return res.status(403).json({
+        success: false,
+        message: `Permiso denegado: se requiere el permiso '${permiso}'`
+      })
+    }
+    next()
+  }
+}

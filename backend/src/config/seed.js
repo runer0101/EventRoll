@@ -18,18 +18,33 @@ const seedDatabase = async () => {
     }
     const passwordHash = await bcrypt.hash(adminPassword, 12)
 
-    const adminResult = await query(
-      `INSERT INTO usuarios (nombre, email, password_hash, rol)
-       VALUES ($1, $2, $3, $4)
-       ON CONFLICT (email) DO UPDATE SET
-         nombre = EXCLUDED.nombre,
-         password_hash = EXCLUDED.password_hash,
-         rol = EXCLUDED.rol
-       RETURNING id`,
-      ['Administrador', 'admin@prueba.com', passwordHash, 'admin']
-    )
+    // En producción, nunca sobreescribir contraseña existente del admin
+    let adminResult
+    if (process.env.NODE_ENV === 'production') {
+      adminResult = await query(
+        `INSERT INTO usuarios (nombre, email, password_hash, rol)
+         VALUES ($1, $2, $3, $4)
+         ON CONFLICT (email) DO UPDATE SET
+           nombre = EXCLUDED.nombre,
+           rol = EXCLUDED.rol
+         RETURNING id`,
+        ['Administrador', 'admin@prueba.com', passwordHash, 'admin']
+      )
+      console.warn('⚠️  PRODUCCIÓN: contraseña del admin NO fue modificada (registro existente)')
+    } else {
+      adminResult = await query(
+        `INSERT INTO usuarios (nombre, email, password_hash, rol)
+         VALUES ($1, $2, $3, $4)
+         ON CONFLICT (email) DO UPDATE SET
+           nombre = EXCLUDED.nombre,
+           password_hash = EXCLUDED.password_hash,
+           rol = EXCLUDED.rol
+         RETURNING id`,
+        ['Administrador', 'admin@prueba.com', passwordHash, 'admin']
+      )
+    }
     const adminId = adminResult.rows[0].id
-    console.log(`Usuario admin creado (ID: ${adminId})\n`)
+    console.log(`Usuario admin creado/actualizado (ID: ${adminId})\n`)
 
     // 2. Crear usuarios de ejemplo
     console.log('Creando usuarios de ejemplo...')

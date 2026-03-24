@@ -150,6 +150,7 @@ export const invitadosRepository = {
   },
 
   async deleteById(id) {
-    await query('DELETE FROM invitados WHERE id = $1', [id])
+    const result = await query('DELETE FROM invitados WHERE id = $1 RETURNING *', [id])
+    return result.rows[0] || null
   }
 }

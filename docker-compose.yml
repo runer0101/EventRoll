@@ -11,8 +11,8 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD requerida en .env}
     volumes:
       - pgdata:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
+    # Puerto NO expuesto al host — solo accesible dentro de la red Docker
+    # Para conectarte directamente usa: docker compose exec db psql -U eventroll
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U eventroll -d eventroll"]
       interval: 10s

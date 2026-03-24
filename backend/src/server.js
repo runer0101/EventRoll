@@ -17,6 +17,11 @@ const startServer = async () => {
     validateEnv()
     process.stderr.write('[STARTUP] validateEnv OK\n')
 
+    // Advertencia de seguridad si ALLOW_BEARER_TOKEN está activo en producción
+    if (process.env.ALLOW_BEARER_TOKEN === 'true' && process.env.NODE_ENV === 'production') {
+      logger.warn('SECURITY WARNING: ALLOW_BEARER_TOKEN=true está activo en NODE_ENV=production. Bearer token auth no debería usarse en producción.')
+    }
+
     const dbUrl = process.env.DATABASE_URL || ''
     const safeUrl = dbUrl.replace(/:([^:@]+)@/, ':***@')
     process.stderr.write(`[STARTUP] DATABASE_URL: ${safeUrl}\n`)
