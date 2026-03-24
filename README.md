@@ -11,11 +11,21 @@
   <a href="https://github.com/runer0101/EventRoll/actions/workflows/security.yml">
     <img src="https://github.com/runer0101/EventRoll/actions/workflows/security.yml/badge.svg" alt="Security">
   </a>
-  <img src="https://img.shields.io/badge/Node.js-22-339933?logo=node.js&logoColor=white" alt="Node.js">
-  <img src="https://img.shields.io/badge/Vue-3-4FC08D?logo=vue.js&logoColor=white" alt="Vue 3">
-  <img src="https://img.shields.io/badge/PostgreSQL-16-336791?logo=postgresql&logoColor=white" alt="PostgreSQL">
-  <img src="https://img.shields.io/badge/Docker-ready-2496ED?logo=docker&logoColor=white" alt="Docker">
-  <img src="https://img.shields.io/badge/licencia-MIT-FFD700?labelColor=1a1a1a&color=FFD700" alt="MIT">
+  <a href="https://nodejs.org/">
+    <img src="https://img.shields.io/badge/Node.js-22-339933?logo=node.js&logoColor=white" alt="Node.js">
+  </a>
+  <a href="https://vuejs.org/">
+    <img src="https://img.shields.io/badge/Vue-3-4FC08D?logo=vue.js&logoColor=white" alt="Vue 3">
+  </a>
+  <a href="https://www.postgresql.org/">
+    <img src="https://img.shields.io/badge/PostgreSQL-16-336791?logo=postgresql&logoColor=white" alt="PostgreSQL">
+  </a>
+  <a href="https://www.docker.com/">
+    <img src="https://img.shields.io/badge/Docker-ready-2496ED?logo=docker&logoColor=white" alt="Docker">
+  </a>
+  <a href="https://github.com/runer0101/EventRoll/blob/main/LICENSE">
+    <img src="https://img.shields.io/badge/licencia-MIT-blue" alt="MIT">
+  </a>
 </p>
 
 ---
