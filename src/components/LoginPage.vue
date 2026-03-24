@@ -19,7 +19,14 @@
 
         <!-- Logo -->
         <div class="left-brand">
-          <span class="brand-icon">E</span>
+          <span class="brand-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+              <rect x="3" y="3" width="8" height="8" rx="2" fill="currentColor"/>
+              <rect x="13" y="3" width="8" height="8" rx="2" fill="currentColor" opacity="0.5"/>
+              <rect x="3" y="13" width="8" height="8" rx="2" fill="currentColor" opacity="0.5"/>
+              <rect x="13" y="13" width="8" height="8" rx="2" fill="currentColor"/>
+            </svg>
+          </span>
           <span class="brand-name">EventRoll</span>
         </div>
 
@@ -507,9 +514,6 @@ async function restablecerPassword() {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Sora', sans-serif;
-  font-weight: 800;
-  font-size: 1.15rem;
   box-shadow: 0 0 24px rgba(255, 215, 0, 0.35);
   flex-shrink: 0;
 }
