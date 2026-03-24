@@ -11,6 +11,7 @@
     "migrate:v1.4": "node src/config/migrate-v1.4.js",
     "migrate:v1.5": "node src/config/migrate-v1.5.js",
     "migrate:v1.6": "node src/config/migrate-v1.6.js",
+    "migrate:v1.7": "node src/config/migrate-v1.7.js",
     "seed": "node src/config/seed.js",
     "cambiar-password": "node scripts/cambiar-password.js",
     "test": "vitest run",

@@ -1,6 +1,7 @@
 import { query, testConnection } from './database.js'
 import { fileURLToPath } from 'url'
 import { normalize } from 'path'
+import { ensureMigrationsTable, isApplied, markApplied } from './migrationHelper.js'
 
 const migrarV16 = async () => {
   console.log('Iniciando migración v1.6 - Índices y restricciones de unicidad...\n')
@@ -8,6 +9,13 @@ const migrarV16 = async () => {
   try {
     const connected = await testConnection()
     if (!connected) throw new Error('No se pudo conectar a la base de datos')
+
+    await ensureMigrationsTable()
+
+    if (await isApplied('v1.6')) {
+      console.log('Migración v1.6 ya aplicada, omitiendo.\n')
+      return
+    }
 
     // 1. Eliminar duplicados antes de crear el constraint UNIQUE
     // Mantiene el registro más reciente de cada par (evento_id, nombre, apellido)
@@ -67,6 +75,8 @@ const migrarV16 = async () => {
         ON invitados(apellido)
     `)
     console.log('Índice apellido creado\n')
+
+    await markApplied('v1.6')
 
     console.log('Migración v1.6 completada exitosamente!')
     console.log('Cambios aplicados:')

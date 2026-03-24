@@ -1,6 +1,7 @@
 import { query, testConnection } from './database.js'
 import { fileURLToPath } from 'url'
 import { normalize } from 'path'
+import { ensureMigrationsTable, isApplied, markApplied } from './migrationHelper.js'
 
 const migrarRecuperacionPassword = async () => {
   console.log('Iniciando migración v1.5 - Sistema de Recuperación de Contraseña...\n')
@@ -10,6 +11,13 @@ const migrarRecuperacionPassword = async () => {
     const connected = await testConnection()
     if (!connected) {
       throw new Error('No se pudo conectar a la base de datos')
+    }
+
+    await ensureMigrationsTable()
+
+    if (await isApplied('v1.5')) {
+      console.log('Migración v1.5 ya aplicada, omitiendo.\n')
+      return
     }
 
     // Crear tabla de códigos de recuperación
@@ -65,6 +73,8 @@ const migrarRecuperacionPassword = async () => {
       CREATE TRIGGER update_email_config_updated_at BEFORE UPDATE ON email_config
         FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()
     `)
+
+    await markApplied('v1.5')
 
     console.log('Migración v1.5 completada exitosamente!\n')
     console.log('Tablas creadas:')

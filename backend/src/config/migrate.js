@@ -1,6 +1,7 @@
 import { query, testConnection } from './database.js'
 import { fileURLToPath } from 'url'
 import { normalize } from 'path'
+import { ensureMigrationsTable, markApplied } from './migrationHelper.js'
 
 const createTables = async () => {
   console.log('Iniciando migraciones de base de datos...\n')
@@ -126,6 +127,11 @@ const createTables = async () => {
         FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()
     `)
     console.log('Triggers creados\n')
+
+    // Tabla de versiones de migraciones (idempotencia en re-deploys)
+    await ensureMigrationsTable()
+    await markApplied('v1.0')
+    console.log('Tabla schema_migrations verificada\n')
 
     console.log('Migraciones completadas exitosamente!')
 

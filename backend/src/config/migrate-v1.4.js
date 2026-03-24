@@ -1,4 +1,7 @@
 import { query, testConnection } from './database.js'
+import { fileURLToPath } from 'url'
+import { normalize } from 'path'
+import { ensureMigrationsTable, isApplied, markApplied } from './migrationHelper.js'
 
 /**
  * Migración v1.4.0
@@ -10,10 +13,14 @@ const migrateV14 = async () => {
   console.log('Ejecutando migración v1.4.0...\n')
 
   try {
-    // Verificar conexión
     const connected = await testConnection()
-    if (!connected) {
-      throw new Error('No se pudo conectar a la base de datos')
+    if (!connected) throw new Error('No se pudo conectar a la base de datos')
+
+    await ensureMigrationsTable()
+
+    if (await isApplied('v1.4')) {
+      console.log('Migración v1.4 ya aplicada, omitiendo.\n')
+      return
     }
 
     // 1. Agregar columna 'permisos' a usuarios (si no existe)
@@ -122,6 +129,8 @@ const migrateV14 = async () => {
     await query(`CREATE INDEX IF NOT EXISTS idx_invitados_asistio ON invitados(asistio)`)
     console.log('Índices creados\n')
 
+    await markApplied('v1.4')
+
     console.log('Migración v1.4.0 completada exitosamente!\n')
     console.log('Cambios aplicados:')
     console.log('   - Tabla usuarios: columna permisos (JSONB) agregada')
@@ -130,12 +139,22 @@ const migrateV14 = async () => {
     console.log('   - Permisos por defecto configurados según rol')
     console.log('')
 
-    process.exit(0)
   } catch (error) {
     console.error('Error durante la migración:', error)
-    process.exit(1)
+    throw error
   }
 }
 
-// Ejecutar migración
-migrateV14()
+const currentFile = fileURLToPath(import.meta.url)
+const executedFile = normalize(process.argv[1])
+
+if (currentFile === executedFile || process.argv[1].endsWith('migrate-v1.4.js')) {
+  migrateV14()
+    .then(() => process.exit(0))
+    .catch((error) => {
+      console.error(error)
+      process.exit(1)
+    })
+}
+
+export default migrateV14
