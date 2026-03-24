@@ -2,7 +2,12 @@ import { query } from '../config/database.js'
 
 export const authRepository = {
   async findUserByEmail(email) {
-    const result = await query('SELECT * FROM usuarios WHERE email = $1', [email])
+    // Selección explícita: password_hash se necesita para bcrypt.compare en login.
+    // Nunca se expone al cliente — buildAuthUser() en authService lo omite.
+    const result = await query(
+      'SELECT id, nombre, email, password_hash, rol, permisos FROM usuarios WHERE email = $1',
+      [email]
+    )
     return result.rows[0] || null
   },
 
