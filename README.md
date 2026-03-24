@@ -56,7 +56,7 @@ Coordinar la entrada a un evento con múltiples personas del equipo (organizador
 
 | Campo | Valor |
 |-------|-------|
-| Email | `admin@prueba` |
+| Email | `admin@prueba.com` |
 | Contraseña | `Ysel@Admin2026!` |
 
 ---
@@ -85,359 +85,435 @@ Administra toda la lista de un evento desde un solo panel.
 
 - Crear, editar y eliminar invitados uno por uno
 - **Importar masivamente** desde archivos `.xlsx` (hasta 500 invitados por lote)
-- **Exportar** la lista actual a Excel en cualquier momento
-- Búsqueda en tiempo real por nombre o apellido
-- Filtros por categoría (VIP, General, Familia, Amigos, Trabajo) y por estado de confirmación
-- **Paginación server-side** eficiente para eventos con miles de invitados
-- Prevención de duplicados mediante índice único por evento
+- **Exportar** la lista completa a Excel o CSV en cualquier momento
+- Descargar plantilla Excel lista para llenar
+- Búsqueda en tiempo real por nombre o apellido (debounce 400 ms)
+- Filtros por categoría (VIP · General · Familia · Amigos · Trabajo) y por estado de confirmación
+- Ordenamiento A-Z / Z-A
+- Paginación con tamaño configurable (10 · 25 · 50 · 100 por página)
+- Historial de búsquedas recientes guardado por sesión
 
-### ✅ Control de asistencia en tiempo real
-Confirma llegadas en segundos directamente desde el panel.
+### ✅ Control de asistencia
+Marca quién llegó sin tocar el teclado.
 
-- Confirmar o desconfirmar invitados con un solo clic
-- **Panel de estadísticas en vivo**: total de invitados, confirmados, disponibles y porcentaje de ocupación
-- Barra de progreso visual para ver el estado del evento de un vistazo
-- Avatares con iniciales e indicador de color (verde = confirmado, gris = pendiente)
+- Toggle de confirmación con un solo clic en cada invitado
+- Indicadores visuales: avatar verde (confirmado) · gris (pendiente)
+- Estadísticas en tiempo real: Capacidad · Disponibles · Confirmados · Ocupación %
+- Barra de progreso de ocupación
 
-### 🔐 Control de acceso por roles (RBAC)
-Cada miembro del equipo tiene exactamente los permisos que necesita — ni más, ni menos.
+### 📊 Estadísticas
+Panel dedicado con métricas del evento.
 
-- **5 roles distintos** con permisos granulares
-- **Códigos de acceso de un solo uso** para guardias en la puerta: entran sin necesidad de email/contraseña
-- Recuperación de contraseña por email con código de 6 dígitos y expiración automática
+- Total de invitados registrados
+- Confirmados vs pendientes
+- Porcentaje de ocupación con progreso visual
 
-### 📊 Multi-evento
-Gestiona varios eventos desde la misma cuenta sin mezclar listas.
+### 👤 Gestión de usuarios *(solo admin)*
+Control total del equipo.
 
-- Cada evento tiene su propia lista de invitados completamente separada
-- Cambiar el evento activo desde el panel en cualquier momento
-- Estadísticas independientes por evento
+- Crear usuarios con nombre, email, contraseña y rol
+- Editar rol y permisos granulares por usuario
+- Eliminar usuarios
+- Generar y revocar **códigos de acceso de un uso** para guardias
+- Los guardias entran con el código, sin necesidad de email ni contraseña
+
+### 🔑 Autenticación y recuperación
+Acceso seguro para todos los perfiles.
+
+- Login con email/contraseña
+- Login con código de acceso de un uso (modo guardia)
+- Recuperación de contraseña por email con código de 6 dígitos y expiración
+- Sesión en cookie HttpOnly (inmune a XSS)
+
+### ⌨️ Atajos de teclado
+Productividad extra para usuarios avanzados.
+
+- Panel de atajos disponible con `?` o desde el menú
+- Navegación rápida entre secciones
 
 ---
 
 ## Roles y permisos
 
-| Acción | Admin | Organizador | Asistente | Guardia | Visualizador |
-|--------|:-----:|:-----------:|:---------:|:-------:|:------------:|
-| Ver invitados | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Confirmar asistencia | ✓ | ✓ | ✓ | ✓ | — |
-| Crear / editar invitados | ✓ | ✓ | ✓ | — | — |
-| Eliminar invitados | ✓ | ✓ | — | — | — |
-| Importar desde Excel | ✓ | ✓ | — | — | — |
-| Exportar a Excel | ✓ | ✓ | ✓ | — | ✓ |
-| Cambiar evento activo | ✓ | ✓ | — | — | — |
-| Gestionar usuarios del equipo | ✓ | — | — | — | — |
-| Generar / revocar códigos de acceso | ✓ | — | — | — | — |
+EventRoll usa un sistema **RBAC** (Role-Based Access Control) con 5 roles y permisos granulares por usuario.
 
-> Los **guardias** usan un código de acceso de un solo uso generado por el admin. No necesitan recordar ni una contraseña.
+| Permiso | Admin | Organizador | Asistente | Guardia | Visualizador |
+|---------|:-----:|:-----------:|:---------:|:-------:|:------------:|
+| Ver lista de invitados | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Confirmar asistencia | ✅ | ✅ | ✅ | ✅ | — |
+| Agregar invitados | ✅ | ✅ | ✅ | — | — |
+| Editar invitados | ✅ | ✅ | ✅ | — | — |
+| Eliminar invitados | ✅ | ✅ | — | — | — |
+| Importar desde Excel | ✅ | ✅ | — | — | — |
+| Exportar lista | ✅ | ✅ | ✅ | — | ✅ |
+| Configurar capacidad del evento | ✅ | ✅ | — | — | — |
+| Gestionar usuarios | ✅ | — | — | — | — |
+| Generar códigos de guardia | ✅ | — | — | — | — |
+
+> Los permisos pueden ajustarse individualmente por usuario desde el panel de administración, anulando los valores por defecto del rol.
 
 ---
 
 ## Cómo funciona
 
-EventRoll tiene una arquitectura de tres capas clásica: frontend SPA, API REST y base de datos relacional.
+### Arquitectura general
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                        Navegador (Vue 3)                        │
-│  Panel de invitados · Gestión de usuarios · Estadísticas · ...  │
-└────────────────────────────┬────────────────────────────────────┘
-                             │ HTTPS + Cookie HttpOnly (JWT)
-                             ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                    API REST (Express + Node.js)                  │
-│  /api/auth  ·  /api/invitados  ·  /api/usuarios  ·  /health     │
-└────────────────────────────┬────────────────────────────────────┘
-                             │ SQL parametrizado
-                             ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                   PostgreSQL (Supabase en prod)                  │
-│  usuarios · invitados · eventos · actividad · recovery_codes     │
-└─────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│                     Usuario final                           │
+└──────────────────────────┬──────────────────────────────────┘
+                           │ HTTPS
+┌──────────────────────────▼──────────────────────────────────┐
+│           Frontend — Vue 3 + Pinia (GitHub Pages)           │
+│  ┌─────────────┐  ┌──────────────────┐  ┌───────────────┐  │
+│  │  LoginPage  │  │  ListaInvitados  │  │ GestionUsrs   │  │
+│  └─────────────┘  └──────────────────┘  └───────────────┘  │
+│           Axios (withCredentials: true)                      │
+└──────────────────────────┬──────────────────────────────────┘
+                           │ JSON / HttpOnly Cookie
+┌──────────────────────────▼──────────────────────────────────┐
+│            Backend — Express.js (Render.com)                 │
+│  Routes → Middleware → Controllers → Services → Repos        │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐   │
+│  │   Auth   │  │Invitados │  │ Usuarios │  │ Recovery │   │
+│  └──────────┘  └──────────┘  └──────────┘  └──────────┘   │
+└──────────────────────────┬──────────────────────────────────┘
+                           │ pg driver + SSL
+┌──────────────────────────▼──────────────────────────────────┐
+│           PostgreSQL 16 (Supabase / local)                   │
+│   usuarios · eventos · invitados · actividad · recovery      │
+└─────────────────────────────────────────────────────────────┘
 ```
 
-**Sesión segura:** el JWT se almacena en una **cookie HttpOnly** — nunca toca el JavaScript del navegador, lo que elimina por diseño los ataques XSS sobre el token de sesión.
+### Flujo de autenticación
 
-### Arquitectura del backend en capas
+1. El frontend envía credenciales al backend vía `POST /api/auth/login`
+2. El backend verifica email + bcrypt hash y firma un JWT
+3. El JWT se almacena en una **cookie HttpOnly** (nunca en `localStorage`)
+4. Cada request posterior incluye la cookie automáticamente (`withCredentials: true`)
+5. El middleware `authenticateToken` valida el JWT, consulta el usuario (con caché 5 min) y adjunta `req.user`
+6. Al hacer logout, el token se agrega a una **blacklist en memoria** hasta que expira
 
-El backend sigue una arquitectura en capas estricta para separar responsabilidades y facilitar el testing independiente de cada capa:
+### Capas del backend
 
 ```
 HTTP Request
-    │
-    ▼
-Routes          → define el endpoint y qué middleware aplica
-    │
-    ▼
-Middleware      → autenticación JWT, validación de rol, rate limiting, CSRF
-    │
-    ▼
-Controllers     → extrae parámetros del request, llama al service
-    │
-    ▼
-Services        → lógica de negocio (validaciones, reglas, errores de dominio)
-    │
-    ▼
-Repositories    → SQL parametrizado, acceso exclusivo a PostgreSQL
-    │
-    ▼
-PostgreSQL
+   ↓
+Router            — Define métodos y rutas
+   ↓
+Middleware         — authenticateToken · requireRole · validateInput · rateLimiter
+   ↓
+Controller         — Extrae parámetros del request, llama al service, devuelve respuesta
+   ↓
+Service            — Lógica de negocio, validaciones, reglas
+   ↓
+Repository         — Queries SQL parametrizadas, acceso exclusivo a la BD
+   ↓
+PostgreSQL Pool    — Conexiones gestionadas por pg-pool
 ```
-
-Los **tests unitarios** mockean el repositorio y prueban el service en aislamiento. Los **tests de integración** usan una base de datos PostgreSQL real y prueban el stack completo desde HTTP.
 
 ---
 
 ## Stack tecnológico
 
-| Capa | Tecnología | Versión | Propósito |
-|------|------------|---------|-----------|
-| Frontend | Vue 3 + Vite | 3.x | SPA reactiva con Composition API |
-| Estado global | Pinia | 2.x | Store de auth y evento activo |
-| Peticiones HTTP | Axios | 1.x | Interceptores de error, retry, sesión |
-| Íconos | Lucide Vue | — | Íconos SVG ligeros y consistentes |
-| Excel | ExcelJS | — | Import/export de archivos `.xlsx` |
-| Backend | Node.js + Express | 22 / 4.x | API REST con async/await |
-| Base de datos | PostgreSQL | 16 | Persistencia relacional principal |
-| Auth | JWT + bcryptjs | — | Sesión stateless y hash de contraseñas |
-| Logs | Winston | — | Logging estructurado en JSON con redacción |
-| Tests unitarios | Vitest | — | Tests rápidos con mocks y cobertura |
-| Tests integración | Supertest | — | Tests end-to-end de la API con DB real |
-| CI/CD | GitHub Actions | — | Tests + auditoría de seguridad en cada push |
-| Deploy backend | Render | — | Auto-deploy desde rama `main` |
-| Deploy frontend | GitHub Pages | — | Build estático de Vue |
-| DB producción | Supabase | — | PostgreSQL gestionado y con backups |
-| Contenedores | Docker + Nginx | — | Stack local completo en un comando |
+### Frontend
+
+| Tecnología | Versión | Uso |
+|-----------|---------|-----|
+| Vue 3 | `^3.5` | Framework UI (Composition API) |
+| Vite | `^7.1` | Build tool y dev server |
+| Pinia | `^2.3` | Estado global (sesión, evento activo) |
+| Axios | `^1.6` | Cliente HTTP con interceptores |
+| ExcelJS | `^4.4` | Importación y exportación de `.xlsx` |
+| Lucide Vue | `^0.577` | Íconos SVG |
+
+### Backend
+
+| Tecnología | Versión | Uso |
+|-----------|---------|-----|
+| Node.js | `22` | Runtime |
+| Express | `^4.18` | Framework web |
+| PostgreSQL | `16` | Base de datos |
+| jsonwebtoken | `^9.0` | Firma y verificación de JWT |
+| bcryptjs | `^3.0` | Hashing de contraseñas |
+| express-validator | `^7.0` | Validación de inputs |
+| express-rate-limit | `^7.5` | Rate limiting por IP |
+| helmet | `^7.1` | Headers de seguridad HTTP |
+| cors | `^2.8` | Control de CORS |
+| cookie-parser | `^1.4` | Lectura de cookies |
+| nodemailer | `^7.0` | Envío de emails (recuperación) |
+| winston | `^3.17` | Logging estructurado JSON |
+| swagger-ui-express | `^5.0` | Documentación interactiva de la API |
+| morgan | `^1.10` | HTTP request logging |
+
+### Testing y DevOps
+
+| Herramienta | Uso |
+|------------|-----|
+| Vitest | Tests unitarios (servicios) |
+| Supertest | Tests de integración (endpoints) |
+| GitHub Actions | CI/CD (tests · seguridad · deploy) |
+| Docker + Compose | Contenedores y orquestación local |
+| nginx | Servidor y proxy reverso en Docker |
+| Render.com | Hosting del backend |
+| GitHub Pages | Hosting del frontend |
+| Supabase | PostgreSQL gestionado en producción |
+| gitleaks | Detección de secretos en commits |
 
 ---
 
 ## Base de datos
 
-### Esquema de tablas
+### Diagrama de tablas
 
 ```
 usuarios
-├── id             UUID, PK
-├── nombre         VARCHAR
-├── email          VARCHAR, UNIQUE
-├── password_hash  VARCHAR           ← bcrypt, nunca texto plano
-├── rol            VARCHAR           ← admin | organizador | asistente | guardia | visualizador
-├── permisos       JSONB             ← permisos granulares opcionales por usuario
-├── access_code    VARCHAR           ← código de un solo uso para guardias, nullable
-└── created_at     TIMESTAMP
+├── id            UUID PK
+├── nombre        VARCHAR(255)
+├── email         VARCHAR(255) UNIQUE
+├── password_hash VARCHAR(255)
+├── rol           'admin' | 'organizador' | 'asistente' | 'guardia' | 'visualizador'
+├── access_code   VARCHAR(12) UNIQUE (para guardias)
+├── access_code_expires_at TIMESTAMP
+├── permisos      JSONB (overrides granulares)
+├── created_at    TIMESTAMP
+└── updated_at    TIMESTAMP (auto-actualizado por trigger)
 
 eventos
-├── id             UUID, PK
-├── nombre         VARCHAR
-├── fecha          DATE
-├── sillas_totales INTEGER
-└── creado_por     UUID → usuarios
+├── id            UUID PK
+├── nombre        VARCHAR(255)
+├── fecha         DATE
+├── sillas_totales INTEGER DEFAULT 100
+├── creado_por    UUID → usuarios(id)
+├── created_at    TIMESTAMP
+└── updated_at    TIMESTAMP
 
 invitados
-├── id             UUID, PK
-├── evento_id      UUID → eventos
-├── nombre         VARCHAR
-├── apellido       VARCHAR
-├── categoria      VARCHAR           ← General | VIP | Familia | Amigos | Trabajo
-├── confirmado     BOOLEAN
-└── created_at     TIMESTAMP
+├── id            UUID PK
+├── evento_id     UUID → eventos(id) ON DELETE CASCADE
+├── nombre        VARCHAR(255)
+├── apellido      VARCHAR(255)
+├── categoria     'General' | 'VIP' | 'Familia' | 'Amigos' | 'Trabajo'
+├── confirmado    BOOLEAN DEFAULT FALSE
+├── created_at    TIMESTAMP
+└── updated_at    TIMESTAMP
 
-actividad
-├── id             UUID, PK
-├── usuario_id     UUID → usuarios
-├── accion         VARCHAR           ← registro de auditoría de acciones
-├── detalles       JSONB
-└── created_at     TIMESTAMP
+actividad  (audit log)
+├── id            UUID PK
+├── usuario_id    UUID → usuarios(id)
+├── accion        VARCHAR(255)
+├── detalles      JSONB
+└── created_at    TIMESTAMP
 
 recovery_codes
-├── id             UUID, PK
-├── usuario_id     UUID → usuarios
-├── code           VARCHAR(6)        ← código de 6 dígitos con expiración
-├── expires_at     TIMESTAMP
-└── used           BOOLEAN
+├── id            UUID PK
+├── usuario_id    UUID → usuarios(id) ON DELETE CASCADE
+├── code          VARCHAR(6)
+├── expires_at    TIMESTAMP
+└── used          BOOLEAN DEFAULT FALSE
 ```
 
-### Índices destacados
+### Índices creados
 
-- `idx_invitados_unique_per_event` — UNIQUE por `(evento_id, LOWER(nombre), LOWER(apellido))` para evitar duplicados
-- `idx_invitados_nombre_lower` / `idx_invitados_apellido_lower` — búsqueda case-insensitive eficiente
-
----
-
-## Requisitos locales
-
-- Node.js 20+ (recomendado 22)
-- npm 9+
-- PostgreSQL 14+
+- `idx_usuarios_email` — búsquedas de login
+- `idx_invitados_evento` — filtrar por evento
+- `idx_invitados_nombre_lower` — búsqueda case-insensitive por nombre
+- `idx_invitados_apellido_lower` — búsqueda case-insensitive por apellido
+- `idx_invitados_unique_per_event` — UNIQUE(evento_id, LOWER(nombre), LOWER(apellido)) para evitar duplicados
+- `idx_actividad_usuario` y `idx_actividad_fecha` — consultas de auditoría
 
 ---
 
 ## Instalación local
 
-### 1. Clonar el repositorio
+### Requisitos previos
+
+- Node.js `>= 20`
+- npm `>= 9`
+- PostgreSQL `>= 14` corriendo en `localhost:5432`
+
+### Pasos
 
 ```bash
+# 1. Clonar el repositorio
 git clone https://github.com/runer0101/EventRoll.git
 cd EventRoll
-```
 
-### 2. Instalar dependencias
-
-```bash
+# 2. Instalar dependencias
 npm install                    # frontend
 npm install --prefix backend   # backend
-```
 
-### 3. Configurar variables de entorno
-
-```bash
-# Backend — copia la plantilla y edita los valores
+# 3. Configurar entorno
 cp backend/.env.example backend/.env
 ```
 
-Los valores mínimos que debes configurar en `backend/.env`:
+Editar `backend/.env` con al menos:
 
 ```env
-DATABASE_URL=postgresql://usuario:password@localhost:5432/eventroll
-JWT_SECRET=<string aleatorio de 64+ caracteres>
+DATABASE_URL=postgresql://postgres:tu_password@localhost:5432/eventroll
+JWT_SECRET=<cadena aleatoria de 64+ caracteres>
 DEFAULT_ADMIN_PASSWORD=<contraseña segura para el admin>
 ```
 
-Genera un JWT_SECRET seguro con:
+Generar un JWT_SECRET seguro:
 ```bash
 node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
 ```
 
-El frontend ya apunta a `http://localhost:3000/api` por defecto. Si lo necesitas cambiar:
 ```bash
-cp .env.example .env
-# Editar VITE_API_URL
-```
+# 4. Crear tablas y datos iniciales
+npm run migrate --prefix backend   # crea tablas e índices
+npm run seed --prefix backend      # crea el usuario admin y un evento de prueba
 
-### 4. Crear las tablas en la base de datos
+# 5. Iniciar los servidores (dos terminales)
 
-```bash
-cd backend
-npm run migrate          # crea todas las tablas e índices
-npm run seed             # opcional: crea el usuario admin inicial
-```
-
-> El seed crea el usuario `admin@prueba` con la contraseña que definiste en `DEFAULT_ADMIN_PASSWORD`.
-
-### 5. Iniciar los servidores
-
-```bash
-# Terminal 1 — API (puerto 3000)
-cd backend && npm run dev
+# Terminal 1 — Backend (puerto 3000)
+npm run dev --prefix backend
 
 # Terminal 2 — Frontend (puerto 5173)
 npm run dev
 ```
 
-Abre [http://localhost:5173](http://localhost:5173) e inicia sesión con:
+### URLs locales
 
-| Email | Contraseña |
-|-------|------------|
-| `admin@prueba` | valor de `DEFAULT_ADMIN_PASSWORD` en `backend/.env` |
+| Servicio | URL |
+|----------|-----|
+| Frontend | http://localhost:5173 |
+| API | http://localhost:3000 |
+| Swagger Docs | http://localhost:3000/api/docs |
+| Health check | http://localhost:3000/health |
+
+**Credenciales iniciales:**
+
+| Campo | Valor |
+|-------|-------|
+| Email | `admin@prueba.com` |
+| Contraseña | El valor de `DEFAULT_ADMIN_PASSWORD` en tu `.env` |
 
 ---
 
-## Docker (stack completo en un comando)
-
-Levanta PostgreSQL + API + Nginx sin instalar nada más:
+## Docker — stack completo en un comando
 
 ```bash
+# 1. Copiar variables de entorno
 cp .env.example .env
-# Completar: DB_PASSWORD, JWT_SECRET, CORS_ORIGIN
-```
+# Editar .env: DB_PASSWORD, JWT_SECRET, CORS_ORIGIN, EMAIL_*
 
-```bash
+# 2. Levantar todos los servicios
 docker compose up -d
+
+# 3. Ver logs
+docker compose logs -f
 ```
 
-| Servicio | URL local |
-|----------|-----------|
+### Servicios Docker
+
+| Servicio | Imagen | Puerto | Descripción |
+|---------|--------|--------|-------------|
+| `db` | postgres:16-alpine | 5432 | Base de datos |
+| `backend` | Node.js 22 | 3000 | API REST |
+| `frontend` | nginx | 80 | App Vue + proxy |
+
+**URLs con Docker:**
+
+| Servicio | URL |
+|----------|-----|
 | Frontend | http://localhost |
 | API | http://localhost/api |
-| API Docs | http://localhost/api/docs |
+| Swagger Docs | http://localhost/api/docs |
 
-El `docker-compose.yml` incluye PostgreSQL, la API y un Nginx como reverse proxy con las rutas ya configuradas.
+```bash
+# Detener todo
+docker compose down
+
+# Detener y borrar datos
+docker compose down -v
+```
 
 ---
 
 ## Scripts disponibles
 
-### Frontend (`/`)
+### Frontend (raíz del proyecto)
 
-| Comando | Descripción |
-|---------|-------------|
-| `npm run dev` | Servidor de desarrollo en `http://localhost:5173` |
-| `npm run build` | Build optimizado de producción |
-| `npm run preview` | Preview local del build de producción |
-| `npm run lint` | Análisis estático con ESLint |
-| `npm run lint:fix` | Auto-corrección de errores de lint |
-| `npm run format` | Formateo con Prettier |
+```bash
+npm run dev          # Servidor de desarrollo (Vite)
+npm run build        # Build de producción
+npm run preview      # Preview del build
+npm run lint         # ESLint
+```
 
-### Backend (`/backend`)
+### Backend (`cd backend`)
 
-| Comando | Descripción |
-|---------|-------------|
-| `npm run dev` | Servidor con nodemon (recarga automática en cambios) |
-| `npm run start` | Servidor en modo producción |
-| `npm run migrate` | Crea/actualiza todas las tablas e índices |
-| `npm run seed` | Carga usuario admin y datos de ejemplo |
-| `npm run cambiar-password` | Utilidad para resetear la contraseña de un usuario |
-| `npm run test` | Tests unitarios (Vitest) |
-| `npm run test:watch` | Tests en modo watch durante desarrollo |
-| `npm run test:coverage` | Tests con reporte de cobertura de código |
-| `npm run test:integration` | Tests de integración contra PostgreSQL real |
+```bash
+npm run dev          # Servidor con nodemon (recarga automática)
+npm start            # Servidor de producción (sin nodemon)
+npm run migrate      # Crear/actualizar tablas en la BD
+npm run seed         # Poblar BD con admin + evento de prueba
+npm test             # Tests unitarios con Vitest
+npm run test:coverage    # Tests unitarios con reporte de cobertura
+npm run test:integration # Tests de integración (requiere BD)
+```
 
 ---
 
 ## Referencia de la API
 
-Documentación interactiva completa en [`/api/docs`](https://eventroll.onrender.com/api/docs) (Swagger UI).
+La documentación completa e interactiva está en Swagger:
+**https://eventroll.onrender.com/api/docs**
 
-### Autenticación
+### Endpoints principales
 
-| Método | Endpoint | Descripción |
-|--------|----------|-------------|
-| `POST` | `/api/auth/login` | Inicia sesión — establece cookie HttpOnly con JWT |
-| `POST` | `/api/auth/login-con-codigo` | Login rápido con código de acceso (guardias) |
-| `GET` | `/api/auth/me` | Devuelve el usuario autenticado actual |
-| `POST` | `/api/auth/logout` | Cierra sesión y limpia la cookie |
-| `POST` | `/api/auth/recovery/request` | Envía código de recuperación por email |
-| `POST` | `/api/auth/recovery/verify` | Verifica el código de 6 dígitos |
-| `POST` | `/api/auth/recovery/reset` | Restablece la contraseña con el código verificado |
+#### Autenticación
 
-### Invitados
+| Método | Endpoint | Descripción | Auth |
+|--------|----------|-------------|------|
+| `POST` | `/api/auth/login` | Login con email y contraseña | — |
+| `POST` | `/api/auth/login-con-codigo` | Login con código de guardia | — |
+| `GET` | `/api/auth/me` | Usuario actual autenticado | ✅ |
+| `POST` | `/api/auth/logout` | Cerrar sesión y revocar token | ✅ |
 
-| Método | Endpoint | Rol mínimo | Descripción |
-|--------|----------|------------|-------------|
-| `GET` | `/api/invitados` | cualquiera | Lista paginada con filtros (search, categoría, estado) |
-| `POST` | `/api/invitados` | organizador+ | Crea un invitado |
-| `POST` | `/api/invitados/import` | organizador+ | Importa hasta 500 invitados desde Excel |
-| `PUT` | `/api/invitados/:id` | organizador+ | Actualiza nombre, categoría o confirmación |
-| `DELETE` | `/api/invitados/:id` | organizador+ | Elimina un invitado |
+#### Recuperación de contraseña
 
-### Usuarios
+| Método | Endpoint | Descripción | Auth |
+|--------|----------|-------------|------|
+| `POST` | `/api/password-recovery/solicitar-codigo` | Enviar código al email | — |
+| `POST` | `/api/password-recovery/verificar-codigo` | Verificar el código | — |
+| `POST` | `/api/password-recovery/restablecer-password` | Nueva contraseña | — |
 
-| Método | Endpoint | Rol mínimo | Descripción |
-|--------|----------|------------|-------------|
-| `GET` | `/api/usuarios` | admin | Lista todos los usuarios del sistema |
-| `POST` | `/api/usuarios` | admin | Crea un usuario con rol asignado |
-| `PUT` | `/api/usuarios/:id` | admin | Edita nombre, email, rol o permisos |
-| `DELETE` | `/api/usuarios/:id` | admin | Elimina un usuario |
-| `POST` | `/api/usuarios/:id/generar-codigo` | admin | Genera código de acceso para un guardia |
-| `DELETE` | `/api/usuarios/:id/revocar-codigo` | admin | Revoca el código de acceso |
+#### Invitados
 
-### Sistema
+| Método | Endpoint | Descripción | Rol mínimo |
+|--------|----------|-------------|-----------|
+| `GET` | `/api/invitados` | Lista paginada con filtros | Cualquiera |
+| `POST` | `/api/invitados` | Crear invitado | Organizador |
+| `POST` | `/api/invitados/import` | Importar desde Excel | Organizador |
+| `PUT` | `/api/invitados/:id` | Actualizar invitado | Organizador |
+| `DELETE` | `/api/invitados/:id` | Eliminar invitado | Organizador |
 
-| Método | Endpoint | Descripción |
-|--------|----------|-------------|
-| `GET` | `/health` | Estado de la API y la base de datos (para monitoreo) |
+**Query params de GET `/api/invitados`:**
 
-> **Autenticación:** todas las rutas protegidas requieren el JWT en una **cookie HttpOnly**. Las peticiones deben enviarse con `withCredentials: true`. El token nunca es accesible desde JavaScript del navegador.
+| Parámetro | Tipo | Descripción |
+|-----------|------|-------------|
+| `evento_id` | UUID | **Requerido** — filtra por evento |
+| `page` | number | Página (default: 1) |
+| `limit` | number | Tamaño de página (max: 100) |
+| `search` | string | Busca en nombre y apellido (ILIKE) |
+| `categoria` | string | Filtra por categoría |
+| `confirmado` | boolean | Filtra por estado |
+| `sort` | string | Campo de ordenamiento |
+| `order` | `asc` \| `desc` | Dirección |
+
+#### Usuarios
+
+| Método | Endpoint | Descripción | Rol |
+|--------|----------|-------------|-----|
+| `GET` | `/api/usuarios` | Listar usuarios | Admin |
+| `POST` | `/api/usuarios` | Crear usuario | Admin |
+| `PUT` | `/api/usuarios/:id` | Editar usuario | Admin |
+| `DELETE` | `/api/usuarios/:id` | Eliminar usuario | Admin |
+| `POST` | `/api/usuarios/:id/generar-codigo` | Código de guardia | Admin |
+| `DELETE` | `/api/usuarios/:id/revocar-codigo` | Revocar código | Admin |
 
 ---
 
@@ -445,43 +521,76 @@ Documentación interactiva completa en [`/api/docs`](https://eventroll.onrender.
 
 ### Backend (`backend/.env`)
 
-| Variable | Requerida | Descripción |
-|----------|:---------:|-------------|
-| `DATABASE_URL` | ✓ | Cadena de conexión PostgreSQL completa (`postgresql://user:pass@host:5432/db`) |
-| `JWT_SECRET` | ✓ | String aleatorio de mínimo 64 caracteres — nunca lo expongas |
-| `JWT_EXPIRES_IN` | — | Tiempo de expiración del token (default: `24h`) |
-| `CORS_ORIGIN` | ✓ prod | URL exacta del frontend sin barra final (ej: `https://miapp.com`) |
-| `DEFAULT_ADMIN_PASSWORD` | — | Contraseña del admin creado por `npm run seed` |
-| `EMAIL_HOST` | — | Servidor SMTP para recuperación de contraseña (ej: `smtp.gmail.com`) |
-| `EMAIL_PORT` | — | Puerto SMTP (default: `587`) |
-| `EMAIL_USER` | — | Correo SMTP desde el que se envían los emails |
-| `EMAIL_PASS` | — | App password del correo SMTP |
-| `NODE_ENV` | — | `development`, `test` o `production` |
-| `ALLOW_BEARER_TOKEN` | — | `true` para permitir auth via `Authorization: Bearer` (solo en test/dev) |
-| `EXPOSE_ERROR_STACK` | — | `true` para incluir stack trace en respuestas de error (solo local) |
+| Variable | Requerida | Valor por defecto | Descripción |
+|----------|:---------:|-------------------|-------------|
+| `DATABASE_URL` | ✅ | — | URL de conexión PostgreSQL |
+| `JWT_SECRET` | ✅ | — | Clave secreta para firmar JWT (64+ chars) |
+| `CORS_ORIGIN` | ✅ | `http://localhost:5173` | Origen permitido del frontend |
+| `PORT` | — | `3000` | Puerto del servidor |
+| `JWT_EXPIRES_IN` | — | `24h` | Expiración del token |
+| `NODE_ENV` | — | `development` | `development` · `test` · `production` |
+| `SALT_ROUNDS` | — | `10` | Rondas de bcrypt |
+| `LOG_LEVEL` | — | `debug` | `debug` · `info` · `warn` · `error` |
+| `RATE_LIMIT_MAX` | — | `100` | Requests por ventana de tiempo |
+| `DEFAULT_ADMIN_PASSWORD` | — | — | Contraseña del admin creado por seed |
+| `EMAIL_HOST` | — | — | SMTP host (ej: `smtp.gmail.com`) |
+| `EMAIL_PORT` | — | `587` | SMTP puerto |
+| `EMAIL_USER` | — | — | Email del remitente |
+| `EMAIL_PASS` | — | — | App password del email |
+| `EMAIL_ADMIN_BACKUP` | — | — | Email de respaldo del admin |
+| `FRONTEND_URL` | — | `http://localhost:5173` | URL del frontend (para links en emails) |
+| `ALLOW_BEARER_TOKEN` | — | `false` | `true` solo en dev/test |
+| `DB_SSL_REJECT_UNAUTHORIZED` | — | `false` | `true` en producción con CA cert |
 
-Ver [`backend/.env.example`](backend/.env.example) para todos los valores disponibles con comentarios.
+### Frontend (`.env`)
+
+| Variable | Descripción |
+|----------|-------------|
+| `VITE_API_URL` | URL base de la API (ej: `https://eventroll.onrender.com/api`) |
 
 ---
 
 ## Seguridad
 
-EventRoll implementa múltiples capas de defensa:
+### Autenticación
+- Contraseñas hasheadas con **bcrypt** (10 rondas)
+- JWT firmado y almacenado en **cookie HttpOnly** — nunca en `localStorage`
+- **Blacklist de tokens** revocados en memoria, con limpieza automática al expirar
+- Caché de usuarios autenticados con TTL de 5 minutos para reducir queries a BD
+- **Códigos de acceso** de un uso para guardias, con expiración por tiempo
 
-| Mecanismo | Detalle |
-|-----------|---------|
-| **Contraseñas** | Cifradas con bcrypt (10 rounds) — nunca se almacenan en texto plano |
-| **Sesión** | JWT en cookie HttpOnly — inaccesible para JavaScript → elimina XSS sobre el token |
-| **Rate limiting** | 3 niveles: 100 req/15 min global · 20 intentos de login · 5 intentos de recovery |
-| **SQL injection** | Queries 100% parametrizadas (`$1, $2…`) + whitelist en cláusulas ORDER BY |
-| **Headers HTTP** | Helmet configura automáticamente CSP, HSTS, X-Frame-Options, etc. |
-| **CSRF** | Verificación de header `Origin` en métodos mutantes (POST/PUT/DELETE) |
-| **Secretos en código** | gitleaks + hook Husky escanean cada commit antes de que llegue a GitHub |
-| **Logs** | Campos sensibles (passwords, tokens, códigos) redactados automáticamente |
-| **Trazabilidad** | `X-Request-ID` único por petición para correlación de logs y auditoría |
-| **Blacklist de tokens** | Tokens revocados al hacer logout se guardan en memoria hasta su expiración |
+### Rate limiting
 
-> Nunca subas tu archivo `.env`. Está excluido en `.gitignore`.
+| Endpoint | Límite |
+|----------|--------|
+| Rutas de API (global) | 100 req / 15 min |
+| `POST /api/auth/login` | 20 intentos / 15 min |
+| Solicitar código de recovery | 5 intentos / 15 min |
+| Verificar código de recovery | 5 intentos / 15 min |
+| Generar código de guardia | 10 generaciones / min |
+
+### Protección de datos
+- **SQL injection**: todas las queries usan parámetros (`$1`, `$2`…), nunca interpolación
+- **CORS**: restringido al origen exacto del frontend
+- **CSRF**: validación del header `Origin` en métodos mutantes (POST, PUT, DELETE, PATCH)
+- **Helmet**: headers de seguridad (CSP, HSTS, X-Frame-Options, X-Content-Type-Options)
+- **Validación de inputs**: `express-validator` en todos los endpoints
+- **Constraint de duplicados**: UNIQUE en (evento_id, LOWER(nombre), LOWER(apellido))
+
+### Auditoría y logging
+- **Winston** con formato JSON estructurado
+- Campos sensibles auto-redactados (passwords, tokens, códigos)
+- Tabla `actividad` para audit trail completo de acciones del usuario
+- Header `X-Request-ID` en cada request para correlación de logs
+- Stack traces ocultos en producción
+
+### Infraestructura
+- Docker con usuario no-root (`appuser`)
+- Multi-stage builds (dependencias aisladas del código fuente)
+- Imágenes Alpine (superficie de ataque mínima)
+- Límites de CPU y memoria por contenedor
+- Pre-commit hooks con **gitleaks** y scanner personalizado de secretos
+- `.gitignore` excluye `.env` y archivos sensibles
 
 ---
 
@@ -489,88 +598,132 @@ EventRoll implementa múltiples capas de defensa:
 
 ```
 EventRoll/
-├── src/                          # Frontend (Vue 3 + Vite)
+├── src/                              # Frontend — Vue 3
+│   ├── App.vue                       # Componente raíz + layout principal
+│   ├── main.js                       # Punto de entrada
 │   ├── components/
-│   │   ├── HomePage.vue          # Landing page pública con info del sistema
-│   │   ├── LoginPage.vue         # Formulario de login (email o código de acceso)
-│   │   ├── ListaInvitados.vue    # Vista principal — CRUD completo de invitados
-│   │   ├── GestionUsuarios.vue   # Admin: gestión del equipo de trabajo
-│   │   ├── PanelUsuarios.vue     # Perfil de usuario, contraseña y permisos
-│   │   ├── Sidebar.vue           # Navegación lateral con indicador de rol
-│   │   ├── ToastNotification.vue # Sistema de notificaciones flotantes
-│   │   └── ShortcutsHelp.vue     # Modal de atajos de teclado disponibles
+│   │   ├── HomePage.vue              # Landing page pública
+│   │   ├── LoginPage.vue             # Login + recuperación de contraseña
+│   │   ├── ListaInvitados.vue        # CRUD de invitados (vista principal)
+│   │   ├── GestionUsuarios.vue       # Administración de usuarios
+│   │   ├── PanelUsuarios.vue         # Perfil del usuario actual
+│   │   ├── Sidebar.vue               # Navegación lateral responsive
+│   │   ├── ShortcutsHelp.vue         # Modal de atajos de teclado
+│   │   ├── ToastNotification.vue     # Notificación individual
+│   │   ├── ToastContainer.vue        # Contenedor de notificaciones
+│   │   └── LoadingSpinner.vue        # Overlay de carga
 │   ├── services/
-│   │   └── api.js                # Cliente Axios con interceptores de error y sesión
+│   │   └── api.js                    # Cliente Axios + métodos de la API
 │   ├── stores/
-│   │   ├── auth.js               # Estado global de sesión (Pinia)
-│   │   └── evento.js             # Evento activo actual (Pinia)
-│   └── composables/
-│       ├── useToast.js           # Composable para lanzar notificaciones
-│       └── useLoading.js         # Overlay de carga global
+│   │   ├── auth.js                   # Sesión, usuario y permisos (Pinia)
+│   │   └── evento.js                 # Evento activo (Pinia)
+│   ├── composables/
+│   │   ├── useToast.js               # Notificaciones toast
+│   │   ├── useLoading.js             # Estado de carga global
+│   │   ├── useSearchHistory.js       # Historial de búsquedas
+│   │   ├── useSavedFilters.js        # Filtros persistentes por sesión
+│   │   └── useKeyboardShortcuts.js   # Atajos de teclado
+│   └── utils/
+│       ├── excelImporter.js          # Lógica de importación con ExcelJS
+│       └── migrateToBackend.js       # Utilidad de migración desde localStorage
 │
-├── backend/                      # API REST (Node.js 22 + Express)
+├── backend/                          # API — Express + PostgreSQL
 │   ├── src/
-│   │   ├── app.js                # Setup de Express: middleware, CORS, rutas
-│   │   ├── server.js             # Punto de entrada — inicia el servidor HTTP
+│   │   ├── server.js                 # Punto de entrada del servidor
+│   │   ├── app.js                    # Express: middleware + rutas
 │   │   ├── config/
-│   │   │   ├── database.js       # Pool de conexiones PostgreSQL con pg
-│   │   │   ├── migrate.js        # Esquema completo de tablas e índices
-│   │   │   ├── swagger.js        # Configuración de Swagger/OpenAPI
-│   │   │   └── validateEnv.js    # Falla rápido si faltan variables críticas
-│   │   ├── controllers/          # Capa HTTP: extrae params, llama al service
+│   │   │   ├── database.js           # Pool de conexiones PostgreSQL
+│   │   │   ├── migrate.js            # Esquema principal (tablas + índices)
+│   │   │   ├── migrate-v1.4.js       # Migraciones versionadas
+│   │   │   ├── migrate-v1.5.js
+│   │   │   ├── migrate-v1.6.js
+│   │   │   ├── seed.js               # Admin + evento de prueba
+│   │   │   ├── swagger.js            # Especificación OpenAPI
+│   │   │   └── validateEnv.js        # Validación de variables al arrancar
+│   │   ├── controllers/              # Capa HTTP (request → response)
 │   │   │   ├── authController.js
 │   │   │   ├── invitadosController.js
 │   │   │   ├── usuariosController.js
 │   │   │   └── passwordRecoveryController.js
-│   │   ├── services/             # Lógica de negocio, validaciones y errores de dominio
+│   │   ├── services/                 # Lógica de negocio
 │   │   │   ├── authService.js
 │   │   │   ├── invitadosService.js
 │   │   │   ├── usuariosService.js
-│   │   │   └── activityService.js
-│   │   ├── repositories/         # Queries SQL parametrizadas — único acceso a la BD
+│   │   │   ├── activityService.js
+│   │   │   ├── emailService.js
+│   │   │   └── passwordRecoveryService.js
+│   │   ├── repositories/             # Acceso a datos (SQL puro)
 │   │   │   ├── invitadosRepository.js
-│   │   │   └── usuariosRepository.js
+│   │   │   ├── usuariosRepository.js
+│   │   │   ├── authRepository.js
+│   │   │   └── passwordRecoveryRepository.js
 │   │   ├── middleware/
-│   │   │   ├── auth.js           # Verificación JWT (cookie o Bearer), rate limiters
-│   │   │   ├── validators.js     # Validación de request body con express-validator
-│   │   │   ├── errorHandler.js   # Formato de errores + logging + requestId
-│   │   │   └── requestId.js      # Genera X-Request-ID único por petición
-│   │   ├── routes/               # Define endpoints y middleware para cada ruta
+│   │   │   ├── auth.js               # JWT + rate limiters + caché de usuarios
+│   │   │   ├── validators.js         # Validaciones de entrada por endpoint
+│   │   │   ├── errorHandler.js       # Manejo global de errores
+│   │   │   └── requestId.js          # Generador de X-Request-ID
+│   │   ├── routes/
+│   │   │   ├── authRoutes.js
+│   │   │   ├── invitadosRoutes.js
+│   │   │   ├── usuariosRoutes.js
+│   │   │   └── password-recovery.js
+│   │   ├── core/errors/
+│   │   │   └── AppError.js           # Clase de error personalizada
 │   │   └── utils/
-│   │       ├── logger.js         # Winston: JSON estructurado, redacción de datos sensibles
-│   │       └── asyncHandler.js   # Wrapper para propagar errores async al errorHandler
+│   │       ├── logger.js             # Winston con redacción de campos sensibles
+│   │       └── asyncHandler.js       # Wrapper para manejo de errores async
+│   ├── tests/
+│   │   ├── unit/                     # Vitest — servicios con mocks
+│   │   └── integration/              # Supertest — endpoints contra BD real
 │   ├── scripts/
-│   │   ├── seed.js               # Crea usuario admin y evento de ejemplo
-│   │   ├── cambiar-password.js   # Utilidad para resetear contraseñas desde CLI
-│   │   └── check-secrets.cjs     # Detecta secretos hardcodeados antes del commit
-│   └── tests/
-│       ├── unit/                 # Vitest + mocks de repositorios y servicios externos
-│       └── integration/          # Supertest contra PostgreSQL real en CI
+│   │   ├── cambiar-password.js       # CLI para cambiar contraseña
+│   │   └── check-secrets.cjs         # Scanner de secretos pre-commit
+│   ├── Dockerfile                    # Multi-stage build para producción
+│   └── .env.example                  # Plantilla de variables de entorno
 │
 ├── .github/
 │   └── workflows/
-│       ├── test.yml              # CI: lint + unit tests + integration tests
-│       └── security.yml          # CI: npm audit + gitleaks secret scanning
+│       ├── test.yml                  # Unitarios + integración + lint
+│       ├── security.yml              # gitleaks + npm audit
+│       └── deploy.yml                # Deploy a GitHub Pages
 │
-├── public/                       # Assets estáticos del frontend
-├── docker-compose.yml            # Orquesta PostgreSQL + API + Nginx en local
-├── Dockerfile.frontend           # Build multi-stage de Vue para producción
-├── nginx.conf                    # Reverse proxy y rutas del frontend/backend
-├── render.yaml                   # Infraestructura como código para Render
-├── CHANGELOG.md                  # Historial de cambios por versión
-└── CONTRIBUTING.md               # Guía para contribuir al proyecto
+├── docker-compose.yml                # Orquestación: db + backend + frontend
+├── docker-compose.override.yml       # Overrides para desarrollo local
+├── Dockerfile.frontend               # Build Vue + nginx
+├── nginx.conf                        # Configuración del proxy reverso
+├── render.yaml                       # Configuración de Render.com
+├── vite.config.js                    # Configuración de Vite
+├── .gitleaks.toml                    # Reglas de detección de secretos
+├── CONTRIBUTING.md                   # Guía de contribución
+├── CHANGELOG.md                      # Historial de versiones
+└── LICENSE                           # MIT
 ```
 
 ---
 
 ## Contribuir
 
-Ver [CONTRIBUTING.md](CONTRIBUTING.md) para convenciones de código, flujo de trabajo con ramas, configuración del entorno de desarrollo y cómo abrir un pull request.
+Las contribuciones son bienvenidas. Lee [CONTRIBUTING.md](CONTRIBUTING.md) antes de abrir un PR.
 
-## Changelog
+```bash
+# Fork + clonar
+git clone https://github.com/tu-usuario/EventRoll.git
 
-Ver [CHANGELOG.md](CHANGELOG.md) para el historial completo de cambios por versión.
+# Crear rama
+git checkout -b feat/mi-mejora
+
+# Hacer cambios + tests
+npm test --prefix backend
+npm run lint
+
+# Push y PR
+git push origin feat/mi-mejora
+```
+
+Los PRs deben pasar todos los checks de CI (tests, lint, seguridad) para ser considerados.
+
+---
 
 ## Licencia
 
-[MIT](LICENSE) — libre para uso personal y comercial.
+MIT — ver [LICENSE](LICENSE) para más detalles.
