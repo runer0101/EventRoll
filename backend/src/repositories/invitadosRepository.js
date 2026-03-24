@@ -39,26 +39,30 @@ export const invitadosRepository = {
     // Whitelist explícita para sortDir — previene inyección SQL en ORDER BY
     const safeSortDir = pagination.sortDir?.toUpperCase() === 'DESC' ? 'DESC' : 'ASC'
 
-    const countResult = await query(
+    // Una sola query: window functions calculan totales sobre el set filtrado completo
+    // (antes del LIMIT/OFFSET), eliminando el segundo viaje a la BD.
+    const result = await query(
       `SELECT
-         COUNT(*) AS total,
-         COUNT(*) FILTER (WHERE confirmado = true) AS confirmados,
-         COUNT(*) FILTER (WHERE confirmado = false) AS pendientes
-       FROM invitados ${whereClause}`,
-      params
-    )
-
-    const dataResult = await query(
-      `SELECT * FROM invitados ${whereClause}
+         *,
+         COUNT(*) OVER()                                  AS _total,
+         COUNT(*) FILTER (WHERE confirmado = true) OVER() AS _confirmados,
+         COUNT(*) FILTER (WHERE confirmado = false) OVER() AS _pendientes
+       FROM invitados ${whereClause}
        ORDER BY apellido ${safeSortDir}, nombre ${safeSortDir}
        LIMIT $${paramCount} OFFSET $${paramCount + 1}`,
       [...params, pagination.limit, pagination.offset]
     )
 
-    return {
-      rows: dataResult.rows,
-      counters: countResult.rows[0]
-    }
+    // Extraer contadores del primer row (o ceros si no hay resultados)
+    const first = result.rows[0]
+    const counters = first
+      ? { total: first._total, confirmados: first._confirmados, pendientes: first._pendientes }
+      : { total: '0', confirmados: '0', pendientes: '0' }
+
+    // Limpiar las columnas internas de cada fila
+    const rows = result.rows.map(({ _total, _confirmados, _pendientes, ...row }) => row)
+
+    return { rows, counters }
   },
 
   async findById(id) {
