@@ -8,6 +8,14 @@
     <header class="navbar">
       <div class="nav-inner">
         <a class="nav-brand" href="#">
+          <span class="nav-logo-mark">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <rect x="3" y="3" width="8" height="8" rx="2" fill="currentColor"/>
+              <rect x="13" y="3" width="8" height="8" rx="2" fill="currentColor" opacity="0.5"/>
+              <rect x="3" y="13" width="8" height="8" rx="2" fill="currentColor" opacity="0.5"/>
+              <rect x="13" y="13" width="8" height="8" rx="2" fill="currentColor"/>
+            </svg>
+          </span>
           <span class="brand-name">EventRoll</span>
         </a>
 
@@ -271,6 +279,14 @@
     <footer class="footer">
       <div class="footer-inner">
         <div class="footer-brand">
+          <span class="nav-logo-mark">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <rect x="3" y="3" width="8" height="8" rx="2" fill="currentColor"/>
+              <rect x="13" y="3" width="8" height="8" rx="2" fill="currentColor" opacity="0.5"/>
+              <rect x="3" y="13" width="8" height="8" rx="2" fill="currentColor" opacity="0.5"/>
+              <rect x="13" y="13" width="8" height="8" rx="2" fill="currentColor"/>
+            </svg>
+          </span>
           <span class="brand-name">EventRoll</span>
         </div>
         <p class="footer-copy">© {{ year }} EventRoll · Sistema de gestión de eventos</p>
@@ -335,7 +351,20 @@ const year = new Date().getFullYear()
 .nav-brand {
   display: flex;
   align-items: center;
+  gap: 0.5rem;
   text-decoration: none;
+  flex-shrink: 0;
+}
+
+.nav-logo-mark {
+  width: 30px;
+  height: 30px;
+  background: #FFD700;
+  color: #0a0a0a;
+  border-radius: 7px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
 }
 
@@ -1098,6 +1127,7 @@ const year = new Date().getFullYear()
 .footer-brand {
   display: flex;
   align-items: center;
+  gap: 0.45rem;
 }
 
 .footer-brand .brand-name {
