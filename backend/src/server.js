@@ -5,6 +5,7 @@ dotenv.config()
 
 import { validateEnv } from './config/validateEnv.js'
 import { testConnection } from './config/database.js'
+import { cleanupExpiredTokens } from './middleware/auth.js'
 import { logger } from './utils/logger.js'
 import app from './app.js'
 
@@ -33,6 +34,13 @@ const startServer = async () => {
       logger.error('No se pudo conectar a la base de datos. Revisa DATABASE_URL y que PostgreSQL esté corriendo.')
       process.exit(1)
     }
+
+    // Limpieza inicial de tokens expirados en la blacklist
+    await cleanupExpiredTokens()
+
+    // Limpieza periódica diaria (evita que la tabla crezca indefinidamente)
+    const ONE_DAY_MS = 24 * 60 * 60 * 1000
+    setInterval(cleanupExpiredTokens, ONE_DAY_MS).unref()
 
     process.stderr.write('[STARTUP] DB OK — arrancando servidor\n')
     app.listen(PORT, () => {

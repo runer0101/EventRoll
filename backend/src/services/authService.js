@@ -1,5 +1,6 @@
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
+import { randomUUID } from 'crypto'
 import { authRepository } from '../repositories/authRepository.js'
 import { revokeToken } from '../middleware/auth.js'
 import { usuariosRepository } from '../repositories/usuariosRepository.js'
@@ -33,9 +34,11 @@ export const authService = {
 
     const token = jwt.sign(
       {
-        userId: usuario.id,
-        email: usuario.email,
-        rol: usuario.rol
+        userId:   usuario.id,
+        email:    usuario.email,
+        rol:      usuario.rol,
+        permisos: usuario.permisos || null,  // overrides por usuario (M-5)
+        jti:      randomUUID(),              // ID único para blacklist (C-1)
       },
       process.env.JWT_SECRET,
       { expiresIn: process.env.JWT_EXPIRES_IN || '24h' }
@@ -55,12 +58,13 @@ export const authService = {
 
   async logout(user, token) {
     if (token) {
-      // Calcular tiempo restante de vida del token para limpiar la blacklist automáticamente
       try {
         const decoded = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString())
-        const remainingMs = (decoded.exp * 1000) - Date.now()
-        // Solo revocar si el token aún tiene vida — si ya expiró no hay riesgo
-        if (remainingMs > 0) revokeToken(token, remainingMs)
+        const { jti, exp } = decoded
+        // Solo revocar si el token aún tiene vida y tiene jti (tokens nuevos)
+        if (jti && exp && Date.now() < exp * 1000) {
+          await revokeToken(jti, new Date(exp * 1000))
+        }
       } catch { /* token malformado o ya expirado, ignorar */ }
     }
     await activityService.register({
@@ -86,7 +90,13 @@ export const authService = {
     }
 
     const token = jwt.sign(
-      { userId: usuario.id, email: usuario.email, rol: usuario.rol },
+      {
+        userId:   usuario.id,
+        email:    usuario.email,
+        rol:      usuario.rol,
+        permisos: usuario.permisos || null,
+        jti:      randomUUID(),
+      },
       process.env.JWT_SECRET,
       { expiresIn: process.env.JWT_EXPIRES_IN || '24h' }
     )

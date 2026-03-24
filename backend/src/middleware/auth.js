@@ -3,16 +3,37 @@ import { query } from '../config/database.js'
 import { logger } from '../utils/logger.js'
 import rateLimit from 'express-rate-limit'
 
-// Blacklist en memoria de JWTs revocados al hacer logout.
-// Cada entrada se limpia automáticamente cuando el token hubiera expirado.
-const revokedTokens = new Set()
+// ─── Blacklist persistente de tokens (tabla revoked_tokens) ─────────────────
+// Los tokens se revocan al hacer logout y se almacenan en BD por su JTI.
+// La limpieza de tokens expirados se ejecuta al arrancar el servidor y diariamente.
 
-export const revokeToken = (token, expiresInMs) => {
-  revokedTokens.add(token)
-  setTimeout(() => revokedTokens.delete(token), expiresInMs)
+export const revokeToken = async (jti, expiresAt) => {
+  await query(
+    'INSERT INTO revoked_tokens (jti, expires_at) VALUES ($1, $2) ON CONFLICT DO NOTHING',
+    [jti, expiresAt]
+  )
 }
 
-export const isTokenRevoked = (token) => revokedTokens.has(token)
+export const isTokenRevoked = async (jti) => {
+  if (!jti) return false
+  const result = await query(
+    'SELECT 1 FROM revoked_tokens WHERE jti = $1 AND expires_at > NOW()',
+    [jti]
+  )
+  return result.rows.length > 0
+}
+
+// Elimina tokens expirados de la tabla — llamar al inicio del servidor y diariamente
+export const cleanupExpiredTokens = async () => {
+  try {
+    const result = await query('DELETE FROM revoked_tokens WHERE expires_at <= NOW()')
+    if (result.rowCount > 0) {
+      logger.info(`Blacklist: ${result.rowCount} tokens expirados eliminados`)
+    }
+  } catch (error) {
+    logger.error('Error limpiando tokens expirados', { message: error.message })
+  }
+}
 
 // Cache en memoria para evitar una query a BD en cada request autenticado
 // TTL de 5 minutos — se invalida en logout, update y delete de usuario
@@ -85,21 +106,22 @@ export const authenticateToken = async (req, res, next) => {
       })
     }
 
-    // Rechazar tokens revocados (logout explícito)
-    if (isTokenRevoked(token)) {
+    // Verificar firma y expiración del JWT primero
+    const decoded = jwt.verify(token, process.env.JWT_SECRET)
+
+    // Rechazar tokens revocados por jti (logout explícito) — solo tokens válidos llegan aquí
+    if (await isTokenRevoked(decoded.jti)) {
       return res.status(401).json({
         success: false,
         message: 'Sesión cerrada. Inicia sesión nuevamente.'
       })
     }
 
-    // Verificar token — solo se acepta desde cookie HttpOnly (no Authorization header en web)
-    const decoded = jwt.verify(token, process.env.JWT_SECRET)
-
-    // Intentar servir desde cache antes de ir a la BD
+    // Intentar servir datos de usuario desde cache antes de ir a la BD
     const cached = userCache.get(decoded.userId)
     if (cached && Date.now() < cached.expiresAt) {
-      req.user = cached.data
+      // Adjuntar permisos del JWT (overrides por usuario guardados al momento del login)
+      req.user = { ...cached.data, permisos: decoded.permisos ?? null }
       return next()
     }
 
@@ -121,7 +143,8 @@ export const authenticateToken = async (req, res, next) => {
       expiresAt: Date.now() + USER_CACHE_TTL
     })
 
-    req.user = result.rows[0]
+    // Adjuntar permisos del JWT (overrides por usuario guardados al momento del login)
+    req.user = { ...result.rows[0], permisos: decoded.permisos ?? null }
     next()
 
   } catch (error) {
