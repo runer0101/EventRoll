@@ -15,7 +15,7 @@
   <img src="https://img.shields.io/badge/Vue-3-4FC08D?logo=vue.js&logoColor=white" alt="Vue 3">
   <img src="https://img.shields.io/badge/PostgreSQL-16-336791?logo=postgresql&logoColor=white" alt="PostgreSQL">
   <img src="https://img.shields.io/badge/Docker-ready-2496ED?logo=docker&logoColor=white" alt="Docker">
-  <img src="https://img.shields.io/badge/licencia-MIT-blue" alt="MIT">
+  <img src="https://img.shields.io/badge/licencia-MIT-FFD700?labelColor=1a1a1a&color=FFD700" alt="MIT">
 </p>
 
 ---
