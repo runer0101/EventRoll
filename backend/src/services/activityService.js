@@ -6,7 +6,7 @@ export const activityService = {
     try {
       await query(
         'INSERT INTO actividad (usuario_id, accion, detalles) VALUES ($1, $2, $3)',
-        [usuarioId, accion, detalles]
+        [usuarioId, accion, detalles != null ? JSON.stringify(detalles) : null]
       )
     } catch (err) {
       // El fallo de auditoría no debe interrumpir la operación principal

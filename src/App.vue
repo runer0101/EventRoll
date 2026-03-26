@@ -111,6 +111,7 @@ async function manejarLogout() {
 function seleccionarMenu(itemId) {
   vistaActiva.value = itemId
   registrarActividad(`Navegó a ${itemId}`)
+  if (itemId === 'estadisticas') cargarStats()
 }
 
 function handleSidebarToggle(collapsed) {

@@ -3,7 +3,7 @@ import { query } from '../config/database.js'
 export const usuariosRepository = {
   async findAll() {
     const result = await query(
-      'SELECT id, nombre, email, rol, permisos, access_code, created_at FROM usuarios ORDER BY created_at DESC'
+      'SELECT id, nombre, email, rol, permisos, created_at FROM usuarios ORDER BY created_at DESC'
     )
     return result.rows
   },
