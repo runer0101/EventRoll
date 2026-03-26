@@ -165,6 +165,16 @@ export const invitadosAPI = {
   }
 }
 
+// ========== EVENTOS ==========
+
+export const eventosAPI = {
+  // Obtener todos los eventos
+  getAll: async () => {
+    const response = await api.get('/eventos')
+    return response.data
+  }
+}
+
 // ========== HELPERS ==========
 
 // Limpiar sesión local (cookies gestionadas por el servidor vía /api/auth/logout)

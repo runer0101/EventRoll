@@ -9,6 +9,7 @@ import swaggerUi from 'swagger-ui-express'
 import authRoutes from './routes/authRoutes.js'
 import usuariosRoutes from './routes/usuariosRoutes.js'
 import invitadosRoutes from './routes/invitadosRoutes.js'
+import eventosRoutes from './routes/eventosRoutes.js'
 import passwordRecoveryRoutes from './routes/password-recovery.js'
 import { notFound, errorHandler } from './middleware/errorHandler.js'
 import { requestId } from './middleware/requestId.js'
@@ -115,6 +116,7 @@ app.get('/api/docs.json', ...swaggerMiddleware, (req, res) => res.json(swaggerSp
 app.use('/api/auth', authRoutes)
 app.use('/api/usuarios', usuariosRoutes)
 app.use('/api/invitados', invitadosRoutes)
+app.use('/api/eventos', eventosRoutes)
 app.use('/api/password-recovery', passwordRecoveryRoutes)
 
 app.get('/', (req, res) => {

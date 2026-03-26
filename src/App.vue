@@ -9,8 +9,10 @@ import GestionUsuarios from './components/GestionUsuarios.vue'
 import ToastContainer from './components/ToastContainer.vue'
 import { useAuthStore } from './stores/auth'
 import { useEventoStore } from './stores/evento'
-import { invitadosAPI } from './services/api'
+import { invitadosAPI, eventosAPI } from './services/api'
 import { Users, UserCheck, Clock } from 'lucide-vue-next'
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 // ─── Stores ───────────────────────────────────────────────────────
 const authStore = useAuthStore()
@@ -52,8 +54,8 @@ function aplicarEventoActivo() {
   }
 
   const str = String(eventoIdInput.value ?? '').trim()
-  if (!/^\d+$/.test(str) || Number(str) < 1) {
-    eventoConfigError.value = 'Ingresa un ID de evento válido (entero positivo).'
+  if (!UUID_RE.test(str)) {
+    eventoConfigError.value = 'Ingresa un UUID de evento válido (formato: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx).'
     return
   }
 
@@ -87,17 +89,35 @@ provide('registrarActividad', registrarActividad)
 provide('eventoIdActual', () => eventoStore.eventoId)
 provide('setEventoIdActual', (v) => eventoStore.setEventoId(v))
 
+// ─── Auto-descubrir evento activo desde el backend ────────────────
+async function autoDescubrirEvento() {
+  if (eventoStore.eventoId) return  // ya tiene uno válido guardado
+  try {
+    const res = await eventosAPI.getAll()
+    const primer = res.data?.[0]
+    if (primer?.id) eventoStore.setEventoId(primer.id)
+  } catch {
+    // No bloquea si falla — el usuario puede configurarlo manualmente
+  }
+}
+
 // ─── Ciclo de vida ────────────────────────────────────────────────
 onMounted(async () => {
   eventoIdInput.value = eventoStore.eventoId
   // La cookie HttpOnly se envía automáticamente; initSession llama a /api/auth/me
   await authStore.initSession()
+  if (authStore.usuario) {
+    await autoDescubrirEvento()
+    eventoIdInput.value = eventoStore.eventoId
+  }
   await cargarStats()
 })
 
 // ─── Handlers de Login / Logout ───────────────────────────────────
-function manejarLogin() {
+async function manejarLogin() {
   registrarActividad('Inició sesión')
+  await autoDescubrirEvento()
+  eventoIdInput.value = eventoStore.eventoId
   cargarStats()
 }
 
@@ -263,11 +283,9 @@ watch(() => eventoStore.eventoId, cargarStats)
                 <input
                   id="evento-id-input"
                   v-model="eventoIdInput"
-                  type="number"
-                  min="1"
-                  step="1"
+                  type="text"
                   :disabled="!puedeEditarEvento"
-                  placeholder="Ej. 1"
+                  placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
                 />
                 <button type="submit" :disabled="!puedeEditarEvento">
                   Aplicar

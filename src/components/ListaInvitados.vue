@@ -457,7 +457,7 @@ const shortcuts = useKeyboardShortcuts()
 // ========== PERMISOS ==========
 const obtenerPermisos = inject('permisos', () => ({}))
 const registrarActividad = inject('registrarActividad', () => {})
-const obtenerEventoIdActual = inject('eventoIdActual', () => '1')
+const obtenerEventoIdActual = inject('eventoIdActual', () => null)
 
 // Computed para obtener permisos actuales
 const permisos = computed(() => obtenerPermisos())
