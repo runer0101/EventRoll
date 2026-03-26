@@ -4,7 +4,7 @@ services:
     runtime: node
     nodeVersion: "22"
     rootDir: backend
-    buildCommand: npm ci && npm run migrate && npm run migrate:v1.4 && npm run migrate:v1.5 && npm run migrate:v1.6 && npm run migrate:v1.7
+    buildCommand: npm ci && npm run migrate:all
     startCommand: node src/server.js
     plan: free
     envVars:

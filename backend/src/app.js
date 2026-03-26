@@ -24,8 +24,19 @@ const app = express()
 app.use(
   helmet({
     contentSecurityPolicy: process.env.NODE_ENV === 'production',
+    permittedCrossDomainPolicies: true,
+    crossOriginEmbedderPolicy: false,
   })
 )
+
+// Permissions-Policy: restringir acceso a APIs sensibles del navegador
+app.use((_req, res, next) => {
+  res.setHeader(
+    'Permissions-Policy',
+    'camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()'
+  )
+  next()
+})
 
 const corsOptions = {
   origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
