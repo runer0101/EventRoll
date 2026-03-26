@@ -68,7 +68,7 @@ jobs:
         run: npm ci --prefix backend
 
       - name: Run database migrations
-        run: npm run migrate --prefix backend
+        run: npm run migrate:all --prefix backend
 
       - name: Run integration tests
         run: npm run test:integration --prefix backend
