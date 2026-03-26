@@ -72,6 +72,7 @@
               title="Selecciona el nivel de acceso"
               @change="aplicarPermisosDefault"
             >
+              <option value="visualizador">Visualizador - Solo lectura</option>
               <option value="guardia">Guardia - Solo ver lista de invitados</option>
               <option value="asistente">Asistente - Ver y confirmar asistencias</option>
               <option value="organizador">Organizador - Control completo</option>
@@ -212,6 +213,7 @@
           <span v-if="contarRol('organizador')" class="role-pill organizador">{{ contarRol('organizador') }} Org.</span>
           <span v-if="contarRol('asistente')" class="role-pill asistente">{{ contarRol('asistente') }} Asist.</span>
           <span v-if="contarRol('guardia')" class="role-pill guardia">{{ contarRol('guardia') }} Guard.</span>
+          <span v-if="contarRol('visualizador')" class="role-pill visualizador">{{ contarRol('visualizador') }} Vis.</span>
         </div>
       </div>
 
@@ -382,6 +384,18 @@ function aplicarPermisosDefault() {
         exportar_excel: false,
         confirmar_asistencia: true,
         marcar_asistencia: true
+      }
+      break
+    case 'visualizador':
+      formulario.value.permisos = {
+        ver_invitados: true,
+        crear_invitados: false,
+        editar_invitados: false,
+        eliminar_invitados: false,
+        importar_excel: false,
+        exportar_excel: false,
+        confirmar_asistencia: false,
+        marcar_asistencia: false
       }
       break
   }
@@ -674,6 +688,7 @@ async function eliminarUsuario(usuario) {
 
 function nombreRol(rol) {
   const roles = {
+    visualizador: 'Visualizador',
     guardia: 'Guardia',
     asistente: 'Asistente',
     organizador: 'Organizador',
