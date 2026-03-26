@@ -51,12 +51,14 @@ const startServer = async () => {
       process.stderr.write('[STARTUP] Seed OK\n')
     }
 
-    // Limpieza inicial de tokens expirados en la blacklist
+    // Limpieza inicial de tokens expirados en la blacklist y access_codes caducados
     await cleanupExpiredTokens()
+    await query("UPDATE usuarios SET access_code = NULL, access_code_expires_at = NULL WHERE access_code_expires_at IS NOT NULL AND access_code_expires_at < NOW()")
 
     // Limpieza periódica diaria (evita que la tabla crezca indefinidamente)
     const ONE_DAY_MS = 24 * 60 * 60 * 1000
     setInterval(cleanupExpiredTokens, ONE_DAY_MS).unref()
+    setInterval(() => query("UPDATE usuarios SET access_code = NULL, access_code_expires_at = NULL WHERE access_code_expires_at IS NOT NULL AND access_code_expires_at < NOW()"), ONE_DAY_MS).unref()
 
     process.stderr.write('[STARTUP] DB OK — arrancando servidor\n')
     app.listen(PORT, () => {

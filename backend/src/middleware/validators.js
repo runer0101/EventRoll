@@ -73,7 +73,7 @@ export const validateCreateUsuario = [
     .withMessage('Contraseña debe contener al menos una letra y un número'),
   body('rol')
     .trim()
-    .isIn(['admin', 'organizador', 'asistente', 'guardia'])
+    .isIn(['admin', 'organizador', 'asistente', 'guardia', 'visualizador'])
     .withMessage('Rol inválido'),
   body('permisos')
     .optional()
@@ -108,7 +108,7 @@ export const validateUpdateUsuario = [
   body('rol')
     .optional()
     .trim()
-    .isIn(['admin', 'organizador', 'asistente', 'guardia'])
+    .isIn(['admin', 'organizador', 'asistente', 'guardia', 'visualizador'])
     .withMessage('Rol inválido'),
   handleValidationErrors
 ]
