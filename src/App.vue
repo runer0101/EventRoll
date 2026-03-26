@@ -326,7 +326,9 @@ watch(() => eventoStore.eventoId, cargarStats)
   display: flex;
   min-height: 100vh;
   min-height: 100dvh;
-  background: #0f0f0f;
+  background: #0a0a0a;
+  background-image: var(--gradient-mesh);
+  background-attachment: fixed;
 }
 
 /* ===== WRAPPER DEL CONTENIDO PRINCIPAL ===== */
@@ -347,10 +349,12 @@ watch(() => eventoStore.eventoId, cargarStats)
 
 /* ===== HEADER PRINCIPAL ===== */
 .main-header {
-  background: #111;
+  background: rgba(10, 10, 10, 0.75);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
   padding: 0 clamp(0.75rem, 3vw, 2rem);
-  border-bottom: 1px solid rgba(255,255,255,0.06);
-  box-shadow: 0 1px 0 rgba(0,0,0,0.2);
+  border-bottom: 1px solid var(--glass-border);
+  box-shadow: 0 1px 0 rgba(0,0,0,0.3), 0 4px 24px rgba(0,0,0,0.15);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -378,7 +382,12 @@ watch(() => eventoStore.eventoId, cargarStats)
   font-family: 'Sora', var(--font-display);
   font-size: clamp(0.85rem, 2vw, 1.25rem);
   font-weight: 800;
-  color: var(--color-primary);
+  background: var(--gradient-gold-text);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer-text 4s linear infinite;
   letter-spacing: 0.04em;
   white-space: nowrap;
   overflow: hidden;
@@ -442,7 +451,7 @@ watch(() => eventoStore.eventoId, cargarStats)
   width: 2rem;
   height: 2rem;
   border-radius: var(--radius-full);
-  background: #FFD700;
+  background: var(--gradient-gold);
   color: #111;
   display: flex;
   align-items: center;
@@ -450,6 +459,12 @@ watch(() => eventoStore.eventoId, cargarStats)
   font-weight: 700;
   font-size: 0.875rem;
   flex-shrink: 0;
+  box-shadow: 0 0 0 2px rgba(255,215,0,0.2), 0 2px 8px rgba(255,215,0,0.2);
+  transition: box-shadow var(--transition-fast);
+}
+
+.user-avatar-header:hover {
+  box-shadow: 0 0 0 3px rgba(255,215,0,0.4), 0 4px 12px rgba(255,215,0,0.25);
 }
 
 /* ===== MAIN CONTENT ===== */
@@ -472,11 +487,15 @@ main {
 
 .section-header h2 {
   margin: 0;
-  color: var(--color-text);
   font-family: 'Sora', var(--font-display);
   font-size: clamp(1.35rem, 3vw, 1.75rem);
   font-weight: 800;
   letter-spacing: -0.01em;
+  background: var(--gradient-gold-text);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .section-tag {
@@ -507,17 +526,20 @@ main {
 }
 
 .stat-card {
-  background: var(--color-dark);
-  border: 1px solid rgba(255, 215, 0, 0.2);
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border-accent);
   border-radius: var(--radius-xl);
   padding: 1.5rem;
   display: flex;
   align-items: center;
   gap: 1.25rem;
   transition: all var(--transition-normal);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
   position: relative;
   overflow: hidden;
+  animation: float-up 0.4s ease both;
 }
 
 .stat-card::before {
@@ -533,9 +555,10 @@ main {
 }
 
 .stat-card:hover {
-  transform: translateY(-3px);
-  border-color: rgba(255, 215, 0, 0.4);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 215, 0, 0.1);
+  transform: translateY(-4px);
+  border-color: rgba(255, 215, 0, 0.35);
+  box-shadow: var(--glow-gold), 0 8px 32px rgba(0, 0, 0, 0.4);
+  background: var(--glass-bg-strong);
 }
 
 .stat-card:hover::before {
@@ -543,7 +566,8 @@ main {
 }
 
 .stat-confirmados:hover {
-  border-color: rgba(52, 211, 153, 0.4);
+  border-color: rgba(52, 211, 153, 0.35);
+  box-shadow: var(--glow-green), 0 8px 32px rgba(0, 0, 0, 0.4);
 }
 
 .stat-confirmados::before {
@@ -581,7 +605,11 @@ main {
   color: var(--color-primary);
   line-height: 1;
   letter-spacing: -0.02em;
+  text-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
 }
+
+.stat-confirmados .stat-value { color: #34d399; text-shadow: 0 0 20px rgba(52,211,153,0.3); }
+.stat-pendientes .stat-value  { color: #FBBF24; text-shadow: 0 0 20px rgba(251,191,36,0.3); }
 
 .stat-label {
   color: var(--color-text-secondary);
@@ -603,10 +631,12 @@ main {
 .progress-card {
   margin-top: 1.25rem;
   padding: 1.25rem 1.5rem;
-  background: var(--color-dark);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
   border-radius: var(--radius-xl);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25);
 }
 
 .progress-header {
@@ -626,27 +656,33 @@ main {
 }
 
 .progress-bar {
-  height: 8px;
-  background: rgba(255, 255, 255, 0.08);
+  height: 10px;
+  background: rgba(255, 255, 255, 0.06);
   border-radius: var(--radius-full);
   overflow: hidden;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.3);
 }
 
 .progress-fill {
   height: 100%;
-  background: #FFD700;
+  background: var(--gradient-progress);
+  background-size: 200% 100%;
+  animation: gradient-shift 3s ease infinite;
   border-radius: var(--radius-full);
-  transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
 }
 
 /* ===== VISTA DE CONFIGURACIÓN ===== */
 .config-card {
   max-width: 600px;
   padding: 1.75rem;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--glass-border);
   border-radius: var(--radius-xl);
-  background: var(--color-dark);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
 }
 
 .config-card h3 {
@@ -734,7 +770,7 @@ main {
   border: 0;
   border-radius: var(--radius-md);
   padding: 0.7rem 1.25rem;
-  background: #FFD700;
+  background: var(--gradient-gold);
   color: #111;
   font-weight: 800;
   font-family: inherit;
@@ -742,11 +778,17 @@ main {
   cursor: pointer;
   transition: all 0.2s;
   white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(255, 215, 0, 0.2);
 }
 
 .evento-form-row button:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 14px rgba(255, 215, 0, 0.35);
+  transform: translateY(-2px);
+  box-shadow: var(--glow-gold);
+}
+
+.evento-form-row button:active:not(:disabled) {
+  transform: scale(0.97) translateY(0);
+  box-shadow: 0 2px 8px rgba(255, 215, 0, 0.2);
 }
 
 .evento-form-row button:disabled {

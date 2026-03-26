@@ -85,6 +85,25 @@
   --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
   --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.15);
 
+  /* ===== GLASSMORPHISM ===== */
+  --glass-bg: rgba(255, 255, 255, 0.04);
+  --glass-bg-strong: rgba(255, 255, 255, 0.07);
+  --glass-border: rgba(255, 255, 255, 0.09);
+  --glass-border-accent: rgba(255, 215, 0, 0.18);
+  --glass-blur: blur(14px);
+
+  /* ===== GLOWS ===== */
+  --glow-gold: 0 0 24px rgba(255, 215, 0, 0.18), 0 4px 16px rgba(255, 215, 0, 0.1);
+  --glow-gold-strong: 0 0 32px rgba(255, 215, 0, 0.28), 0 8px 24px rgba(255, 215, 0, 0.15);
+  --glow-green: 0 0 20px rgba(52, 211, 153, 0.2), 0 4px 12px rgba(52, 211, 153, 0.1);
+
+  /* ===== GRADIENTES ===== */
+  --gradient-gold: linear-gradient(135deg, #FFD700 0%, #FFED4E 50%, #E6C200 100%);
+  --gradient-gold-text: linear-gradient(135deg, #FFD700 0%, #fff7a0 60%, #E6C200 100%);
+  --gradient-mesh: radial-gradient(ellipse 80% 50% at 20% 10%, rgba(255, 215, 0, 0.04) 0%, transparent 60%),
+                   radial-gradient(ellipse 60% 40% at 80% 90%, rgba(59, 130, 246, 0.04) 0%, transparent 60%);
+  --gradient-progress: linear-gradient(90deg, #10b981 0%, #34d399 50%, #FFD700 100%);
+
   /* ===== BREAKPOINTS (Para uso en media queries) ===== */
   --bp-mobile: 480px;
   --bp-tablet: 768px;

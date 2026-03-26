@@ -335,7 +335,9 @@ function closeMobile()   { isMobileOpen.value = false }
   width: var(--sidebar-width, 220px);
   height: 100vh;
   height: 100dvh;
-  background: #0f0f0f;
+  background: rgba(8, 8, 8, 0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border-right: 1px solid rgba(255,255,255,.07);
   display: flex;
   flex-direction: column;
@@ -364,21 +366,27 @@ function closeMobile()   { isMobileOpen.value = false }
 .logo-mark {
   width: 30px;
   height: 30px;
-  background: #FFD700;
+  background: var(--gradient-gold);
   border-radius: 7px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #111;
   flex-shrink: 0;
+  box-shadow: 0 0 12px rgba(255,215,0,0.3);
 }
 .logo-mark-center {
   margin: 0 auto;
 }
 .logo-text {
   font-size: .95rem;
-  font-weight: 700;
-  color: #fff;
+  font-weight: 800;
+  background: var(--gradient-gold-text);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer-text 5s linear infinite;
   letter-spacing: .02em;
   white-space: nowrap;
 }
@@ -439,6 +447,7 @@ function closeMobile()   { isMobileOpen.value = false }
   color: #FFD700;
   border-left: 3px solid #FFD700;
   padding-left: calc(12px - 3px);
+  box-shadow: inset 0 0 20px rgba(255,215,0,0.04), 0 0 12px rgba(255,215,0,0.06);
 }
 .nav-item.disabled {
   opacity: .3;
@@ -498,13 +507,14 @@ function closeMobile()   { isMobileOpen.value = false }
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: #FFD700;
+  background: var(--gradient-gold);
   color: #111;
   font-size: .85rem;
   font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 0 0 2px rgba(255,215,0,0.2);
 }
 .edit-hint {
   position: absolute;
@@ -596,13 +606,16 @@ function closeMobile()   { isMobileOpen.value = false }
   padding: 1rem;
 }
 .modal-perfil {
-  background: #141414;
-  border: 1px solid rgba(255,255,255,.09);
-  border-radius: 14px;
+  background: rgba(14, 14, 14, 0.9);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 16px;
   width: 100%;
   max-width: 400px;
   padding: 1.5rem;
-  box-shadow: 0 24px 60px rgba(0,0,0,.6);
+  box-shadow: 0 24px 60px rgba(0,0,0,.7), 0 0 0 1px rgba(255,215,0,0.04);
+  animation: float-up 0.2s ease both;
 }
 .modal-header {
   display: flex;
@@ -758,7 +771,7 @@ function closeMobile()   { isMobileOpen.value = false }
 .btn-cancel:hover { border-color: rgba(255,255,255,.2); color: rgba(255,255,255,.8); }
 .btn-save {
   padding: .55rem 1.25rem;
-  background: #FFD700;
+  background: var(--gradient-gold);
   border: none;
   border-radius: 8px;
   color: #111;
@@ -766,8 +779,10 @@ function closeMobile()   { isMobileOpen.value = false }
   font-weight: 700;
   cursor: pointer;
   transition: all .15s;
+  box-shadow: 0 2px 8px rgba(255,215,0,0.2);
 }
-.btn-save:hover:not(:disabled) { background: #f0c800; }
+.btn-save:hover:not(:disabled) { box-shadow: var(--glow-gold); transform: translateY(-1px); }
+.btn-save:active:not(:disabled) { transform: scale(0.97); box-shadow: none; }
 .btn-save:disabled { opacity: .5; cursor: not-allowed; }
 
 /* ── MOBILE ────────────────────────────────── */
