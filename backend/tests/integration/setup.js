@@ -19,9 +19,9 @@ export const TEST_ORGANIZER = {
 export const createTestUser = async (user = TEST_USER) => {
   const hash = await bcrypt.hash(user.password, 10)
   const result = await query(
-    `INSERT INTO usuarios (nombre, email, password_hash, rol)
-     VALUES ($1, $2, $3, $4)
-     ON CONFLICT (email) DO UPDATE SET password_hash = EXCLUDED.password_hash
+    `INSERT INTO usuarios (nombre, email, password_hash, rol, permisos)
+     VALUES ($1, $2, $3, $4, NULL)
+     ON CONFLICT (email) DO UPDATE SET password_hash = EXCLUDED.password_hash, permisos = NULL
      RETURNING id`,
     [user.nombre, user.email, hash, user.rol]
   )

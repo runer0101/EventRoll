@@ -26,7 +26,7 @@ describe('activityService', () => {
     expect(query).toHaveBeenCalledOnce()
     expect(query).toHaveBeenCalledWith(
       expect.stringContaining('INSERT INTO actividad'),
-      ['uuid-1', 'Login exitoso', { ip: '127.0.0.1' }]
+      ['uuid-1', 'Login exitoso', JSON.stringify({ ip: '127.0.0.1' })]
     )
   })
 
