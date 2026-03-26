@@ -373,7 +373,23 @@ function closeMobile()   { isMobileOpen.value = false }
   justify-content: center;
   color: #111;
   flex-shrink: 0;
-  box-shadow: 0 0 12px rgba(255,215,0,0.3);
+  position: relative;
+  /* Sombra que orbita con sin/cos del @property --orbit-angle */
+  animation: orbit-spin 6s linear infinite;
+  box-shadow:
+    calc(sin(var(--orbit-angle)) * 5px) calc(cos(var(--orbit-angle)) * 5px) 14px rgba(255,215,0,0.5);
+}
+
+/* Borde cónico giratorio — usa @property --conic-angle */
+.logo-mark::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 9px;
+  background: conic-gradient(from var(--conic-angle), #FFD700 0deg, #fff7a0 90deg, #E6C200 180deg, transparent 270deg, #FFD700 360deg);
+  animation: conic-spin 3s linear infinite;
+  z-index: -1;
+  opacity: 0.6;
 }
 .logo-mark-center {
   margin: 0 auto;

@@ -166,6 +166,16 @@
       </div>
     </section>
 
+    <!-- ══════════════ WAVE DIVIDER (SENO PURO) ══════════════ -->
+    <div class="wave-divider" aria-hidden="true">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 80" preserveAspectRatio="none">
+        <path class="wave-path-1"
+          d="M0,40 C180,70 360,10 540,40 C720,70 900,10 1080,40 C1260,70 1380,25 1440,35 L1440,80 L0,80 Z"/>
+        <path class="wave-path-2"
+          d="M0,55 C240,25 480,65 720,45 C960,25 1200,60 1440,40 L1440,80 L0,80 Z"/>
+      </svg>
+    </div>
+
     <!-- ══════════════ STATS STRIP ══════════════ -->
     <div class="stats-strip">
       <div class="stats-strip-inner">
@@ -458,28 +468,36 @@ const year = new Date().getFullYear()
   background-size: 32px 32px;
 }
 
-/* Orbs muy sutiles, sin tinte dorado */
+/* Orbs con animación orbital CSS sin()/cos() */
 .hero-orb {
   position: absolute;
   border-radius: 50%;
   filter: blur(120px);
   pointer-events: none;
+  /* Usa @property --orbit-angle definido en main.css */
+  animation: orbit-spin 24s linear infinite;
+  transform:
+    translateX(calc(sin(var(--orbit-angle)) * 40px))
+    translateY(calc(cos(var(--orbit-angle)) * 25px));
 }
 
 .hero-orb-1 {
   width: 700px;
   height: 700px;
-  background: radial-gradient(circle, rgba(255, 215, 0, 0.04) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(255, 215, 0, 0.055) 0%, transparent 70%);
   top: -200px;
   left: -200px;
+  animation-duration: 28s;
 }
 
 .hero-orb-2 {
   width: 500px;
   height: 500px;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.015) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.04) 0%, transparent 70%);
   bottom: -100px;
   right: -100px;
+  animation-duration: 18s;
+  animation-direction: reverse; /* fase opuesta = efecto 8 */
 }
 
 .hero-inner {
@@ -543,10 +561,15 @@ const year = new Date().getFullYear()
   margin: 0 0 1.5rem;
 }
 
-/* Acento del título — color de marca para enfatizar la propuesta de valor */
+/* Acento del título — shimmer gradient con trigonometría de luz */
 .hero-accent {
-  color: #FFD700;
   font-weight: 800;
+  background: linear-gradient(135deg, #FFD700 0%, #fff7a0 45%, #E6C200 70%, #FFD700 100%);
+  background-size: 250% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer-text 4s linear infinite;
 }
 
 .hero-desc {
@@ -854,12 +877,51 @@ const year = new Date().getFullYear()
 }
 
 /* ════════════════════════════════════════════
-   STATS STRIP — neutro, sin fondo dorado
+   WAVE DIVIDER — curva sinusoidal SVG
+════════════════════════════════════════════ */
+.wave-divider {
+  position: relative;
+  height: 80px;
+  overflow: hidden;
+  background: #070707;
+  margin-bottom: -2px;
+}
+
+.wave-divider svg {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.wave-path-1 {
+  fill: rgba(255, 215, 0, 0.035);
+  animation: wave-drift 12s linear infinite;
+}
+
+.wave-path-2 {
+  fill: rgba(255, 255, 255, 0.012);
+  animation: wave-drift 8s linear infinite reverse;
+}
+
+/* ════════════════════════════════════════════
+   STATS STRIP — diagonal con skewY trigonométrico
 ════════════════════════════════════════════ */
 .stats-strip {
+  position: relative;
+  background: transparent;
+  z-index: 1;
+}
+
+.stats-strip::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: #0d0d0d;
+  transform: skewY(-1.2deg);
   border-top: 1px solid rgba(255, 255, 255, 0.06);
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-  background: #0a0a0a;
+  z-index: -1;
 }
 
 .stats-strip-inner {
@@ -940,12 +1002,23 @@ const year = new Date().getFullYear()
 }
 
 /* ════════════════════════════════════════════
-   FEATURES GRID
+   FEATURES GRID — sección con plano diagonal
 ════════════════════════════════════════════ */
 .features {
-  background: #0a0a0a;
+  position: relative;
+  background: transparent;
+  z-index: 1;
+}
+
+.features::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: #090909;
+  transform: skewY(1deg);
   border-top: 1px solid rgba(255, 255, 255, 0.05);
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  z-index: -1;
 }
 
 .features-grid {
@@ -962,7 +1035,21 @@ const year = new Date().getFullYear()
 .feat-card {
   background: #0c0c0c;
   padding: 2rem 1.75rem;
-  transition: background 0.2s;
+  transition: background 0.2s, clip-path 0.3s;
+  /* Esquina superior derecha cortada diagonalmente = clip-path trigonométrico */
+  clip-path: polygon(0 0, calc(100% - 22px) 0, 100% 22px, 100% 100%, 0 100%);
+  position: relative;
+}
+
+.feat-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 22px;
+  height: 22px;
+  background: rgba(255, 215, 0, 0.06);
+  clip-path: polygon(0 0, 100% 100%, 100% 0);
 }
 
 .feat-card:hover {
@@ -1032,6 +1119,15 @@ const year = new Date().getFullYear()
   background: #0c0c0c;
   border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 14px;
+  /* Corte diagonal inferior-derecho */
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 18px), calc(100% - 18px) 100%, 0 100%);
+  position: relative;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.step:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(255,215,0,0.08);
 }
 
 .step-num {
@@ -1065,21 +1161,31 @@ const year = new Date().getFullYear()
 }
 
 /* ════════════════════════════════════════════
-   CTA FINAL
+   CTA FINAL — diagonal superior con skewY inverso
 ════════════════════════════════════════════ */
 .cta-section {
   position: relative;
   padding: 100px 1rem;
   text-align: center;
   overflow: hidden;
+  background: transparent;
+  z-index: 1;
+}
+
+.cta-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
   background: #0a0a0a;
+  transform: skewY(-1.2deg);
   border-top: 1px solid rgba(255, 255, 255, 0.05);
+  z-index: -1;
 }
 
 .cta-glow {
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse at 50% 0%, rgba(255, 215, 0, 0.06) 0%, transparent 65%);
+  background: radial-gradient(ellipse at 50% 30%, rgba(255, 215, 0, 0.08) 0%, transparent 60%);
   pointer-events: none;
 }
 

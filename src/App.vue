@@ -530,7 +530,9 @@ main {
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
   border: 1px solid var(--glass-border-accent);
-  border-radius: var(--radius-xl);
+  /* Esquina superior-derecha cortada diagonalmente */
+  border-radius: var(--radius-xl) 0 var(--radius-xl) var(--radius-xl);
+  clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 0 100%);
   padding: 1.5rem;
   display: flex;
   align-items: center;
