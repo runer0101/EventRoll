@@ -8,6 +8,8 @@ import { testConnection } from './config/database.js'
 import { cleanupExpiredTokens } from './middleware/auth.js'
 import { logger } from './utils/logger.js'
 import runAllMigrations from './config/migrate-all.js'
+import seedDatabase from './config/seed.js'
+import { query } from './config/database.js'
 import app from './app.js'
 
 // ========== INICIAR SERVIDOR ==========
@@ -40,6 +42,14 @@ const startServer = async () => {
     process.stderr.write('[STARTUP] Ejecutando migraciones...\n')
     await runAllMigrations()
     process.stderr.write('[STARTUP] Migraciones OK\n')
+
+    // Seed automático si no hay usuarios (primer arranque)
+    const { rows } = await query('SELECT COUNT(*) FROM usuarios')
+    if (parseInt(rows[0].count) === 0) {
+      process.stderr.write('[STARTUP] Sin usuarios — ejecutando seed inicial...\n')
+      await seedDatabase()
+      process.stderr.write('[STARTUP] Seed OK\n')
+    }
 
     // Limpieza inicial de tokens expirados en la blacklist
     await cleanupExpiredTokens()
