@@ -7,6 +7,7 @@ import { validateEnv } from './config/validateEnv.js'
 import { testConnection } from './config/database.js'
 import { cleanupExpiredTokens } from './middleware/auth.js'
 import { logger } from './utils/logger.js'
+import runAllMigrations from './config/migrate-all.js'
 import app from './app.js'
 
 // ========== INICIAR SERVIDOR ==========
@@ -34,6 +35,11 @@ const startServer = async () => {
       logger.error('No se pudo conectar a la base de datos. Revisa DATABASE_URL y que PostgreSQL esté corriendo.')
       process.exit(1)
     }
+
+    // Ejecutar migraciones pendientes al arrancar (idempotentes — seguro re-ejecutar)
+    process.stderr.write('[STARTUP] Ejecutando migraciones...\n')
+    await runAllMigrations()
+    process.stderr.write('[STARTUP] Migraciones OK\n')
 
     // Limpieza inicial de tokens expirados en la blacklist
     await cleanupExpiredTokens()

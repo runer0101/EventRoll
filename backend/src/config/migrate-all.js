@@ -10,6 +10,8 @@ import migrateV14 from './migrate-v1.4.js'
 import migrarRecuperacionPassword from './migrate-v1.5.js'
 import migrarV16 from './migrate-v1.6.js'
 import migrarV17 from './migrate-v1.7.js'
+import { fileURLToPath } from 'url'
+import { normalize } from 'path'
 
 const runAllMigrations = async () => {
   console.log('═══════════════════════════════════════════════')
@@ -27,9 +29,17 @@ const runAllMigrations = async () => {
   console.log('═══════════════════════════════════════════════')
 }
 
-runAllMigrations()
-  .then(() => process.exit(0))
-  .catch((error) => {
-    console.error('Error ejecutando migraciones:', error)
-    process.exit(1)
-  })
+// Ejecutar con process.exit solo cuando se llama directamente
+const currentFile = fileURLToPath(import.meta.url)
+const executedFile = normalize(process.argv[1])
+
+if (currentFile === executedFile || process.argv[1].endsWith('migrate-all.js')) {
+  runAllMigrations()
+    .then(() => process.exit(0))
+    .catch((error) => {
+      console.error('Error ejecutando migraciones:', error)
+      process.exit(1)
+    })
+}
+
+export default runAllMigrations
