@@ -74,13 +74,15 @@ export const passwordRecoveryService = {
     const usuario = await passwordRecoveryRepository.findUserByEmail(email)
 
     if (!usuario) {
+      logger.warn('Intento de verificación con email no registrado')
       throw badRequest('Código inválido o expirado')
     }
 
     const codeData = await passwordRecoveryRepository.findLatestRecoveryCodeForUser(usuario.id, codigo)
 
     if (!codeData) {
-      throw badRequest('Código inválido')
+      logger.warn('Código de recuperación incorrecto o expirado', { usuario_id: usuario.id })
+      throw badRequest('Código inválido o expirado')
     }
 
     if (codeData.usado) {

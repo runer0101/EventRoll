@@ -180,7 +180,7 @@
           </button>
 
           <p class="card-footer">
-            Sistema de gestión de eventos &nbsp;·&nbsp; v1.3.0
+            Sistema de gestión de eventos
           </p>
         </div>
 
@@ -209,11 +209,14 @@
 
         <!-- Paso 2 -->
         <div v-if="paso === 2" class="modal-step">
-          <p>Ingresa el código de 6 dígitos que enviamos a tu correo.</p>
+          <p>Ingresa el código de 8 dígitos que enviamos a tu correo.</p>
           <form @submit.prevent="verificarCodigo">
             <div class="field">
               <label>Código de verificación</label>
-              <input v-model="codigoRec" type="text" placeholder="123456" maxlength="6" required :disabled="cargandoRec" class="input-code" />
+              <input v-model="codigoRec" type="text" placeholder="12345678" maxlength="8" required :disabled="cargandoRec" class="input-code" />
+              <p v-if="intentosVerificacion > 0" class="intentos-hint">
+                Intento {{ intentosVerificacion }} de {{ MAX_INTENTOS }}
+              </p>
             </div>
             <button type="submit" class="btn-submit" :disabled="cargandoRec">
               {{ cargandoRec ? 'Verificando...' : 'Verificar código' }}
@@ -333,6 +336,8 @@ const confirmPass = ref('')
 const cargandoRec = ref(false)
 const msgRec      = ref('')
 const tipoMsg     = ref('success')
+const intentosVerificacion = ref(0)
+const MAX_INTENTOS = 5
 
 function cerrarRecuperacion() {
   mostrarRecuperacion.value = false
@@ -342,6 +347,7 @@ function cerrarRecuperacion() {
   newPass.value = ''
   confirmPass.value = ''
   msgRec.value = ''
+  intentosVerificacion.value = 0
 }
 
 async function solicitarCodigo() {
@@ -385,6 +391,7 @@ async function verificarCodigo() {
       tipoMsg.value = 'success'
       msgRec.value = 'Código verificado correctamente'
     } else {
+      intentosVerificacion.value++
       tipoMsg.value = 'error'
       msgRec.value = data.message || 'Código inválido o expirado'
     }
@@ -1039,6 +1046,13 @@ async function restablecerPassword() {
   background: rgba(239, 68, 68, 0.08);
   border: 1px solid rgba(239, 68, 68, 0.2);
   color: #fca5a5;
+}
+
+.intentos-hint {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.45);
+  margin-top: 0.25rem;
+  text-align: right;
 }
 
 /* ════════════════════════════════════════════

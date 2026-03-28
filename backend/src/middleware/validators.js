@@ -78,7 +78,16 @@ export const validateCreateUsuario = [
   body('permisos')
     .optional()
     .isObject()
-    .withMessage('Permisos debe ser un objeto'),
+    .withMessage('Permisos debe ser un objeto')
+    .custom((val) => {
+      if (val == null) return true
+      const claves = ['verInvitados','agregarInvitados','editarInvitados','eliminarInvitados','confirmarInvitados','exportarExcel','importarExcel','configurarSillas','gestionarUsuarios']
+      for (const [k, v] of Object.entries(val)) {
+        if (!claves.includes(k)) throw new Error(`Permiso desconocido: ${k}`)
+        if (typeof v !== 'boolean') throw new Error(`El permiso "${k}" debe ser true o false`)
+      }
+      return true
+    }),
   handleValidationErrors
 ]
 

@@ -24,9 +24,16 @@ const validateCategoria = (categoria) => {
 }
 
 export const invitadosService = {
-  async getInvitados(filters) {
-    const pagination = parsePagination(filters)
-    const { rows, counters } = await invitadosRepository.findAllPaginated(filters, pagination)
+  async getInvitados(params) {
+    if (params.evento_id) {
+      const check = await query('SELECT id FROM eventos WHERE id = $1', [params.evento_id])
+      if (!check.rows.length) {
+        throw notFoundError('Evento no encontrado')
+      }
+    }
+
+    const pagination = parsePagination(params)
+    const { rows, counters } = await invitadosRepository.findAllPaginated(params, pagination)
 
     const total = Number(counters.total || 0)
     const totalPages = total === 0 ? 0 : Math.ceil(total / pagination.limit)

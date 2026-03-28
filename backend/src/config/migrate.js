@@ -21,9 +21,9 @@ const createTables = async () => {
         nombre VARCHAR(255) NOT NULL,
         email VARCHAR(255) UNIQUE NOT NULL,
         password_hash VARCHAR(255) NOT NULL,
-        rol VARCHAR(50) NOT NULL CHECK (rol IN ('admin', 'organizador', 'asistente', 'guardia')),
-        created_at TIMESTAMP DEFAULT NOW(),
-        updated_at TIMESTAMP DEFAULT NOW()
+        rol VARCHAR(50) NOT NULL CHECK (rol IN ('admin', 'organizador', 'asistente', 'guardia', 'visualizador')),
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        updated_at TIMESTAMPTZ DEFAULT NOW()
       )
     `)
     console.log('Tabla usuarios creada\n')
@@ -37,8 +37,8 @@ const createTables = async () => {
         fecha DATE NOT NULL,
         sillas_totales INTEGER NOT NULL DEFAULT 100,
         creado_por UUID REFERENCES usuarios(id) ON DELETE SET NULL,
-        created_at TIMESTAMP DEFAULT NOW(),
-        updated_at TIMESTAMP DEFAULT NOW()
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        updated_at TIMESTAMPTZ DEFAULT NOW()
       )
     `)
     console.log('Tabla eventos creada\n')
@@ -53,8 +53,8 @@ const createTables = async () => {
         apellido VARCHAR(255),
         categoria VARCHAR(50) DEFAULT 'General' CHECK (categoria IN ('General', 'VIP', 'Familia', 'Amigos', 'Trabajo')),
         confirmado BOOLEAN DEFAULT FALSE,
-        created_at TIMESTAMP DEFAULT NOW(),
-        updated_at TIMESTAMP DEFAULT NOW()
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        updated_at TIMESTAMPTZ DEFAULT NOW()
       )
     `)
     console.log('Tabla invitados creada\n')
@@ -67,14 +67,14 @@ const createTables = async () => {
         usuario_id UUID REFERENCES usuarios(id) ON DELETE SET NULL,
         accion VARCHAR(255) NOT NULL,
         detalles JSONB,
-        created_at TIMESTAMP DEFAULT NOW()
+        created_at TIMESTAMPTZ DEFAULT NOW()
       )
     `)
     console.log('Tabla actividad creada\n')
 
     // 4b. Añadir columnas access_code y su expiración (migración incremental)
     await query(`ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS access_code VARCHAR(12) UNIQUE`)
-    await query(`ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS access_code_expires_at TIMESTAMP`)
+    await query(`ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS access_code_expires_at TIMESTAMPTZ`)
     console.log('Columnas access_code verificadas\n')
 
     // 5. Crear índices para mejorar performance

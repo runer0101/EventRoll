@@ -74,7 +74,7 @@ export const passwordRecoveryRepository = {
     await client.query(
       `INSERT INTO actividad (usuario_id, accion, detalles)
        VALUES ($1, $2, $3)`,
-      [usuarioId, accion, detalles]
+      [usuarioId, accion, detalles != null ? JSON.stringify(detalles) : null]
     )
   },
 

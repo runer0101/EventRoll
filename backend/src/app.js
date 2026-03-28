@@ -69,8 +69,12 @@ app.use((req, res, next) => {
   const mutating = ['POST', 'PUT', 'DELETE', 'PATCH']
   if (!mutating.includes(req.method)) return next()
   const origin = req.headers.origin || ''
-  // Permitir requests sin Origin solo desde localhost (herramientas de testing locales)
   if (!origin) {
+    // En producción: rechazar siempre requests mutantes sin Origin
+    if (process.env.NODE_ENV === 'production') {
+      return res.status(403).json({ success: false, message: 'Origen no permitido' })
+    }
+    // En desarrollo/test: permitir desde localhost (herramientas locales y Supertest)
     const host = req.headers.host || ''
     if (host.startsWith('localhost') || host.startsWith('127.0.0.1')) return next()
     return res.status(403).json({ success: false, message: 'Origen no permitido' })

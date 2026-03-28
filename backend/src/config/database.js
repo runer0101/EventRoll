@@ -35,6 +35,7 @@ const pool = new Pool({
   max: 10,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 10000,
+  statement_timeout: 30000, // 30 segundos máximo por query
 })
 
 // Errores inesperados del pool (ej: BD caída en producción)
