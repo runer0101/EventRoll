@@ -57,7 +57,7 @@ Coordinar la entrada a un evento con múltiples personas del equipo (organizador
 | Campo | Valor |
 |-------|-------|
 | Email | `admin@prueba.com` |
-| Contraseña | `Ysel@Admin2026!` |
+| Contraseña | `EventRoll@2026!` |
 
 ---
 
