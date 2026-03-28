@@ -1,29 +1,25 @@
 <template>
-  <Transition name="toast-slide">
-    <div v-if="visible" :class="['toast', type]" @click="cerrar">
-      <div class="toast-icon">
-        <!-- success -->
-        <svg v-if="type === 'success'" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-        <!-- error -->
-        <svg v-else-if="type === 'error'" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        <!-- warning -->
-        <svg v-else-if="type === 'warning'" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-        <!-- info -->
-        <svg v-else xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-      </div>
-      <div class="toast-content">
-        <div v-if="title" class="toast-title">{{ title }}</div>
-        <div class="toast-message">{{ message }}</div>
-      </div>
-      <button class="toast-close" @click.stop="cerrar">×</button>
+  <div :class="['toast', type]" role="alert" @click="$emit('close')">
+    <div class="toast-icon">
+      <!-- success -->
+      <svg v-if="type === 'success'" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      <!-- error -->
+      <svg v-else-if="type === 'error'" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      <!-- warning -->
+      <svg v-else-if="type === 'warning'" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <!-- info -->
+      <svg v-else xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
     </div>
-  </Transition>
+    <div class="toast-content">
+      <div v-if="title" class="toast-title">{{ title }}</div>
+      <div class="toast-message">{{ message }}</div>
+    </div>
+    <button class="toast-close" @click.stop="$emit('close')" aria-label="Cerrar notificación">×</button>
+  </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-
-const props = defineProps({
+defineProps({
   message: {
     type: String,
     required: true
@@ -34,45 +30,21 @@ const props = defineProps({
   },
   type: {
     type: String,
-    default: 'info', // success, error, warning, info
-    validator: (value) => ['success', 'error', 'warning', 'info'].includes(value)
+    default: 'info',
+    validator: (v) => ['success', 'error', 'warning', 'info'].includes(v)
   },
   duration: {
     type: Number,
-    default: 3000 // 3 segundos por defecto
+    default: 3000
   }
 })
 
-const emit = defineEmits(['close'])
-
-const visible = ref(false)
-onMounted(() => {
-  // Mostrar toast con pequeño delay para animación
-  setTimeout(() => {
-    visible.value = true
-  }, 100)
-
-  // Auto-cerrar después de la duración especificada
-  if (props.duration > 0) {
-    setTimeout(() => {
-      cerrar()
-    }, props.duration)
-  }
-})
-
-function cerrar() {
-  visible.value = false
-  setTimeout(() => {
-    emit('close')
-  }, 300) // Esperar a que termine la animación
-}
+defineEmits(['close'])
 </script>
 
 <style scoped>
 .toast {
-  position: fixed;
-  top: var(--spacing-md);
-  right: var(--spacing-md);
+  position: relative;
   min-width: 18rem;
   max-width: 32rem;
   background: #1e1e1e;
@@ -83,7 +55,6 @@ function cerrar() {
   align-items: center;
   gap: var(--spacing-sm);
   padding: var(--spacing-sm) var(--spacing-md);
-  z-index: var(--z-toast);
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
@@ -154,29 +125,11 @@ function cerrar() {
   color: #fff;
 }
 
-/* Slide animation */
-.toast-slide-enter-active,
-.toast-slide-leave-active {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.toast-slide-enter-from {
-  opacity: 0;
-  transform: translateX(100%);
-}
-
-.toast-slide-leave-to {
-  opacity: 0;
-  transform: translateX(100%);
-}
-
 /* Responsive */
 @media (max-width: 768px) {
   .toast {
     min-width: 0;
-    max-width: calc(100vw - 2rem);
-    right: 1rem;
-    left: 1rem;
+    max-width: 100%;
   }
 }
 </style>

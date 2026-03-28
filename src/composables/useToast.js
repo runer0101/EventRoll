@@ -1,4 +1,4 @@
-import { ref } from 'vue'
+import { ref, markRaw } from 'vue'
 
 // Estado global de toasts
 const toasts = ref([])
@@ -9,13 +9,13 @@ export function useToast() {
   function show(options) {
     const id = idCounter++
 
-    const toast = {
+    const toast = markRaw({
       id,
       message: options.message || '',
       title: options.title || '',
       type: options.type || 'info',
       duration: options.duration !== undefined ? options.duration : 3000
-    }
+    })
 
     toasts.value.push(toast)
 

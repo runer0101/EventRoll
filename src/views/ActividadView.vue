@@ -3,11 +3,12 @@ import { inject, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import PanelUsuarios from '../components/PanelUsuarios.vue'
+import { ActividadRecienteKey, ManejarLogoutKey } from '../composables/injection-keys'
 
 const router = useRouter()
 const authStore = useAuthStore()
-const actividadReciente = inject('actividadReciente')
-const manejarLogout = inject('manejarLogout')
+const actividadReciente = inject(ActividadRecienteKey)
+const manejarLogout = inject(ManejarLogoutKey)
 
 const usuario = computed(() => authStore.usuario)
 

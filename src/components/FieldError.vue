@@ -1,5 +1,7 @@
 <script setup>
-defineProps({
+import { useId } from 'vue'
+
+const props = defineProps({
   mensaje: {
     type: String,
     default: '',
@@ -9,12 +11,17 @@ defineProps({
     default: '',
   },
 })
+
+const autoId = useId()
+const resolvedId = props.id || autoId
+
+defineExpose({ id: resolvedId })
 </script>
 
 <template>
   <p
     v-if="mensaje"
-    :id="id"
+    :id="resolvedId"
     class="field-error"
     role="alert"
     aria-live="polite"

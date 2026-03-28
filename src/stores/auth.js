@@ -6,8 +6,8 @@ import { authAPI } from '../services/api'
  * Mapa de permisos por rol.
  * Fuente de verdad para toda la aplicación.
  */
-const PERMISOS_POR_ROL = {
-  admin: {
+const PERMISOS_POR_ROL = Object.freeze({
+  admin: Object.freeze({
     verInvitados: true,
     agregarInvitados: true,
     editarInvitados: true,
@@ -18,8 +18,8 @@ const PERMISOS_POR_ROL = {
     configurarSillas: true,
     verEstadisticas: true,
     gestionarUsuarios: true,
-  },
-  organizador: {
+  }),
+  organizador: Object.freeze({
     verInvitados: true,
     agregarInvitados: true,
     editarInvitados: true,
@@ -30,8 +30,8 @@ const PERMISOS_POR_ROL = {
     configurarSillas: true,
     verEstadisticas: true,
     gestionarUsuarios: false,
-  },
-  asistente: {
+  }),
+  asistente: Object.freeze({
     verInvitados: true,
     agregarInvitados: true,
     editarInvitados: true,
@@ -42,8 +42,8 @@ const PERMISOS_POR_ROL = {
     configurarSillas: false,
     verEstadisticas: true,
     gestionarUsuarios: false,
-  },
-  visualizador: {
+  }),
+  visualizador: Object.freeze({
     verInvitados: true,
     agregarInvitados: false,
     editarInvitados: false,
@@ -54,8 +54,8 @@ const PERMISOS_POR_ROL = {
     configurarSillas: false,
     verEstadisticas: true,
     gestionarUsuarios: false,
-  },
-  guardia: {
+  }),
+  guardia: Object.freeze({
     verInvitados: true,
     agregarInvitados: false,
     editarInvitados: false,
@@ -66,8 +66,8 @@ const PERMISOS_POR_ROL = {
     configurarSillas: false,
     verEstadisticas: false,
     gestionarUsuarios: false,
-  },
-}
+  }),
+})
 
 export const useAuthStore = defineStore('auth', () => {
   const usuario = ref(null)

@@ -1,9 +1,10 @@
 <script setup>
 import { inject } from 'vue'
 import { Users, UserCheck, Clock } from 'lucide-vue-next'
+import { StatsKey, EventoIdActualKey } from '../composables/injection-keys'
 
-const stats = inject('stats')
-const eventoIdActual = inject('eventoIdActual')
+const stats = inject(StatsKey)
+const eventoIdActual = inject(EventoIdActualKey)
 </script>
 
 <template>

@@ -444,6 +444,7 @@ import { useLoading } from '../composables/useLoading'
 import { useSearchHistory } from '../composables/useSearchHistory'
 import { useSavedFilters } from '../composables/useSavedFilters'
 import { useKeyboardShortcuts } from '../composables/useKeyboardShortcuts'
+import { PermisosKey, RegistrarActividadKey, EventoIdActualKey } from '../composables/injection-keys'
 
 // Importar API de invitados
 import { invitadosAPI } from '../services/api'
@@ -456,9 +457,9 @@ const { savedFilters, saveFilter, deleteFilter, applyFilter } = useSavedFilters(
 const shortcuts = useKeyboardShortcuts()
 
 // ========== PERMISOS ==========
-const obtenerPermisos = inject('permisos', () => ({}))
-const registrarActividad = inject('registrarActividad', () => {})
-const obtenerEventoIdActual = inject('eventoIdActual', () => null)
+const obtenerPermisos = inject(PermisosKey, () => ({}))
+const registrarActividad = inject(RegistrarActividadKey, () => {})
+const obtenerEventoIdActual = inject(EventoIdActualKey, () => null)
 
 // Computed para obtener permisos actuales
 const permisos = computed(() => obtenerPermisos())

@@ -1,10 +1,19 @@
 <script setup>
-import { ref, computed, provide, onMounted, watch } from 'vue'
+import { ref, computed, provide, onMounted, watchEffect } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import Sidebar from '../components/Sidebar.vue'
 import { useAuthStore } from '../stores/auth'
 import { useEventoStore } from '../stores/evento'
 import { invitadosAPI } from '../services/api'
+import {
+  PermisosKey,
+  RegistrarActividadKey,
+  EventoIdActualKey,
+  SetEventoIdActualKey,
+  StatsKey,
+  ActividadRecienteKey,
+  ManejarLogoutKey,
+} from '../composables/injection-keys'
 
 const router = useRouter()
 const route = useRoute()
@@ -66,19 +75,21 @@ function seleccionarMenu(itemId) {
 }
 
 // Provide para componentes hijos (mantiene compatibilidad con ListaInvitados, GestionUsuarios)
-provide('permisos', () => authStore.permisos)
-provide('registrarActividad', registrarActividad)
-provide('eventoIdActual', () => eventoStore.eventoId)
-provide('setEventoIdActual', (v) => eventoStore.setEventoId(v))
-provide('stats', stats)
-provide('actividadReciente', actividadReciente)
-provide('manejarLogout', manejarLogout)
+provide(PermisosKey, () => authStore.permisos)
+provide(RegistrarActividadKey, registrarActividad)
+provide(EventoIdActualKey, () => eventoStore.eventoId)
+provide(SetEventoIdActualKey, (v) => eventoStore.setEventoId(v))
+provide(StatsKey, stats)
+provide(ActividadRecienteKey, actividadReciente)
+provide(ManejarLogoutKey, manejarLogout)
 
-watch(() => eventoStore.eventoId, cargarStats)
+watchEffect(() => {
+  if (eventoStore.eventoId) cargarStats()
+})
 
 // Recargar stats al entrar a la ruta de estadísticas
-watch(() => route.name, (name) => {
-  if (name === 'estadisticas') cargarStats()
+watchEffect(() => {
+  if (route.name === 'estadisticas') cargarStats()
 })
 
 onMounted(async () => {

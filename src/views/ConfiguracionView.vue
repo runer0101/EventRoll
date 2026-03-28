@@ -2,12 +2,13 @@
 import { ref, computed, inject, watch } from 'vue'
 import { useAuthStore } from '../stores/auth'
 import { useEventoStore } from '../stores/evento'
+import { RegistrarActividadKey } from '../composables/injection-keys'
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 const authStore = useAuthStore()
 const eventoStore = useEventoStore()
-const registrarActividad = inject('registrarActividad')
+const registrarActividad = inject(RegistrarActividadKey)
 
 const eventoIdInput = ref(eventoStore.eventoId)
 const eventoConfigError = ref('')
