@@ -22,9 +22,23 @@ const app = express()
 
 // ========== SEGURIDAD ==========
 
+const corsOrigin = process.env.CORS_ORIGIN || 'http://localhost:5173'
+
 app.use(
   helmet({
-    contentSecurityPolicy: process.env.NODE_ENV === 'production',
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", 'https://fonts.googleapis.com'],
+        styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com', 'https://fonts.gstatic.com'],
+        fontSrc: ["'self'", 'https://fonts.gstatic.com'],
+        imgSrc: ["'self'", 'data:', 'blob:'],
+        connectSrc: ["'self'", ...corsOrigin.split(',').map(o => o.trim())],
+        frameAncestors: ["'none'"],
+        objectSrc: ["'none'"],
+        baseUri: ["'self'"],
+      },
+    },
     permittedCrossDomainPolicies: true,
     crossOriginEmbedderPolicy: false,
   })
@@ -104,15 +118,20 @@ app.get('/health', async (req, res) => {
   })
 })
 
-// Swagger: público en dev/test, protegido con auth en producción
-const swaggerMiddleware = process.env.NODE_ENV === 'production'
-  ? [authenticateToken, requireAdmin]
-  : []
-app.use('/api/docs', ...swaggerMiddleware, swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
-  customSiteTitle: 'EventRoll API Docs',
-  swaggerOptions: { persistAuthorization: true },
-}))
-app.get('/api/docs.json', ...swaggerMiddleware, (req, res) => res.json(swaggerSpec))
+// Swagger: protegido en producción (admin only), público en dev/test
+if (process.env.NODE_ENV === 'production') {
+  app.use('/api/docs', authenticateToken, requireAdmin, swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+    customSiteTitle: 'EventRoll API Docs',
+    swaggerOptions: { persistAuthorization: true },
+  }))
+  app.get('/api/docs.json', authenticateToken, requireAdmin, (req, res) => res.json(swaggerSpec))
+} else {
+  app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+    customSiteTitle: 'EventRoll API Docs',
+    swaggerOptions: { persistAuthorization: true },
+  }))
+  app.get('/api/docs.json', (req, res) => res.json(swaggerSpec))
+}
 
 // Cache-Control: rutas privadas no deben cachearse; /health puede cachearse brevemente
 app.use('/api/v1/', (_req, res, next) => {
