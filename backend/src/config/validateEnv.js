@@ -24,4 +24,8 @@ export const validateEnv = () => {
       throw new Error('JWT_SECRET contiene un valor predecible. Usa un secreto aleatorio.')
     }
   }
+
+  if (process.env.NODE_ENV === 'production' && process.env.ALLOW_BEARER_TOKEN === 'true') {
+    throw new Error('ALLOW_BEARER_TOKEN no puede ser true en producción. Bearer tokens no son seguros en producción.')
+  }
 }

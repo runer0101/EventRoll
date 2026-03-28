@@ -74,9 +74,10 @@ app.use((req, res, next) => {
     if (process.env.NODE_ENV === 'production') {
       return res.status(403).json({ success: false, message: 'Origen no permitido' })
     }
-    // En desarrollo/test: permitir desde localhost (herramientas locales y Supertest)
+    // En desarrollo/test: permitir solo desde puertos conocidos del proyecto
     const host = req.headers.host || ''
-    if (host.startsWith('localhost') || host.startsWith('127.0.0.1')) return next()
+    const devHosts = ['localhost:3000', 'localhost:5173', '127.0.0.1:3000', '127.0.0.1:5173']
+    if (devHosts.includes(host)) return next()
     return res.status(403).json({ success: false, message: 'Origen no permitido' })
   }
   if (allowedOrigins.some(o => origin === o || origin.startsWith(o + '/'))) return next()

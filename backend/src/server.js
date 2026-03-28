@@ -27,7 +27,7 @@ const startServer = async () => {
     }
 
     const dbUrl = process.env.DATABASE_URL || ''
-    const safeUrl = dbUrl.replace(/:([^:@]+)@/, ':***@')
+    const safeUrl = dbUrl.replace(/\/\/[^:]+:[^@]+@/, '//***:***@')
     process.stderr.write(`[STARTUP] DATABASE_URL: ${safeUrl}\n`)
 
     const dbConnected = await testConnection()

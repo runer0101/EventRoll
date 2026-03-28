@@ -3,6 +3,7 @@ import { passwordRecoveryRepository } from '../repositories/passwordRecoveryRepo
 import { enviarCodigoRecuperacion, generarCodigoVerificacion } from './emailService.js'
 import { badRequest } from '../core/errors/AppError.js'
 import { logger } from '../utils/logger.js'
+import { invalidateCachedUser } from '../middleware/auth.js'
 
 const SALT_ROUNDS = Math.max(10, Number(process.env.SALT_ROUNDS) || 10)
 
@@ -89,7 +90,9 @@ export const passwordRecoveryService = {
       throw badRequest('Este código ya fue utilizado')
     }
 
-    if (new Date() > new Date(codeData.expira_en)) {
+    // Buffer de 5s para tolerancia de diferencias de reloj entre servidor y BD
+    const CLOCK_BUFFER_MS = 5000
+    if (Date.now() - CLOCK_BUFFER_MS > new Date(codeData.expira_en).getTime()) {
       throw badRequest('El código ha expirado. Solicita uno nuevo.')
     }
 
@@ -131,6 +134,9 @@ export const passwordRecoveryService = {
       )
 
       await client.query('COMMIT')
+
+      // Invalidar caché del usuario para forzar recarga de permisos y datos
+      invalidateCachedUser(consumedCode.usuario_id)
 
       return {
         success: true,
