@@ -47,18 +47,20 @@
         :class="['nav-item', { active: activeItem === item.id, disabled: !item.enabled }]"
         :disabled="!item.enabled"
         :title="isCollapsed ? item.label : ''"
+        :aria-label="item.label"
+        :aria-current="activeItem === item.id ? 'page' : undefined"
         @click="selectMenuItem(item.id)"
       >
-        <component :is="item.icon" class="nav-icon" :size="17" />
+        <component :is="item.icon" class="nav-icon" :size="17" aria-hidden="true" />
         <span v-if="!isCollapsed" class="nav-text">{{ item.label }}</span>
-        <span v-if="item.badge && !isCollapsed" class="nav-badge">{{ item.badge }}</span>
+        <span v-if="item.badge && !isCollapsed" class="nav-badge" :aria-label="`${item.badge} ${item.label}`">{{ item.badge }}</span>
       </button>
     </nav>
 
     <!-- Footer / Usuario -->
     <div class="sidebar-footer">
       <!-- Botón de perfil -->
-      <button class="user-btn" :class="{ 'user-btn-collapsed': isCollapsed }" :title="isCollapsed ? usuario.nombre : 'Editar perfil'" @click="abrirPerfil">
+      <button class="user-btn" :class="{ 'user-btn-collapsed': isCollapsed }" :title="isCollapsed ? usuario.nombre : 'Editar perfil'" :aria-label="`Perfil de ${usuario.nombre}`" @click="abrirPerfil">
         <div class="user-avatar-wrap">
           <img v-if="fotoUrl" :src="fotoUrl" class="user-photo" alt="foto" />
           <span v-else class="user-initial">{{ inicial }}</span>

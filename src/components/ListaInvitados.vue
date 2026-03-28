@@ -407,23 +407,21 @@
       </div>
     </div>
 
-    <!-- Mensaje cuando no hay invitados -->
-    <div v-if="totalFiltrados === 0 && !hayFiltrosActivos" class="vacio">
-      <div class="vacio-icon">
-        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-      </div>
-      <p class="vacio-title">Sin invitados aún</p>
-      <p class="subtexto">Agrega el primero con el formulario de arriba<br>o importa un archivo Excel</p>
-    </div>
+    <!-- Estado vacío: sin invitados -->
+    <EmptyState
+      v-if="totalFiltrados === 0 && !hayFiltrosActivos"
+      icon="👥"
+      titulo="Sin invitados aún"
+      descripcion="Agrega el primero con el formulario de arriba o importa un archivo Excel."
+    />
 
-    <!-- Mensaje cuando la búsqueda no tiene resultados -->
-    <div v-else-if="totalFiltrados === 0 && hayFiltrosActivos" class="vacio">
-      <div class="vacio-icon vacio-icon--search">
-        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
-      </div>
-      <p class="vacio-title">Sin resultados</p>
-      <p class="subtexto">No se encontraron invitados con esos criterios.<br>Intenta cambiar los filtros de búsqueda.</p>
-    </div>
+    <!-- Estado vacío: búsqueda sin resultados -->
+    <EmptyState
+      v-else-if="totalFiltrados === 0 && hayFiltrosActivos"
+      icon="🔍"
+      titulo="Sin resultados"
+      descripcion="No se encontraron invitados con esos criterios. Intenta cambiar los filtros de búsqueda."
+    />
 
   </div>
 </template>
@@ -436,6 +434,9 @@ import { ref, computed, watch, onMounted, inject } from 'vue'
 
 // ExcelJS se carga dinámicamente cuando es necesario para reducir tamaño del bundle (lazy-load)
 // Se usa un helper en src/utils/excelImporter.js para la lógica de parsing/plantilla cuando es posible
+
+// Componentes
+import EmptyState from './EmptyState.vue'
 
 // Importamos composables
 import { useToast } from '../composables/useToast'

@@ -23,6 +23,7 @@ api.interceptors.response.use(
     const isLoginEndpoint = error.config?.url?.includes('/auth/login')
     const isSessionCheck  = error.config?.url?.includes('/auth/me')
 
+
     if (error.response?.status === 401 && !isSessionCheck && !isLoginEndpoint) {
       localStorage.removeItem('token')
       localStorage.removeItem('usuario')
@@ -55,25 +56,25 @@ api.interceptors.response.use(
 export const authAPI = {
   // Login
   login: async (email, password) => {
-    const response = await api.post('/auth/login', { email, password })
+    const response = await api.post('/v1/auth/login', { email, password })
     return response.data
   },
 
   // Obtener usuario actual
   getMe: async () => {
-    const response = await api.get('/auth/me')
+    const response = await api.get('/v1/auth/me')
     return response.data
   },
 
   // Logout
   logout: async () => {
-    const response = await api.post('/auth/logout')
+    const response = await api.post('/v1/auth/logout')
     return response.data
   },
 
   // Login con código de acceso
   loginConCodigo: async (codigo) => {
-    const response = await api.post('/auth/login-con-codigo', { codigo })
+    const response = await api.post('/v1/auth/login-con-codigo', { codigo })
     return response.data
   }
 }
@@ -83,37 +84,37 @@ export const authAPI = {
 export const usuariosAPI = {
   // Obtener todos los usuarios
   getAll: async () => {
-    const response = await api.get('/usuarios')
+    const response = await api.get('/v1/usuarios')
     return response.data
   },
 
   // Crear usuario
   create: async (userData) => {
-    const response = await api.post('/usuarios', userData)
+    const response = await api.post('/v1/usuarios', userData)
     return response.data
   },
 
   // Actualizar usuario
   update: async (id, userData) => {
-    const response = await api.put(`/usuarios/${id}`, userData)
+    const response = await api.put(`/v1/usuarios/${id}`, userData)
     return response.data
   },
 
   // Eliminar usuario
   delete: async (id) => {
-    const response = await api.delete(`/usuarios/${id}`)
+    const response = await api.delete(`/v1/usuarios/${id}`)
     return response.data
   },
 
   // Generar código de acceso
   generarCodigo: async (id) => {
-    const response = await api.post(`/usuarios/${id}/generar-codigo`)
+    const response = await api.post(`/v1/usuarios/${id}/generar-codigo`)
     return response.data
   },
 
   // Revocar código de acceso
   revocarCodigo: async (id) => {
-    const response = await api.delete(`/usuarios/${id}/revocar-codigo`)
+    const response = await api.delete(`/v1/usuarios/${id}/revocar-codigo`)
     return response.data
   }
 }
@@ -133,31 +134,31 @@ export const invitadosAPI = {
     if (filters.limit) params.append('limit', filters.limit)
     if (filters.order) params.append('order', filters.order)
 
-    const response = await api.get(`/invitados?${params.toString()}`)
+    const response = await api.get(`/v1/invitados?${params.toString()}`)
     return response.data
   },
 
   // Crear invitado
   create: async (invitadoData) => {
-    const response = await api.post('/invitados', invitadoData)
+    const response = await api.post('/v1/invitados', invitadoData)
     return response.data
   },
 
   // Actualizar invitado
   update: async (id, invitadoData) => {
-    const response = await api.put(`/invitados/${id}`, invitadoData)
+    const response = await api.put(`/v1/invitados/${id}`, invitadoData)
     return response.data
   },
 
   // Eliminar invitado
   delete: async (id) => {
-    const response = await api.delete(`/invitados/${id}`)
+    const response = await api.delete(`/v1/invitados/${id}`)
     return response.data
   },
 
   // Importar múltiples invitados
   import: async (invitados, evento_id = null) => {
-    const response = await api.post('/invitados/import', {
+    const response = await api.post('/v1/invitados/import', {
       invitados,
       evento_id
     })
@@ -170,7 +171,7 @@ export const invitadosAPI = {
 export const eventosAPI = {
   // Obtener todos los eventos
   getAll: async () => {
-    const response = await api.get('/eventos')
+    const response = await api.get('/v1/eventos')
     return response.data
   }
 }

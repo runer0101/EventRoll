@@ -217,18 +217,12 @@
         </div>
       </div>
 
-      <div v-if="usuarios.length === 0" class="empty-state">
-        <div class="vacio-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
-            <circle cx="9" cy="7" r="4"/>
-            <line x1="19" y1="8" x2="19" y2="14"/>
-            <line x1="22" y1="11" x2="16" y2="11"/>
-          </svg>
-        </div>
-        <p class="vacio-title">Sin usuarios creados</p>
-        <p class="vacio-hint">Usa el formulario de arriba para crear el primer usuario.</p>
-      </div>
+      <EmptyState
+        v-if="usuarios.length === 0"
+        icon="👤"
+        titulo="Sin usuarios creados"
+        descripcion="Usa el formulario de arriba para crear el primer usuario."
+      />
 
       <div v-else class="tabla-container">
         <table class="tabla-usuarios">
@@ -287,6 +281,7 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue'
+import EmptyState from './EmptyState.vue'
 import { useToast } from '../composables/useToast'
 import { useLoading } from '../composables/useLoading'
 import { usuariosAPI } from '../services/api'

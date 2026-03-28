@@ -18,7 +18,7 @@ describe('Auth API — integración', () => {
   describe('POST /api/auth/login', () => {
     it('retorna 200 y token con credenciales válidas', async () => {
       const res = await request
-        .post('/api/auth/login')
+        .post('/api/v1/auth/login')
         .send({ email: TEST_USER.email, password: TEST_USER.password })
 
       expect(res.status).toBe(200)
@@ -30,7 +30,7 @@ describe('Auth API — integración', () => {
 
     it('retorna 401 con contraseña incorrecta', async () => {
       const res = await request
-        .post('/api/auth/login')
+        .post('/api/v1/auth/login')
         .send({ email: TEST_USER.email, password: 'wrong-password' })
 
       expect(res.status).toBe(401)
@@ -39,7 +39,7 @@ describe('Auth API — integración', () => {
 
     it('retorna 401 con email inexistente', async () => {
       const res = await request
-        .post('/api/auth/login')
+        .post('/api/v1/auth/login')
         .send({ email: 'noexiste@test.com', password: 'cualquier' })
 
       expect(res.status).toBe(401)
@@ -48,7 +48,7 @@ describe('Auth API — integración', () => {
 
     it('retorna 400 si falta el email', async () => {
       const res = await request
-        .post('/api/auth/login')
+        .post('/api/v1/auth/login')
         .send({ password: TEST_USER.password })
 
       expect(res.status).toBe(400)
@@ -56,7 +56,7 @@ describe('Auth API — integración', () => {
 
     it('establece cookie HttpOnly en login exitoso', async () => {
       const res = await request
-        .post('/api/auth/login')
+        .post('/api/v1/auth/login')
         .send({ email: TEST_USER.email, password: TEST_USER.password })
 
       const setCookie = res.headers['set-cookie']
@@ -73,14 +73,14 @@ describe('Auth API — integración', () => {
 
     beforeAll(async () => {
       const res = await request
-        .post('/api/auth/login')
+        .post('/api/v1/auth/login')
         .send({ email: TEST_USER.email, password: TEST_USER.password })
       token = res.body.data.token
     })
 
     it('retorna 200 con el usuario autenticado', async () => {
       const res = await request
-        .get('/api/auth/me')
+        .get('/api/v1/auth/me')
         .set('Authorization', `Bearer ${token}`)
 
       expect(res.status).toBe(200)
@@ -89,13 +89,13 @@ describe('Auth API — integración', () => {
     })
 
     it('retorna 401 sin token', async () => {
-      const res = await request.get('/api/auth/me')
+      const res = await request.get('/api/v1/auth/me')
       expect(res.status).toBe(401)
     })
 
     it('retorna 403 con token inválido', async () => {
       const res = await request
-        .get('/api/auth/me')
+        .get('/api/v1/auth/me')
         .set('Authorization', 'Bearer token.invalido.aqui')
 
       expect(res.status).toBe(403)
@@ -106,12 +106,12 @@ describe('Auth API — integración', () => {
   describe('POST /api/auth/logout', () => {
     it('retorna 200 y limpia la cookie', async () => {
       const loginRes = await request
-        .post('/api/auth/login')
+        .post('/api/v1/auth/login')
         .send({ email: TEST_USER.email, password: TEST_USER.password })
       const token = loginRes.body.data.token
 
       const res = await request
-        .post('/api/auth/logout')
+        .post('/api/v1/auth/logout')
         .set('Authorization', `Bearer ${token}`)
 
       expect(res.status).toBe(200)

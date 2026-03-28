@@ -76,7 +76,7 @@
           </div>
 
           <!-- ── FORM: email + contraseña ── -->
-          <form v-if="!modoId" class="login-form" @submit.prevent="iniciarSesion">
+          <form v-if="!modoId" class="login-form" @submit.prevent="iniciarSesion" novalidate>
             <div class="field">
               <label for="email">Correo electrónico</label>
               <input
@@ -87,7 +87,10 @@
                 required
                 autocomplete="email"
                 :disabled="cargando"
+                :aria-invalid="!!emailError"
+                aria-describedby="email-error"
               />
+              <FieldError id="email-error" :mensaje="emailError" />
             </div>
 
             <div class="field">
@@ -106,16 +109,19 @@
                   required
                   autocomplete="current-password"
                   :disabled="cargando"
+                  :aria-invalid="!!passwordError"
+                  aria-describedby="password-error"
                 />
-                <button type="button" class="toggle-pass" :title="verPassword ? 'Ocultar' : 'Mostrar'" @click="verPassword = !verPassword">
+                <button type="button" class="toggle-pass" :title="verPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'" :aria-label="verPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'" @click="verPassword = !verPassword">
                   <svg v-if="!verPassword" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                   <svg v-else xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
                 </button>
               </div>
+              <FieldError id="password-error" :mensaje="passwordError" />
             </div>
 
-            <div v-if="error" class="error-msg">
-              <span>⚠</span> {{ error }}
+            <div v-if="error" class="error-msg" role="alert">
+              <span aria-hidden="true">⚠</span> {{ error }}
             </div>
 
             <button type="submit" class="btn-submit" :disabled="cargando">
@@ -245,6 +251,7 @@
 import { ref } from 'vue'
 import { useAuthStore } from '../stores/auth'
 import { useToast } from '../composables/useToast'
+import FieldError from './FieldError.vue'
 
 const emit = defineEmits(['login', 'go-home'])
 const { success, error: showError } = useToast()
@@ -258,17 +265,32 @@ const password    = ref('')
 const codigo      = ref('')
 const modoId      = ref(false)
 const error       = ref('')
+const emailError  = ref('')
+const passwordError = ref('')
 const cargando    = ref(false)
 const verPassword = ref(false)
 
 function toggleModo() {
   modoId.value = !modoId.value
   error.value = ''
+  emailError.value = ''
+  passwordError.value = ''
   codigo.value = ''
+}
+
+function mapearErroresCampos(errors) {
+  errors.forEach(({ path, msg, message }) => {
+    const texto = msg || message || ''
+    if (path === 'email') emailError.value = texto
+    else if (path === 'password') passwordError.value = texto
+    else error.value = texto
+  })
 }
 
 async function iniciarSesion() {
   error.value = ''
+  emailError.value = ''
+  passwordError.value = ''
   cargando.value = true
   try {
     await authStore.login(email.value.trim(), password.value)
@@ -276,11 +298,11 @@ async function iniciarSesion() {
     emit('login', authStore.usuario)
   } catch (err) {
     if (err.data?.errors?.length) {
-      error.value = err.data.errors[0].message
+      mapearErroresCampos(err.data.errors)
     } else {
       error.value = err.message || 'Credenciales inválidas'
     }
-    showError(error.value, 'Error de autenticación')
+    showError(error.value || 'Error al iniciar sesión', 'Error de autenticación')
   } finally {
     cargando.value = false
   }
@@ -326,7 +348,7 @@ async function solicitarCodigo() {
   msgRec.value = ''
   cargandoRec.value = true
   try {
-    const res = await fetch(`${BACKEND_URL}/password-recovery/solicitar-codigo`, {
+    const res = await fetch(`${BACKEND_URL}/v1/password-recovery/solicitar-codigo`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: emailRec.value })
@@ -352,7 +374,7 @@ async function verificarCodigo() {
   msgRec.value = ''
   cargandoRec.value = true
   try {
-    const res = await fetch(`${BACKEND_URL}/password-recovery/verificar-codigo`, {
+    const res = await fetch(`${BACKEND_URL}/v1/password-recovery/verificar-codigo`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: emailRec.value, codigo: codigoRec.value })
@@ -383,7 +405,7 @@ async function restablecerPassword() {
   msgRec.value = ''
   cargandoRec.value = true
   try {
-    const res = await fetch(`${BACKEND_URL}/password-recovery/restablecer-password`, {
+    const res = await fetch(`${BACKEND_URL}/v1/password-recovery/restablecer-password`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: emailRec.value, codigo: codigoRec.value, nuevaPassword: newPass.value })

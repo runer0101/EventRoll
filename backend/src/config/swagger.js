@@ -10,7 +10,7 @@ export const swaggerSpec = {
     description: 'Guest management & check-in API — authentication via HttpOnly cookie',
     contact: { name: 'EventRoll' },
   },
-  servers: [{ url: '/api', description: 'Servidor principal' }],
+  servers: [{ url: '/api/v1', description: 'Servidor principal' }],
   components: {
     securitySchemes: {
       cookieAuth: {

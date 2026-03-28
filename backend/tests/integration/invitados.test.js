@@ -20,7 +20,7 @@ describe('Invitados API — integración', () => {
     eventoId = await createTestEvento(userId)
 
     const loginRes = await request
-      .post('/api/auth/login')
+      .post('/api/v1/auth/login')
       .send({ email: TEST_USER.email, password: TEST_USER.password })
     token = loginRes.body.data.token
   })
@@ -33,7 +33,7 @@ describe('Invitados API — integración', () => {
   describe('GET /api/invitados', () => {
     it('retorna 200 con lista de invitados', async () => {
       const res = await request
-        .get('/api/invitados')
+        .get('/api/v1/invitados')
         .query({ evento_id: eventoId })
         .set('Authorization', `Bearer ${token}`)
 
@@ -45,7 +45,7 @@ describe('Invitados API — integración', () => {
 
     it('retorna 401 sin autenticación', async () => {
       const res = await request
-        .get('/api/invitados')
+        .get('/api/v1/invitados')
         .query({ evento_id: eventoId })
 
       expect(res.status).toBe(401)
@@ -56,7 +56,7 @@ describe('Invitados API — integración', () => {
   describe('POST /api/invitados', () => {
     it('crea un invitado y retorna 201', async () => {
       const res = await request
-        .post('/api/invitados')
+        .post('/api/v1/invitados')
         .set('Authorization', `Bearer ${token}`)
         .send({
           nombre: 'Test Invitado',
@@ -74,7 +74,7 @@ describe('Invitados API — integración', () => {
 
     it('retorna 400 si falta el nombre', async () => {
       const res = await request
-        .post('/api/invitados')
+        .post('/api/v1/invitados')
         .set('Authorization', `Bearer ${token}`)
         .send({ evento_id: eventoId, categoria: 'General' })
 
@@ -86,7 +86,7 @@ describe('Invitados API — integración', () => {
   describe('PUT /api/invitados/:id', () => {
     it('actualiza el invitado correctamente', async () => {
       const res = await request
-        .put(`/api/invitados/${invitadoId}`)
+        .put(`/api/v1/invitados/${invitadoId}`)
         .set('Authorization', `Bearer ${token}`)
         .send({ confirmado: true })
 
@@ -97,7 +97,7 @@ describe('Invitados API — integración', () => {
 
     it('retorna 404 con id inexistente', async () => {
       const res = await request
-        .put('/api/invitados/00000000-0000-0000-0000-000000000000')
+        .put('/api/v1/invitados/00000000-0000-0000-0000-000000000000')
         .set('Authorization', `Bearer ${token}`)
         .send({ confirmado: true })
 
@@ -109,7 +109,7 @@ describe('Invitados API — integración', () => {
   describe('DELETE /api/invitados/:id', () => {
     it('elimina el invitado correctamente', async () => {
       const res = await request
-        .delete(`/api/invitados/${invitadoId}`)
+        .delete(`/api/v1/invitados/${invitadoId}`)
         .set('Authorization', `Bearer ${token}`)
 
       expect(res.status).toBe(200)
@@ -118,7 +118,7 @@ describe('Invitados API — integración', () => {
 
     it('retorna 404 al eliminar id inexistente', async () => {
       const res = await request
-        .delete('/api/invitados/00000000-0000-0000-0000-000000000000')
+        .delete('/api/v1/invitados/00000000-0000-0000-0000-000000000000')
         .set('Authorization', `Bearer ${token}`)
 
       expect(res.status).toBe(404)

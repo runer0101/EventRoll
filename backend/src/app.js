@@ -94,6 +94,7 @@ app.get('/health', async (req, res) => {
   } catch (_) { /* DB unreachable */ }
 
   const status = dbOk ? 200 : 503
+  res.setHeader('Cache-Control', 'public, max-age=30')
   res.status(status).json({
     success: dbOk,
     status: dbOk ? 'healthy' : 'degraded',
@@ -113,22 +114,28 @@ app.use('/api/docs', ...swaggerMiddleware, swaggerUi.serve, swaggerUi.setup(swag
 }))
 app.get('/api/docs.json', ...swaggerMiddleware, (req, res) => res.json(swaggerSpec))
 
-app.use('/api/auth', authRoutes)
-app.use('/api/usuarios', usuariosRoutes)
-app.use('/api/invitados', invitadosRoutes)
-app.use('/api/eventos', eventosRoutes)
-app.use('/api/password-recovery', passwordRecoveryRoutes)
+// Cache-Control: rutas privadas no deben cachearse; /health puede cachearse brevemente
+app.use('/api/v1/', (_req, res, next) => {
+  res.setHeader('Cache-Control', 'no-store')
+  next()
+})
+
+app.use('/api/v1/auth', authRoutes)
+app.use('/api/v1/usuarios', usuariosRoutes)
+app.use('/api/v1/invitados', invitadosRoutes)
+app.use('/api/v1/eventos', eventosRoutes)
+app.use('/api/v1/password-recovery', passwordRecoveryRoutes)
 
 app.get('/', (req, res) => {
   res.json({
     success: true,
-    message: 'EventRoll API',
+    message: 'EventRoll API v1',
     endpoints: {
       health: '/health',
       docs: '/api/docs',
-      auth: '/api/auth',
-      usuarios: '/api/usuarios',
-      invitados: '/api/invitados',
+      auth: '/api/v1/auth',
+      usuarios: '/api/v1/usuarios',
+      invitados: '/api/v1/invitados',
     },
   })
 })

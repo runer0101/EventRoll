@@ -8,7 +8,7 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'lcov', 'html'],
-      include: ['src/services/**/*.js'],
+      include: ['src/services/**/*.js', 'src/repositories/**/*.js'],
       exclude: [
         'src/config/migrate*.js',
         'src/config/seed.js',

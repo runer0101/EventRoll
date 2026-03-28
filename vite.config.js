@@ -6,6 +6,17 @@ import vueDevTools from 'vite-plugin-vue-devtools'
 
 // https://vite.dev/config/
 export default defineConfig({
+  test: {
+    environment: 'jsdom',
+    globals: true,
+    include: ['src/**/*.test.{js,ts}'],
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'lcov', 'html'],
+      include: ['src/stores/**/*.js', 'src/composables/**/*.js'],
+      thresholds: { lines: 70, functions: 70, branches: 60 },
+    },
+  },
   // IMPORTANTE: debe coincidir exactamente con el nombre del repositorio en GitHub (case-sensitive)
   base: process.env.NODE_ENV === 'production' ? '/EventRoll/' : '/',
 
