@@ -3,7 +3,7 @@ import { usuariosRepository } from '../repositories/usuariosRepository.js'
 import { activityService } from './activityService.js'
 import { badRequest, notFoundError } from '../core/errors/AppError.js'
 
-const SALT_ROUNDS = Number(process.env.SALT_ROUNDS) || 10
+const SALT_ROUNDS = Math.max(10, Number(process.env.SALT_ROUNDS) || 10)
 const ROLES_VALIDOS = ['admin', 'organizador', 'asistente', 'guardia', 'visualizador']
 
 const buildDefaultPermisos = (rol) => ({

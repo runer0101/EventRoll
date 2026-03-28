@@ -1,6 +1,7 @@
 import { invitadosRepository } from '../repositories/invitadosRepository.js'
 import { activityService } from './activityService.js'
 import { badRequest, notFoundError } from '../core/errors/AppError.js'
+import { query } from '../config/database.js'
 
 const CATEGORIAS_VALIDAS = ['General', 'VIP', 'Familia', 'Amigos', 'Trabajo']
 
@@ -116,6 +117,14 @@ export const invitadosService = {
   async importInvitados({ evento_id, invitados }, actorId) {
     if (!Array.isArray(invitados) || invitados.length === 0) {
       throw badRequest('Se requiere un array de invitados')
+    }
+
+    // Verificar que el evento existe
+    if (evento_id) {
+      const eventoCheck = await query('SELECT id FROM eventos WHERE id = $1', [evento_id])
+      if (!eventoCheck.rows.length) {
+        throw badRequest('El evento especificado no existe')
+      }
     }
 
     const errores = []

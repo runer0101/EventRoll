@@ -97,7 +97,8 @@ export const authenticateToken = async (req, res, next) => {
     // disponible solo como fallback explícito para clientes no-web (API externa).
     // En un deploy puramente web se puede eliminar la segunda parte.
     const authHeader = req.headers['authorization']
-    const token = req.cookies?.token || (process.env.ALLOW_BEARER_TOKEN === 'true' && authHeader && authHeader.split(' ')[1])
+    const bearerAllowed = process.env.NODE_ENV !== 'production' && process.env.ALLOW_BEARER_TOKEN === 'true'
+    const token = req.cookies?.token || (bearerAllowed && authHeader?.startsWith('Bearer ') && authHeader.split(' ')[1])
 
     if (!token) {
       return res.status(401).json({
@@ -197,34 +198,34 @@ export const requireAdmin = requireRole('admin')
 // Middleware para verificar que el usuario es admin u organizador
 export const requireOrganizer = requireRole('admin', 'organizador')
 
-// Permisos por defecto según rol (espejo del frontend, pero aplicado en el servidor)
-const PERMISOS_DEFAULT_POR_ROL = {
-  admin:        { ver_invitados: true,  confirmar_invitados: true,  crear_invitados: true,  editar_invitados: true,  eliminar_invitados: true,  importar_invitados: true  },
-  organizador:  { ver_invitados: true,  confirmar_invitados: true,  crear_invitados: true,  editar_invitados: true,  eliminar_invitados: true,  importar_invitados: true  },
-  asistente:    { ver_invitados: true,  confirmar_invitados: true,  crear_invitados: true,  editar_invitados: true,  eliminar_invitados: false, importar_invitados: false },
-  guardia:      { ver_invitados: true,  confirmar_invitados: true,  crear_invitados: false, editar_invitados: false, eliminar_invitados: false, importar_invitados: false },
-  visualizador: { ver_invitados: true,  confirmar_invitados: false, crear_invitados: false, editar_invitados: false, eliminar_invitados: false, importar_invitados: false },
+// Mapa de permisos por rol (espejo del frontend para validación en backend)
+const PERMISOS_POR_ROL = {
+  admin:        { verInvitados: true,  agregarInvitados: true,  editarInvitados: true,  eliminarInvitados: true,  confirmarInvitados: true,  exportarExcel: true,  importarExcel: true,  configurarSillas: true,  gestionarUsuarios: true  },
+  organizador:  { verInvitados: true,  agregarInvitados: true,  editarInvitados: true,  eliminarInvitados: true,  confirmarInvitados: true,  exportarExcel: true,  importarExcel: true,  configurarSillas: true,  gestionarUsuarios: false },
+  asistente:    { verInvitados: true,  agregarInvitados: true,  editarInvitados: true,  eliminarInvitados: false, confirmarInvitados: true,  exportarExcel: true,  importarExcel: false, configurarSillas: false, gestionarUsuarios: false },
+  visualizador: { verInvitados: true,  agregarInvitados: false, editarInvitados: false, eliminarInvitados: false, confirmarInvitados: false, exportarExcel: true,  importarExcel: false, configurarSillas: false, gestionarUsuarios: false },
+  guardia:      { verInvitados: true,  agregarInvitados: false, editarInvitados: false, eliminarInvitados: false, confirmarInvitados: true,  exportarExcel: false, importarExcel: false, configurarSillas: false, gestionarUsuarios: false },
 }
 
 // Middleware para verificar un permiso granular.
-// Primero revisa req.user.permisos (overrides por usuario),
-// si no existe el campo cae al default del rol.
-export const requirePermiso = (permiso) => {
+// Primero revisa req.user.permisos (overrides por usuario, campo permisos JSONB),
+// si no existe el campo cae al mapa de permisos por rol.
+export function requirePermiso(permiso) {
   return (req, res, next) => {
     if (!req.user) {
       return res.status(401).json({ success: false, message: 'No autenticado' })
     }
-
-    const overrides = req.user.permisos || {}
-    const defaults  = PERMISOS_DEFAULT_POR_ROL[req.user.rol] || {}
-    const allowed   = permiso in overrides ? overrides[permiso] : (defaults[permiso] ?? false)
-
-    if (!allowed) {
-      return res.status(403).json({
-        success: false,
-        message: `Permiso denegado: se requiere el permiso '${permiso}'`
-      })
+    // Primero verificar override granular del usuario (campo permisos JSONB)
+    const override = req.user.permisos
+    if (override && typeof override === 'object' && permiso in override) {
+      return override[permiso]
+        ? next()
+        : res.status(403).json({ success: false, message: 'No tienes permiso para realizar esta acción' })
     }
-    next()
+    // Fallback al mapa de permisos por rol
+    const rolePerms = PERMISOS_POR_ROL[req.user.rol] || {}
+    return rolePerms[permiso]
+      ? next()
+      : res.status(403).json({ success: false, message: 'No tienes permiso para realizar esta acción' })
   }
 }

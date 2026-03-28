@@ -273,8 +273,8 @@ export const validateVerifyCode = [
     .normalizeEmail(),
   body('codigo')
     .trim()
-    .matches(/^\d{6}$/)
-    .withMessage('Código debe ser 6 dígitos'),
+    .matches(/^\d{8}$/)
+    .withMessage('Código debe ser 8 dígitos'),
   handleValidationErrors
 ]
 
@@ -286,8 +286,8 @@ export const validateResetPassword = [
     .normalizeEmail(),
   body('codigo')
     .trim()
-    .matches(/^\d{6}$/)
-    .withMessage('Código debe ser 6 dígitos'),
+    .matches(/^\d{8}$/)
+    .withMessage('Código debe ser 8 dígitos'),
   body('nuevaPassword')
     .isLength({ min: 8, max: 255 })
     .withMessage('Contraseña debe tener entre 8 y 255 caracteres')

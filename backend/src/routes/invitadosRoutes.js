@@ -6,7 +6,7 @@ import {
   deleteInvitado,
   importInvitados
 } from '../controllers/invitadosController.js'
-import { authenticateToken, requireOrganizer, requirePermiso } from '../middleware/auth.js'
+import { authenticateToken, requirePermiso } from '../middleware/auth.js'
 import { validateCreateInvitado, validateUpdateInvitado, validateDeleteInvitado, validateGetInvitados, validateImportInvitados } from '../middleware/validators.js'
 
 const router = express.Router()
@@ -15,13 +15,13 @@ const router = express.Router()
 router.use(authenticateToken)
 
 router.route('/')
-  .get(validateGetInvitados, getInvitados)
-  .post(requireOrganizer, requirePermiso('crear_invitados'), validateCreateInvitado, createInvitado)
+  .get(requirePermiso('verInvitados'), validateGetInvitados, getInvitados)
+  .post(requirePermiso('agregarInvitados'), validateCreateInvitado, createInvitado)
 
-router.post('/import', requireOrganizer, requirePermiso('importar_invitados'), validateImportInvitados, importInvitados)
+router.post('/import', requirePermiso('importarExcel'), validateImportInvitados, importInvitados)
 
 router.route('/:id')
-  .put(requireOrganizer, requirePermiso('editar_invitados'), validateUpdateInvitado, updateInvitado)
-  .delete(requireOrganizer, requirePermiso('eliminar_invitados'), validateDeleteInvitado, deleteInvitado)
+  .put(requirePermiso('editarInvitados'), validateUpdateInvitado, updateInvitado)
+  .delete(requirePermiso('eliminarInvitados'), validateDeleteInvitado, deleteInvitado)
 
 export default router

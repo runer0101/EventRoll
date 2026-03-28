@@ -4,10 +4,12 @@ import { enviarCodigoRecuperacion, generarCodigoVerificacion } from './emailServ
 import { badRequest } from '../core/errors/AppError.js'
 import { logger } from '../utils/logger.js'
 
-const SALT_ROUNDS = Number(process.env.SALT_ROUNDS) || 10
+const SALT_ROUNDS = Math.max(10, Number(process.env.SALT_ROUNDS) || 10)
 
 export const passwordRecoveryService = {
   async requestRecoveryCode(email) {
+    const inicio = Date.now()
+
     if (!email) {
       throw badRequest('Email es requerido')
     }
@@ -15,6 +17,10 @@ export const passwordRecoveryService = {
     const usuario = await passwordRecoveryRepository.findUserByEmail(email)
 
     if (!usuario) {
+      const transcurrido = Date.now() - inicio
+      if (transcurrido < 300) {
+        await new Promise(r => setTimeout(r, 300 - transcurrido))
+      }
       return {
         success: true,
         message: 'Si el email existe, recibirás un código de recuperación'
@@ -31,17 +37,27 @@ export const passwordRecoveryService = {
     try {
       await enviarCodigoRecuperacion(usuario.email, usuario.nombre, codigo, emailCliente)
 
+      const transcurrido = Date.now() - inicio
+      if (transcurrido < 300) {
+        await new Promise(r => setTimeout(r, 300 - transcurrido))
+      }
+
       return {
         success: true,
-        message: 'Código enviado. Revisa tu email.'
+        message: 'Si el email existe, recibirás un código de recuperación'
       }
     } catch (emailError) {
       if (process.env.NODE_ENV === 'development') {
         logger.debug('[DEV] Código de recuperación generado. Configura EMAIL_USER y EMAIL_PASS en .env para enviar emails reales.')
 
+        const transcurrido = Date.now() - inicio
+        if (transcurrido < 300) {
+          await new Promise(r => setTimeout(r, 300 - transcurrido))
+        }
+
         return {
           success: true,
-          message: 'Código generado. Configura el email en .env para recibirlo.',
+          message: 'Si el email existe, recibirás un código de recuperación',
           warning: 'Email no configurado en desarrollo'
         }
       }

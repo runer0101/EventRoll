@@ -111,7 +111,7 @@ export const usuariosRepository = {
   async setAccessCode(id, code) {
     const result = await query(
       `UPDATE usuarios
-       SET access_code = $1, access_code_expires_at = NOW() + INTERVAL '30 days'
+       SET access_code = $1, access_code_expires_at = NOW() + INTERVAL '7 days'
        WHERE id = $2
        RETURNING id, nombre, email, rol, access_code, access_code_expires_at`,
       [code, id]

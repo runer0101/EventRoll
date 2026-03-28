@@ -20,7 +20,7 @@ const transporter = nodemailer.createTransport({
  * Enviar código de recuperación de contraseña
  * @param {string} destinatario - Email del usuario
  * @param {string} nombreUsuario - Nombre del usuario
- * @param {string} codigo - Código de 6 dígitos
+ * @param {string} codigo - Código de 8 dígitos
  * @param {string} emailCliente - Email adicional del cliente (opcional)
  */
 export async function enviarCodigoRecuperacion(destinatario, nombreUsuario, codigo, emailCliente = null) {
@@ -269,11 +269,11 @@ export async function verificarConfiguracionEmail() {
 }
 
 /**
- * Generar código de 6 dígitos
+ * Generar código de 8 dígitos
  */
 export function generarCodigoVerificacion() {
   // Usar crypto para generación criptográficamente segura
-  return String(crypto.randomInt(100000, 1000000))
+  return String(crypto.randomInt(10000000, 100000000))
 }
 
 export default {

@@ -2,6 +2,9 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 vi.mock('../../src/repositories/invitadosRepository.js')
 vi.mock('../../src/services/activityService.js')
+vi.mock('../../src/config/database.js', () => ({
+  query: vi.fn().mockResolvedValue({ rows: [{ id: '1' }] }),
+}))
 
 import { invitadosService } from '../../src/services/invitadosService.js'
 import { invitadosRepository } from '../../src/repositories/invitadosRepository.js'

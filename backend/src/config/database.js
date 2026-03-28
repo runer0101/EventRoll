@@ -6,6 +6,12 @@ dotenv.config()
 
 const { Pool } = pg
 
+function sanitizeDbError(msg = '') {
+  return msg
+    .replace(/\/\/[^:]+:[^@]+@/, '//***:***@')
+    .replace(/password[^,}\s]*/gi, 'password=***')
+}
+
 // SSL solo en producción — en test/development el Postgres local no tiene SSL
 const isProduction = process.env.NODE_ENV === 'production'
 
@@ -33,7 +39,7 @@ const pool = new Pool({
 
 // Errores inesperados del pool (ej: BD caída en producción)
 pool.on('error', (err) => {
-  logger.error('Error inesperado en el pool de base de datos', { message: err.message })
+  logger.error('Error inesperado en el pool de base de datos', { message: sanitizeDbError(err.message) })
   process.exit(-1)
 })
 
@@ -48,7 +54,7 @@ export const query = async (text, params) => {
   } catch (error) {
     // No exponer el texto SQL en producción (podría revelar esquema de BD)
     logger.error('Error en query', {
-      message: error.message,
+      message: sanitizeDbError(error.message),
       ...(isProduction ? {} : { query: text }),
     })
     throw error
@@ -67,8 +73,8 @@ export const testConnection = async () => {
     logger.info(`Conexión a base de datos exitosa: ${result.rows[0].now}`)
     return true
   } catch (error) {
-    process.stderr.write(`[DB] ERROR de conexión: ${error.message}\n`)
-    logger.error('Error conectando a base de datos', { message: error.message })
+    process.stderr.write(`[DB] ERROR de conexión: ${sanitizeDbError(error.message)}\n`)
+    logger.error('Error conectando a base de datos', { message: sanitizeDbError(error.message) })
     return false
   }
 }
