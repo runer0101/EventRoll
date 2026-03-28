@@ -1,18 +1,20 @@
+<div align="center">
+
 # EventRoll
 
-<p align="center">
-  <strong>Plataforma web para gestionar invitados en eventos con control de asistencia en tiempo real</strong>
-</p>
+**Plataforma fullstack para gestionar invitados en eventos con control de asistencia en tiempo real**
 
-<p align="center">
-  <a href="https://github.com/runer0101/EventRoll/actions/workflows/test.yml" style="text-decoration:none"><img src="https://github.com/runer0101/EventRoll/actions/workflows/test.yml/badge.svg" alt="Tests"></a>
-  <a href="https://github.com/runer0101/EventRoll/actions/workflows/security.yml" style="text-decoration:none"><img src="https://github.com/runer0101/EventRoll/actions/workflows/security.yml/badge.svg" alt="Security"></a>
-  <a href="https://nodejs.org/" style="text-decoration:none"><img src="https://img.shields.io/badge/Node.js-22-339933?logo=node.js&logoColor=white" alt="Node.js"></a>
-  <a href="https://vuejs.org/" style="text-decoration:none"><img src="https://img.shields.io/badge/Vue-3-4FC08D?logo=vue.js&logoColor=white" alt="Vue 3"></a>
-  <a href="https://www.postgresql.org/" style="text-decoration:none"><img src="https://img.shields.io/badge/PostgreSQL-16-336791?logo=postgresql&logoColor=white" alt="PostgreSQL"></a>
-  <a href="https://www.docker.com/" style="text-decoration:none"><img src="https://img.shields.io/badge/Docker-ready-2496ED?logo=docker&logoColor=white" alt="Docker"></a>
-  <a href="https://github.com/runer0101/EventRoll/blob/main/LICENSE" style="text-decoration:none"><img src="https://img.shields.io/badge/licencia-MIT-blue" alt="MIT"></a>
-</p>
+[![Tests](https://github.com/runer0101/EventRoll/actions/workflows/test.yml/badge.svg)](https://github.com/runer0101/EventRoll/actions/workflows/test.yml)
+[![Security](https://github.com/runer0101/EventRoll/actions/workflows/security.yml/badge.svg)](https://github.com/runer0101/EventRoll/actions/workflows/security.yml)
+[![Node.js](https://img.shields.io/badge/Node.js-22-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
+[![Vue 3](https://img.shields.io/badge/Vue-3-4FC08D?logo=vue.js&logoColor=white)](https://vuejs.org/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-336791?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Docker](https://img.shields.io/badge/Docker-ready-2496ED?logo=docker&logoColor=white)](https://www.docker.com/)
+[![MIT](https://img.shields.io/badge/licencia-MIT-blue)](LICENSE)
+
+[Demo en vivo](https://runer0101.github.io/EventRoll) · [API Docs](https://eventroll.onrender.com/api/docs) · [Reportar un bug](https://github.com/runer0101/EventRoll/issues)
+
+</div>
 
 ---
 
@@ -24,6 +26,18 @@ EventRoll es una aplicación web **fullstack** diseñada para equipos que organi
 Coordinar la entrada a un evento con múltiples personas del equipo (organizadores, guardias, asistentes) es difícil cuando todos están mirando listas distintas. EventRoll centraliza todo: un solo panel, roles diferenciados por persona y datos actualizados al instante.
 
 **Casos de uso:** bodas · conferencias · fiestas privadas · eventos corporativos · graduaciones
+
+### Características principales
+
+| | Funcionalidad |
+|---|---|
+| **Invitados** | CRUD completo, importación masiva desde Excel (hasta 500), exportación a `.xlsx`/CSV |
+| **Asistencia** | Toggle con un clic, indicadores visuales, estadísticas en tiempo real |
+| **Usuarios** | RBAC con 5 roles y permisos granulares por usuario |
+| **Seguridad** | JWT en cookie HttpOnly, blacklist de tokens, rate limiting, CSRF, CSP |
+| **Buscador** | Búsqueda en tiempo real con debounce, filtros combinables, historial por sesión |
+| **Atajos** | Navegación por teclado completa, panel de atajos con `?` |
+| **Deploy** | Docker, GitHub Actions CI/CD, Render.com (backend), GitHub Pages (frontend) |
 
 ---
 
@@ -173,7 +187,7 @@ EventRoll usa un sistema **RBAC** (Role-Based Access Control) con 5 roles y perm
 
 ### Flujo de autenticación
 
-1. El frontend envía credenciales al backend vía `POST /api/auth/login`
+1. El frontend envía credenciales al backend vía `POST /api/v1/auth/login`
 2. El backend verifica email + bcrypt hash y firma un JWT
 3. El JWT se almacena en una **cookie HttpOnly** (nunca en `localStorage`)
 4. Cada request posterior incluye la cookie automáticamente (`withCredentials: true`)
@@ -207,6 +221,7 @@ PostgreSQL Pool    — Conexiones gestionadas por pg-pool
 | Tecnología | Versión | Uso |
 |-----------|---------|-----|
 | Vue 3 | `^3.5` | Framework UI (Composition API) |
+| Vue Router | `^4.6` | Enrutamiento SPA con guards de autenticación |
 | Vite | `^7.1` | Build tool y dev server |
 | Pinia | `^2.3` | Estado global (sesión, evento activo) |
 | Axios | `^1.6` | Cliente HTTP con interceptores |
@@ -227,7 +242,7 @@ PostgreSQL Pool    — Conexiones gestionadas por pg-pool
 | helmet | `^7.1` | Headers de seguridad HTTP |
 | cors | `^2.8` | Control de CORS |
 | cookie-parser | `^1.4` | Lectura de cookies |
-| nodemailer | `^7.0` | Envío de emails (recuperación) |
+| nodemailer | `^8.0` | Envío de emails (recuperación) |
 | winston | `^3.17` | Logging estructurado JSON |
 | swagger-ui-express | `^5.0` | Documentación interactiva de la API |
 | morgan | `^1.10` | HTTP request logging |
@@ -423,10 +438,13 @@ docker compose down -v
 ### Frontend (raíz del proyecto)
 
 ```bash
-npm run dev          # Servidor de desarrollo (Vite)
-npm run build        # Build de producción
-npm run preview      # Preview del build
-npm run lint         # ESLint
+npm run dev              # Servidor de desarrollo (Vite)
+npm run build            # Build de producción
+npm run preview          # Preview del build
+npm run lint             # ESLint
+npm run test             # Tests unitarios (Vitest)
+npm run test:watch       # Tests en modo watch
+npm run test:coverage    # Tests con reporte de cobertura
 ```
 
 ### Backend (`cd backend`)
@@ -448,36 +466,38 @@ npm run test:integration # Tests de integración (requiere BD)
 La documentación completa e interactiva está en Swagger:
 **https://eventroll.onrender.com/api/docs**
 
+> Todos los endpoints están bajo el prefijo `/api/v1/`.
+
 ### Endpoints principales
 
 #### Autenticación
 
 | Método | Endpoint | Descripción | Auth |
 |--------|----------|-------------|------|
-| `POST` | `/api/auth/login` | Login con email y contraseña | — |
-| `POST` | `/api/auth/login-con-codigo` | Login con código de guardia | — |
-| `GET` | `/api/auth/me` | Usuario actual autenticado | ✅ |
-| `POST` | `/api/auth/logout` | Cerrar sesión y revocar token | ✅ |
+| `POST` | `/api/v1/auth/login` | Login con email y contraseña | — |
+| `POST` | `/api/v1/auth/login-con-codigo` | Login con código de guardia | — |
+| `GET` | `/api/v1/auth/me` | Usuario actual autenticado | ✅ |
+| `POST` | `/api/v1/auth/logout` | Cerrar sesión y revocar token | ✅ |
 
 #### Recuperación de contraseña
 
 | Método | Endpoint | Descripción | Auth |
 |--------|----------|-------------|------|
-| `POST` | `/api/password-recovery/solicitar-codigo` | Enviar código al email | — |
-| `POST` | `/api/password-recovery/verificar-codigo` | Verificar el código | — |
-| `POST` | `/api/password-recovery/restablecer-password` | Nueva contraseña | — |
+| `POST` | `/api/v1/password-recovery/solicitar-codigo` | Enviar código al email | — |
+| `POST` | `/api/v1/password-recovery/verificar-codigo` | Verificar el código | — |
+| `POST` | `/api/v1/password-recovery/restablecer-password` | Nueva contraseña | — |
 
 #### Invitados
 
 | Método | Endpoint | Descripción | Rol mínimo |
 |--------|----------|-------------|-----------|
-| `GET` | `/api/invitados` | Lista paginada con filtros | Cualquiera |
-| `POST` | `/api/invitados` | Crear invitado | Organizador |
-| `POST` | `/api/invitados/import` | Importar desde Excel | Organizador |
-| `PUT` | `/api/invitados/:id` | Actualizar invitado | Organizador |
-| `DELETE` | `/api/invitados/:id` | Eliminar invitado | Organizador |
+| `GET` | `/api/v1/invitados` | Lista paginada con filtros | Cualquiera |
+| `POST` | `/api/v1/invitados` | Crear invitado | Organizador |
+| `POST` | `/api/v1/invitados/import` | Importar desde Excel | Organizador |
+| `PUT` | `/api/v1/invitados/:id` | Actualizar invitado | Organizador |
+| `DELETE` | `/api/v1/invitados/:id` | Eliminar invitado | Organizador |
 
-**Query params de GET `/api/invitados`:**
+**Query params de GET `/api/v1/invitados`:**
 
 | Parámetro | Tipo | Descripción |
 |-----------|------|-------------|
@@ -494,12 +514,12 @@ La documentación completa e interactiva está en Swagger:
 
 | Método | Endpoint | Descripción | Rol |
 |--------|----------|-------------|-----|
-| `GET` | `/api/usuarios` | Listar usuarios | Admin |
-| `POST` | `/api/usuarios` | Crear usuario | Admin |
-| `PUT` | `/api/usuarios/:id` | Editar usuario | Admin |
-| `DELETE` | `/api/usuarios/:id` | Eliminar usuario | Admin |
-| `POST` | `/api/usuarios/:id/generar-codigo` | Código de guardia | Admin |
-| `DELETE` | `/api/usuarios/:id/revocar-codigo` | Revocar código | Admin |
+| `GET` | `/api/v1/usuarios` | Listar usuarios | Admin |
+| `POST` | `/api/v1/usuarios` | Crear usuario | Admin |
+| `PUT` | `/api/v1/usuarios/:id` | Editar usuario | Admin |
+| `DELETE` | `/api/v1/usuarios/:id` | Eliminar usuario | Admin |
+| `POST` | `/api/v1/usuarios/:id/generar-codigo` | Código de guardia | Admin |
+| `DELETE` | `/api/v1/usuarios/:id/revocar-codigo` | Revocar código | Admin |
 
 ---
 
@@ -585,30 +605,46 @@ La documentación completa e interactiva está en Swagger:
 ```
 EventRoll/
 ├── src/                              # Frontend — Vue 3
-│   ├── App.vue                       # Componente raíz + layout principal
-│   ├── main.js                       # Punto de entrada
+│   ├── App.vue                       # Punto de montaje (solo RouterView + Toast)
+│   ├── main.js                       # Punto de entrada — registra Vue, Pinia, Router
+│   ├── router/
+│   │   └── index.js                  # Vue Router: rutas públicas, guard de autenticación
+│   ├── views/                        # Páginas de la SPA (ruteadas por Vue Router)
+│   │   ├── HomeView.vue              # Landing page pública
+│   │   ├── LoginView.vue             # Página de login
+│   │   ├── AppShell.vue              # Layout autenticado (sidebar + RouterView)
+│   │   ├── InvitadosView.vue         # Vista de lista de invitados
+│   │   ├── EstadisticasView.vue      # Vista de estadísticas
+│   │   ├── ConfiguracionView.vue     # Vista de configuración del evento
+│   │   ├── ActividadView.vue         # Vista de actividad reciente
+│   │   └── UsuariosView.vue          # Vista de gestión de usuarios
 │   ├── components/
-│   │   ├── HomePage.vue              # Landing page pública
-│   │   ├── LoginPage.vue             # Login + recuperación de contraseña
+│   │   ├── HomePage.vue              # Componente de la landing page
+│   │   ├── LoginPage.vue             # Formulario de login + recuperación
 │   │   ├── ListaInvitados.vue        # CRUD de invitados (vista principal)
 │   │   ├── GestionUsuarios.vue       # Administración de usuarios
 │   │   ├── PanelUsuarios.vue         # Perfil del usuario actual
 │   │   ├── Sidebar.vue               # Navegación lateral responsive
+│   │   ├── EmptyState.vue            # Estado vacío reutilizable (accesible)
+│   │   ├── FieldError.vue            # Error por campo de formulario
 │   │   ├── ShortcutsHelp.vue         # Modal de atajos de teclado
 │   │   ├── ToastNotification.vue     # Notificación individual
 │   │   ├── ToastContainer.vue        # Contenedor de notificaciones
 │   │   └── LoadingSpinner.vue        # Overlay de carga
 │   ├── services/
-│   │   └── api.js                    # Cliente Axios + métodos de la API
+│   │   └── api.js                    # Cliente Axios + métodos de la API (/api/v1/)
 │   ├── stores/
 │   │   ├── auth.js                   # Sesión, usuario y permisos (Pinia)
-│   │   └── evento.js                 # Evento activo (Pinia)
+│   │   ├── evento.js                 # Evento activo (Pinia)
+│   │   └── ui.js                     # Loading, modales y notificaciones (Pinia)
 │   ├── composables/
 │   │   ├── useToast.js               # Notificaciones toast
 │   │   ├── useLoading.js             # Estado de carga global
 │   │   ├── useSearchHistory.js       # Historial de búsquedas
 │   │   ├── useSavedFilters.js        # Filtros persistentes por sesión
 │   │   └── useKeyboardShortcuts.js   # Atajos de teclado
+│   ├── __tests__/
+│   │   └── stores/                   # Tests unitarios de Pinia stores (Vitest)
 │   └── utils/
 │       ├── excelImporter.js          # Lógica de importación con ExcelJS
 │       └── migrateToBackend.js       # Utilidad de migración desde localStorage
