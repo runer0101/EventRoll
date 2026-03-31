@@ -16,7 +16,6 @@ import { requestId } from './middleware/requestId.js'
 import { authenticateToken, requireAdmin } from './middleware/auth.js'
 import { logger } from './utils/logger.js'
 import { swaggerSpec } from './config/swagger.js'
-import { query } from './config/database.js'
 
 const app = express()
 
@@ -87,11 +86,47 @@ app.use((req, res, next) => {
 const limiter = rateLimit({
   windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000,
   max: parseInt(process.env.RATE_LIMIT_MAX) || 30,
-  message: { success: false, message: 'Demasiadas peticiones desde esta IP, por favor intenta más tarde' },
+  keyGenerator: (req) => {
+    const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.ip || 'unknown'
+    const ua = (req.headers['user-agent'] || 'no-ua').substring(0, 100)
+    return `${ip}::${ua}`
+  },
+  message: { success: false, message: 'Demasiadas peticiones, por favor intenta más tarde' },
   standardHeaders: true,
   legacyHeaders: false,
+  skip: (req) => req.path === '/health',
 })
 app.use('/api/', limiter)
+
+// Bloquear requests a /api/ sin Origin o Referer válido (anti-scraping).
+// /health está fuera de /api/ así que no se ve afectado.
+app.use('/api/', (req, res, next) => {
+  if (process.env.NODE_ENV === 'test') return next()
+  // OPTIONS (preflight CORS) siempre pasa
+  if (req.method === 'OPTIONS') return next()
+
+  const origin = req.headers.origin || ''
+  const referer = req.headers.referer || ''
+
+  const isValidOrigin = origin && allowedOrigins.some(o => origin === o)
+  const isValidReferer = referer && allowedOrigins.some(o => referer.startsWith(o))
+
+  if (isValidOrigin || isValidReferer) return next()
+
+  // En desarrollo: permitir requests locales sin Origin (Postman, curl, etc.)
+  if (process.env.NODE_ENV !== 'production') {
+    const host = req.headers.host || ''
+    if (host.startsWith('localhost:') || host.startsWith('127.0.0.1:')) return next()
+  }
+
+  logger.warn('Request bloqueado: sin Origin/Referer válido', {
+    ip: req.ip,
+    path: req.path,
+    method: req.method,
+    userAgent: (req.headers['user-agent'] || '').substring(0, 100),
+  })
+  return res.status(403).json({ success: false, message: 'Acceso denegado' })
+})
 
 // ========== MIDDLEWARE ==========
 
@@ -105,22 +140,9 @@ app.use(morgan('combined', { stream: morganStream }))
 
 // ========== RUTAS ==========
 
-app.get('/health', async (req, res) => {
-  let dbOk = false
-  try {
-    await query('SELECT 1')
-    dbOk = true
-  } catch (_) { /* DB unreachable */ }
-
-  const status = dbOk ? 200 : 503
+app.get('/health', (_req, res) => {
   res.setHeader('Cache-Control', 'public, max-age=30')
-  res.status(status).json({
-    success: dbOk,
-    status: dbOk ? 'healthy' : 'degraded',
-    timestamp: new Date().toISOString(),
-    // Versión omitida intencionalmente para evitar fingerprinting en producción
-    services: { database: dbOk ? 'up' : 'down' },
-  })
+  res.status(200).send('ok')
 })
 
 // Swagger: protegido en producción (admin only), público en dev/test
