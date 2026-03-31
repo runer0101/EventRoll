@@ -119,6 +119,16 @@ export const usuariosAPI = {
   }
 }
 
+// ========== CACHÉ GET INVITADOS ==========
+const invitadosCache = { data: null, key: null, expiresAt: 0 }
+const INVITADOS_CACHE_TTL = 30_000 // 30 segundos
+
+export function invalidateInvitadosCache() {
+  invitadosCache.data = null
+  invitadosCache.key = null
+  invitadosCache.expiresAt = 0
+}
+
 // ========== INVITADOS ==========
 
 export const invitadosAPI = {
@@ -134,30 +144,47 @@ export const invitadosAPI = {
     if (filters.limit) params.append('limit', filters.limit)
     if (filters.order) params.append('order', filters.order)
 
+    const cacheKey = params.toString()
+
+    if (
+      invitadosCache.data &&
+      invitadosCache.key === cacheKey &&
+      Date.now() < invitadosCache.expiresAt
+    ) {
+      return invitadosCache.data
+    }
+
     const response = await api.get(`/v1/invitados?${params.toString()}`)
+    invitadosCache.data = response.data
+    invitadosCache.key = cacheKey
+    invitadosCache.expiresAt = Date.now() + INVITADOS_CACHE_TTL
     return response.data
   },
 
   // Crear invitado
   create: async (invitadoData) => {
+    invalidateInvitadosCache()
     const response = await api.post('/v1/invitados', invitadoData)
     return response.data
   },
 
   // Actualizar invitado
   update: async (id, invitadoData) => {
+    invalidateInvitadosCache()
     const response = await api.put(`/v1/invitados/${id}`, invitadoData)
     return response.data
   },
 
   // Eliminar invitado
   delete: async (id) => {
+    invalidateInvitadosCache()
     const response = await api.delete(`/v1/invitados/${id}`)
     return response.data
   },
 
   // Importar múltiples invitados
   import: async (invitados, evento_id = null) => {
+    invalidateInvitadosCache()
     const response = await api.post('/v1/invitados/import', {
       invitados,
       evento_id

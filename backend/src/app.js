@@ -86,7 +86,7 @@ app.use((req, res, next) => {
 
 const limiter = rateLimit({
   windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000,
-  max: parseInt(process.env.RATE_LIMIT_MAX) || 100,
+  max: parseInt(process.env.RATE_LIMIT_MAX) || 30,
   message: { success: false, message: 'Demasiadas peticiones desde esta IP, por favor intenta más tarde' },
   standardHeaders: true,
   legacyHeaders: false,
