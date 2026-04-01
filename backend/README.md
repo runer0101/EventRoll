@@ -87,7 +87,7 @@ El servidor estará corriendo en `http://localhost:3000`
 
 #### Login
 ```http
-POST /api/auth/login
+POST /api/v1/auth/login
 Content-Type: application/json
 
 {
@@ -115,13 +115,13 @@ Content-Type: application/json
 
 #### Obtener usuario actual
 ```http
-GET /api/auth/me
+GET /api/v1/auth/me
 Cookie: token=<jwt> (enviada automáticamente por el navegador)
 ```
 
 #### Logout
 ```http
-POST /api/auth/logout
+POST /api/v1/auth/logout
 Cookie: token=<jwt> (enviada automáticamente por el navegador)
 ```
 
@@ -129,13 +129,13 @@ Cookie: token=<jwt> (enviada automáticamente por el navegador)
 
 #### Listar usuarios
 ```http
-GET /api/usuarios
+GET /api/v1/usuarios
 Cookie: token=<jwt> (enviada automáticamente por el navegador)
 ```
 
 #### Crear usuario
 ```http
-POST /api/usuarios
+POST /api/v1/usuarios
 Cookie: token=<jwt> (enviada automáticamente por el navegador)
 Content-Type: application/json
 
@@ -149,7 +149,7 @@ Content-Type: application/json
 
 #### Actualizar usuario
 ```http
-PUT /api/usuarios/:id
+PUT /api/v1/usuarios/:id
 Cookie: token=<jwt> (enviada automáticamente por el navegador)
 Content-Type: application/json
 
@@ -161,7 +161,7 @@ Content-Type: application/json
 
 #### Eliminar usuario
 ```http
-DELETE /api/usuarios/:id
+DELETE /api/v1/usuarios/:id
 Cookie: token=<jwt> (enviada automáticamente por el navegador)
 ```
 
@@ -169,13 +169,13 @@ Cookie: token=<jwt> (enviada automáticamente por el navegador)
 
 #### Listar invitados (con filtros)
 ```http
-GET /api/invitados?categoria=VIP&confirmado=true&search=Juan
+GET /api/v1/invitados?categoria=VIP&confirmado=true&search=Juan
 Cookie: token=<jwt> (enviada automáticamente por el navegador)
 ```
 
 #### Crear invitado
 ```http
-POST /api/invitados
+POST /api/v1/invitados
 Cookie: token=<jwt> (enviada automáticamente por el navegador)
 Content-Type: application/json
 
@@ -189,7 +189,7 @@ Content-Type: application/json
 
 #### Actualizar invitado
 ```http
-PUT /api/invitados/:id
+PUT /api/v1/invitados/:id
 Cookie: token=<jwt> (enviada automáticamente por el navegador)
 Content-Type: application/json
 
@@ -200,13 +200,13 @@ Content-Type: application/json
 
 #### Eliminar invitado
 ```http
-DELETE /api/invitados/:id
+DELETE /api/v1/invitados/:id
 Cookie: token=<jwt> (enviada automáticamente por el navegador)
 ```
 
 #### Importar múltiples invitados
 ```http
-POST /api/invitados/import
+POST /api/v1/invitados/import
 Cookie: token=<jwt> (enviada automáticamente por el navegador)
 Content-Type: application/json
 
@@ -230,7 +230,7 @@ Content-Type: application/json
 
 - ✅ Contraseñas hasheadas con bcrypt
 - ✅ Autenticación JWT
-- ✅ Rate limiting (100 requests/15min)
+- ✅ Rate limiting (30 requests/15min por defecto, configurable por entorno)
 - ✅ Helmet para seguridad de headers
 - ✅ CORS configurado
 - ✅ Validación de entrada
@@ -241,6 +241,16 @@ Content-Type: application/json
 - Mantén `EXPOSE_ERROR_STACK` sin definir o en `false` en cualquier despliegue compartido.
 - Solo habilita `EXPOSE_ERROR_STACK=true` en depuración local controlada.
 - Nunca subas archivos `.env` ni valores reales de `JWT_SECRET`, `DATABASE_URL` o credenciales SMTP.
+
+## 🧪 Tests
+
+```bash
+# Unit tests
+npm test
+
+# Integration tests (requiere PostgreSQL accesible en DATABASE_URL)
+npm run test:integration
+```
 
 ## 📊 Base de Datos
 

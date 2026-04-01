@@ -23,6 +23,8 @@ const mockUsuario = {
 beforeEach(() => {
   setActivePinia(createPinia())
   vi.clearAllMocks()
+  sessionStorage.clear()
+  localStorage.clear()
 })
 
 describe('useAuthStore', () => {
