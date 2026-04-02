@@ -55,10 +55,14 @@ const startServer = async () => {
     await cleanupExpiredTokens()
     await query("UPDATE usuarios SET access_code = NULL, access_code_expires_at = NULL WHERE access_code_expires_at IS NOT NULL AND access_code_expires_at < NOW()")
 
-    // Limpieza periódica diaria (evita que la tabla crezca indefinidamente)
+    // Limpieza de códigos de recuperación expirados (evitar crecimiento indefinido)
+    await query("DELETE FROM password_recovery_codes WHERE expira_en <= NOW()")
+
+    // Limpieza periódica diaria (evita que las tablas crezcan indefinidamente)
     const ONE_DAY_MS = 24 * 60 * 60 * 1000
     setInterval(cleanupExpiredTokens, ONE_DAY_MS).unref()
     setInterval(() => query("UPDATE usuarios SET access_code = NULL, access_code_expires_at = NULL WHERE access_code_expires_at IS NOT NULL AND access_code_expires_at < NOW()"), ONE_DAY_MS).unref()
+    setInterval(() => query("DELETE FROM password_recovery_codes WHERE expira_en <= NOW()"), ONE_DAY_MS).unref()
 
     process.stderr.write('[STARTUP] DB OK — arrancando servidor\n')
     app.listen(PORT, () => {

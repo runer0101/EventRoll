@@ -248,7 +248,7 @@ Si no solicitaste este cambio, ignora este correo y tu contraseña permanecerá 
 
   } catch (error) {
     logger.error('Error al enviar email de recuperación', { message: error.message })
-    throw new Error(`Error al enviar email: ${error.message}`)
+    throw new Error('Error al enviar email de recuperación')
   }
 }
 

@@ -130,9 +130,12 @@ app.use('/api/', (req, res, next) => {
 
 // ========== MIDDLEWARE ==========
 
+// Confiar en el primer proxy (Render / Cloudflare Worker) para que req.ip refleje la IP real
+app.set('trust proxy', 1)
+
 app.use(requestId)
-app.use(express.json({ limit: '10mb' }))
-app.use(express.urlencoded({ extended: true, limit: '10mb' }))
+app.use(express.json({ limit: '1mb' }))
+app.use(express.urlencoded({ extended: true, limit: '1mb' }))
 app.use(cookieParser())
 
 const morganStream = { write: (msg) => logger.http(msg.trim()) }

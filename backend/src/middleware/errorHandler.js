@@ -2,7 +2,9 @@ import { logger } from '../utils/logger.js'
 
 // Middleware para manejar errores 404
 export const notFound = (req, res, next) => {
-  const error = new Error(`Ruta no encontrada - ${req.originalUrl}`)
+  // No incluir req.originalUrl en el mensaje de respuesta para no revelar estructura de rutas.
+  // La URL se loguea internamente vía el errorHandler (req.method + req.originalUrl).
+  const error = new Error('Ruta no encontrada')
   res.status(404)
   next(error)
 }

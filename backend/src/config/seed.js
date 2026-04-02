@@ -14,7 +14,10 @@ const seedDatabase = async () => {
     const DEFAULT_ADMIN_PASSWORD = process.env.DEFAULT_ADMIN_PASSWORD || null
     let adminPassword = DEFAULT_ADMIN_PASSWORD
     if (!adminPassword) {
-      adminPassword = process.env.NODE_ENV === 'development' ? crypto.randomBytes(8).toString('base64') : 'change_me_securely'
+      if (process.env.NODE_ENV === 'production') {
+        throw new Error('DEFAULT_ADMIN_PASSWORD es requerido en producción. Defínelo en las variables de entorno.')
+      }
+      adminPassword = crypto.randomBytes(16).toString('base64')
     }
     const passwordHash = await bcrypt.hash(adminPassword, 12)
 

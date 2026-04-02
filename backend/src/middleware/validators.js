@@ -19,6 +19,16 @@ export const handleValidationErrors = (req, res, next) => {
 }
 
 /**
+ * Validador genérico de :id como UUID
+ */
+export const validateIdParam = [
+  param('id')
+    .isUUID()
+    .withMessage('ID debe ser un UUID válido'),
+  handleValidationErrors
+]
+
+/**
  * Validadores para Autenticación
  */
 export const validateLogin = [
