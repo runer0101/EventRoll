@@ -27,7 +27,7 @@ api.interceptors.response.use(
     if (error.response?.status === 401 && !isSessionCheck && !isLoginEndpoint) {
       localStorage.removeItem('token')
       localStorage.removeItem('usuario')
-      window.location.href = '/'
+      window.location.href = import.meta.env.BASE_URL || '/'
     }
 
     // Determinar mensaje según el tipo de fallo
