@@ -255,12 +255,13 @@ import { ref } from 'vue'
 import { useAuthStore } from '../stores/auth'
 import { useToast } from '../composables/useToast'
 import FieldError from './FieldError.vue'
+import { resolveApiBaseUrl } from '../utils/apiUrl'
 
 const emit = defineEmits(['login', 'go-home'])
 const { success, error: showError } = useToast()
 const authStore = useAuthStore()
 
-const BACKEND_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
+const BACKEND_URL = resolveApiBaseUrl(import.meta.env.VITE_API_URL)
 
 // ─── Login ────────────────────────────────
 const email       = ref('')
