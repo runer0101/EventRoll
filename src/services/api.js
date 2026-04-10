@@ -1,10 +1,7 @@
 import axios from 'axios'
+import { resolveApiBaseUrl } from '../utils/apiUrl'
 
-const API_URL = import.meta.env.VITE_API_URL
-
-if (!API_URL) {
-  throw new Error('VITE_API_URL is not defined. Create a .env file with VITE_API_URL=http://localhost:3000/api')
-}
+const API_URL = resolveApiBaseUrl(import.meta.env.VITE_API_URL)
 
 const api = axios.create({
   baseURL: API_URL,

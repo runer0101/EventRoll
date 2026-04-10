@@ -552,7 +552,25 @@ La documentación completa e interactiva está en Swagger:
 
 | Variable | Descripción |
 |----------|-------------|
-| `VITE_API_URL` | URL base de la API (ej: `https://eventroll.onrender.com/api`) |
+| `VITE_API_URL` | URL base de la API (recomendado: `https://eventroll.onrender.com/api`) |
+
+> Si `VITE_API_URL` no está definida o llega inválida durante el build de producción,
+> el frontend usa `https://eventroll.onrender.com/api` como fallback seguro.
+
+### GitHub Pages (Actions secret)
+
+- El workflow `deploy.yml` usa `secrets.VITE_API_URL` en build de Pages.
+- Si actualizas ese secret, puedes redeployar sin nuevo commit desde:
+   `Actions` → `Deploy Frontend to GitHub Pages` → `Run workflow`.
+
+### Troubleshooting login en Pages
+
+Si en producción aparece `Ruta no encontrada - /api/v1/auth/login`:
+
+1. Verifica `VITE_API_URL` en `Settings` → `Secrets and variables` → `Actions`.
+2. Debe apuntar al backend público, por ejemplo: `https://eventroll.onrender.com/api`.
+3. Ejecuta `Run workflow` del deploy o haz un nuevo merge a `main`.
+4. Recarga el sitio con `Ctrl + F5` para evitar caché vieja del bundle.
 
 ---
 
@@ -561,7 +579,7 @@ La documentación completa e interactiva está en Swagger:
 ### Autenticación
 - Contraseñas hasheadas con **bcrypt** (10 rondas)
 - JWT firmado y almacenado en **cookie HttpOnly** — nunca en `localStorage`
-- **Blacklist de tokens** revocados en memoria, con limpieza automática al expirar
+- **Blacklist de tokens** revocados en PostgreSQL (`revoked_tokens`), con limpieza automática al expirar
 - Caché de usuarios autenticados con TTL de 5 minutos para reducir queries a BD
 - **Códigos de acceso** de un uso para guardias, con expiración por tiempo
 

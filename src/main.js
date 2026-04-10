@@ -5,14 +5,13 @@ import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import router from './router/index.js'
 import App from './App.vue'
+import { resolveApiBaseUrl, resolveHealthUrl } from './utils/apiUrl'
 
 // Wake-up silencioso: Render free tier duerme tras 15 min de inactividad.
 // Lanzar un ping al /health para despertar el servidor mientras carga la SPA.
-const API_URL = import.meta.env.VITE_API_URL
-if (API_URL) {
-  const healthUrl = API_URL.replace(/\/api\/?$/, '/health')
-  fetch(healthUrl, { mode: 'cors', credentials: 'omit' }).catch(() => {})
-}
+const API_URL = resolveApiBaseUrl(import.meta.env.VITE_API_URL)
+const healthUrl = resolveHealthUrl(API_URL)
+fetch(healthUrl, { mode: 'cors', credentials: 'omit' }).catch(() => {})
 
 const app = createApp(App)
 
