@@ -169,9 +169,11 @@
     <!-- ══════════════ WAVE DIVIDER (SENO PURO) ══════════════ -->
     <div class="wave-divider" aria-hidden="true">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 80" preserveAspectRatio="none">
-        <path class="wave-path-1"
+        <path
+          class="wave-path-1"
           d="M0,40 C180,70 360,10 540,40 C720,70 900,10 1080,40 C1260,70 1380,25 1440,35 L1440,80 L0,80 Z"/>
-        <path class="wave-path-2"
+        <path
+          class="wave-path-2"
           d="M0,55 C240,25 480,65 720,45 C960,25 1200,60 1440,40 L1440,80 L0,80 Z"/>
       </svg>
     </div>

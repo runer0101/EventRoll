@@ -15,7 +15,7 @@ import { invitadosAPI, usuariosAPI } from '../services/api'
 const isDev = import.meta.env.DEV
 
 function log(msg) {
-  if (isDev) console.info(`[migración] ${msg}`)
+  if (isDev) console.warn(`[migración] ${msg}`)
 }
 
 /**

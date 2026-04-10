@@ -16,12 +16,13 @@ import { requestId } from './middleware/requestId.js'
 import { authenticateToken, requireAdmin } from './middleware/auth.js'
 import { logger } from './utils/logger.js'
 import { swaggerSpec } from './config/swagger.js'
+import { parseAllowedOrigins, isOriginAllowed, isRefererAllowed } from './utils/origin.js'
 
 const app = express()
 
 // ========== SEGURIDAD ==========
 
-const corsOrigin = process.env.CORS_ORIGIN || 'http://localhost:5173'
+const allowedOrigins = parseAllowedOrigins(process.env.CORS_ORIGIN, 'http://localhost:5173')
 
 app.use(
   helmet({
@@ -32,7 +33,7 @@ app.use(
         styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com', 'https://fonts.gstatic.com'],
         fontSrc: ["'self'", 'https://fonts.gstatic.com'],
         imgSrc: ["'self'", 'data:', 'blob:'],
-        connectSrc: ["'self'", ...corsOrigin.split(',').map(o => o.trim())],
+        connectSrc: ["'self'", ...allowedOrigins],
         frameAncestors: ["'none'"],
         objectSrc: ["'none'"],
         baseUri: ["'self'"],
@@ -53,7 +54,10 @@ app.use((_req, res, next) => {
 })
 
 const corsOptions = {
-  origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true)
+    return callback(null, isOriginAllowed(origin, allowedOrigins))
+  },
   credentials: true,
   optionsSuccessStatus: 200,
 }
@@ -61,8 +65,6 @@ app.use(cors(corsOptions))
 
 // Protección CSRF: verificar Origin en métodos mutantes (POST/PUT/DELETE/PATCH).
 // Se omite en entorno de test para que Supertest (que no envía Origin) pueda operar.
-const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173')
-  .split(',').map(o => o.trim())
 app.use((req, res, next) => {
   if (process.env.NODE_ENV === 'test') return next()
   const mutating = ['POST', 'PUT', 'DELETE', 'PATCH']
@@ -79,7 +81,7 @@ app.use((req, res, next) => {
     if (devHosts.includes(host)) return next()
     return res.status(403).json({ success: false, message: 'Origen no permitido' })
   }
-  if (allowedOrigins.some(o => origin === o || origin.startsWith(o + '/'))) return next()
+  if (isOriginAllowed(origin, allowedOrigins)) return next()
   return res.status(403).json({ success: false, message: 'Origen no permitido' })
 })
 
@@ -108,8 +110,8 @@ app.use('/api/', (req, res, next) => {
   const origin = req.headers.origin || ''
   const referer = req.headers.referer || ''
 
-  const isValidOrigin = origin && allowedOrigins.some(o => origin === o)
-  const isValidReferer = referer && allowedOrigins.some(o => referer.startsWith(o))
+  const isValidOrigin = isOriginAllowed(origin, allowedOrigins)
+  const isValidReferer = isRefererAllowed(referer, allowedOrigins)
 
   if (isValidOrigin || isValidReferer) return next()
 

@@ -76,7 +76,7 @@
           </div>
 
           <!-- ── FORM: email + contraseña ── -->
-          <form v-if="!modoId" class="login-form" @submit.prevent="iniciarSesion" novalidate>
+          <form v-if="!modoId" class="login-form" novalidate @submit.prevent="iniciarSesion">
             <div class="field">
               <label for="email">Correo electrónico</label>
               <input

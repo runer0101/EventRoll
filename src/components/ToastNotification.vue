@@ -14,7 +14,7 @@
       <div v-if="title" class="toast-title">{{ title }}</div>
       <div class="toast-message">{{ message }}</div>
     </div>
-    <button class="toast-close" @click.stop="$emit('close')" aria-label="Cerrar notificación">×</button>
+    <button class="toast-close" aria-label="Cerrar notificación" @click.stop="$emit('close')">×</button>
   </div>
 </template>
 
