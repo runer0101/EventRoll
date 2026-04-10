@@ -14,11 +14,29 @@ const api = axios.create({
 // Interceptor de respuesta: sesión expirada → limpiar y redirigir
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
+  async (error) => {
+    // Compatibilidad: algunos entornos de backend siguen exponiendo /api/*
+    // en lugar de /api/v1/*. Si detectamos 404 por /v1, reintentamos una vez.
+    const originalConfig = error.config || {}
+    const requestUrl = originalConfig.url || ''
+    const isV1Path = typeof requestUrl === 'string' && requestUrl.startsWith('/v1/')
+    const alreadyRetriedLegacy = originalConfig.__legacyRetry === true
+    const notFoundByPath = error.response?.status === 404 &&
+      String(error.response?.data?.message || '').includes('Ruta no encontrada')
+
+    if (isV1Path && notFoundByPath && !alreadyRetriedLegacy) {
+      const legacyUrl = requestUrl.replace(/^\/v1\//, '/')
+      return api.request({
+        ...originalConfig,
+        url: legacyUrl,
+        __legacyRetry: true,
+      })
+    }
+
     // Los endpoints de login devuelven 401 por credenciales incorrectas — no son
     // sesiones expiradas, así que no deben redirigir al home.
-    const isLoginEndpoint = error.config?.url?.includes('/auth/login')
-    const isSessionCheck  = error.config?.url?.includes('/auth/me')
+    const isLoginEndpoint = requestUrl.includes('/auth/login')
+    const isSessionCheck  = requestUrl.includes('/auth/me')
 
 
     if (error.response?.status === 401 && !isSessionCheck && !isLoginEndpoint) {
