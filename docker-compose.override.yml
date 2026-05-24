@@ -19,6 +19,9 @@ services:
     command: node src/server.js
 
   frontend:
+    ports:
+      - "80:80"
+      - "443:443"
     # En desarrollo solo levantar backend + db, no el frontend (usar 'npm run dev')
     profiles:
       - prod

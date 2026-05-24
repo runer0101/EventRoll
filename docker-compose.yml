@@ -83,9 +83,9 @@ services:
         condition: service_healthy
     environment:
       DOMAIN: ${DOMAIN:-localhost}
-    ports:
-      - "80:80"
-      - "443:443"
+    # ports definidos en el override correspondiente:
+    #   local:  80:80 + 443:443 (docker-compose.override.yml)
+    #   VPS:    8080:80         (docker-compose.vps.yml)
     volumes:
       - certs:/etc/letsencrypt:ro
       - certbot-www:/var/www/certbot:ro
