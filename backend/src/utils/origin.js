@@ -43,9 +43,15 @@ const extractHostname = (origin) => {
 
 export const isSameOriginRequest = (req, allowedOrigins) => {
   const host = req.headers.host || ''
-  const scheme = req.protocol || 'http'
-  const hostOrigin = `${scheme}://${host.split(':')[0]}`
-  return isOriginAllowed(hostOrigin, allowedOrigins)
+  const hostname = host.split(':')[0]
+
+  return allowedOrigins.some((origin) => {
+    try {
+      return new URL(origin).hostname === hostname
+    } catch {
+      return false
+    }
+  })
 }
 
 export const isRequestAllowed = (req, allowedOrigins) => {
