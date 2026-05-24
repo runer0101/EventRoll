@@ -1,5 +1,6 @@
 # Overrides para desarrollo local.
 # Se aplica automáticamente junto a docker-compose.yml al ejecutar 'docker compose up'.
+# En VPS usar: docker compose -f docker-compose.yml up -d
 version: '3.9'
 
 services:

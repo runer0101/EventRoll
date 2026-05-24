@@ -32,3 +32,32 @@ export const isRefererAllowed = (referer, allowedOrigins) => {
   const normalized = normalizeOrigin(referer)
   return !!normalized && allowedOrigins.includes(normalized)
 }
+
+const extractHostname = (origin) => {
+  try {
+    return new URL(origin).hostname
+  } catch {
+    return null
+  }
+}
+
+export const isSameOriginRequest = (req, allowedOrigins) => {
+  const host = req.headers.host || ''
+  const scheme = req.protocol || 'http'
+  const hostOrigin = `${scheme}://${host.split(':')[0]}`
+  return isOriginAllowed(hostOrigin, allowedOrigins)
+}
+
+export const isRequestAllowed = (req, allowedOrigins) => {
+  const origin = req.headers.origin || ''
+  const referer = req.headers.referer || ''
+
+  if (origin) return isOriginAllowed(origin, allowedOrigins)
+  if (referer) return isRefererAllowed(referer, allowedOrigins)
+
+  return isSameOriginRequest(req, allowedOrigins)
+}
+
+const DEV_HOSTS = ['localhost:3000', 'localhost:5173', '127.0.0.1:3000', '127.0.0.1:5173']
+
+export const isDevHost = (host) => DEV_HOSTS.includes(host)

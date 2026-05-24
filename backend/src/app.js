@@ -16,7 +16,7 @@ import { requestId } from './middleware/requestId.js'
 import { authenticateToken, requireAdmin } from './middleware/auth.js'
 import { logger } from './utils/logger.js'
 import { swaggerSpec } from './config/swagger.js'
-import { parseAllowedOrigins, isOriginAllowed, isRefererAllowed } from './utils/origin.js'
+import { parseAllowedOrigins, isOriginAllowed, isRequestAllowed, isDevHost } from './utils/origin.js'
 
 const app = express()
 
@@ -64,24 +64,13 @@ const corsOptions = {
 app.use(cors(corsOptions))
 
 // Protección CSRF: verificar Origin en métodos mutantes (POST/PUT/DELETE/PATCH).
-// Se omite en entorno de test para que Supertest (que no envía Origin) pueda operar.
 app.use((req, res, next) => {
   if (process.env.NODE_ENV === 'test') return next()
   const mutating = ['POST', 'PUT', 'DELETE', 'PATCH']
   if (!mutating.includes(req.method)) return next()
-  const origin = req.headers.origin || ''
-  if (!origin) {
-    // En producción: rechazar siempre requests mutantes sin Origin
-    if (process.env.NODE_ENV === 'production') {
-      return res.status(403).json({ success: false, message: 'Origen no permitido' })
-    }
-    // En desarrollo/test: permitir solo desde puertos conocidos del proyecto
-    const host = req.headers.host || ''
-    const devHosts = ['localhost:3000', 'localhost:5173', '127.0.0.1:3000', '127.0.0.1:5173']
-    if (devHosts.includes(host)) return next()
-    return res.status(403).json({ success: false, message: 'Origen no permitido' })
-  }
-  if (isOriginAllowed(origin, allowedOrigins)) return next()
+
+  if (isRequestAllowed(req, allowedOrigins)) return next()
+
   return res.status(403).json({ success: false, message: 'Origen no permitido' })
 })
 
@@ -101,27 +90,16 @@ const limiter = rateLimit({
 app.use('/api/', limiter)
 
 // Bloquear requests a /api/ sin Origin o Referer válido (anti-scraping).
-// /health está fuera de /api/ así que no se ve afectado.
+// En VPS (same-origin) el Host se valida como fallback cuando no hay Origin/Referer.
 app.use('/api/', (req, res, next) => {
   if (process.env.NODE_ENV === 'test') return next()
-  // OPTIONS (preflight CORS) siempre pasa
   if (req.method === 'OPTIONS') return next()
 
-  const origin = req.headers.origin || ''
-  const referer = req.headers.referer || ''
+  if (isRequestAllowed(req, allowedOrigins)) return next()
 
-  const isValidOrigin = isOriginAllowed(origin, allowedOrigins)
-  const isValidReferer = isRefererAllowed(referer, allowedOrigins)
+  if (process.env.NODE_ENV !== 'production' && isDevHost(req.headers.host || '')) return next()
 
-  if (isValidOrigin || isValidReferer) return next()
-
-  // En desarrollo: permitir requests locales sin Origin (Postman, curl, etc.)
-  if (process.env.NODE_ENV !== 'production') {
-    const host = req.headers.host || ''
-    if (host.startsWith('localhost:') || host.startsWith('127.0.0.1:')) return next()
-  }
-
-  logger.warn('Request bloqueado: sin Origin/Referer válido', {
+  logger.warn('Request bloqueado: sin Origin/Referer/Host válido', {
     ip: req.ip,
     path: req.path,
     method: req.method,

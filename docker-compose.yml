@@ -12,7 +12,6 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
     # Puerto NO expuesto al host — solo accesible dentro de la red Docker
-    # Para conectarte directamente usa: docker compose exec db psql -U eventroll
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U eventroll -d eventroll"]
       interval: 10s
@@ -53,8 +52,6 @@ services:
       EMAIL_ADMIN_BACKUP: ${EMAIL_ADMIN_BACKUP:-}
       EMAIL_FROM_NAME: ${EMAIL_FROM_NAME:-EventRoll}
       FRONTEND_URL: ${FRONTEND_URL:-http://localhost}
-    ports:
-      - "3000:3000"
     volumes:
       - backend_logs:/app/logs
     healthcheck:
@@ -74,20 +71,47 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.frontend
+      args:
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:3000/api}
+        VITE_BASE_URL: ${VITE_BASE_URL:-/}
     restart: unless-stopped
     depends_on:
       backend:
         condition: service_healthy
+    environment:
+      DOMAIN: ${DOMAIN:-localhost}
     ports:
       - "80:80"
+      - "443:443"
+    volumes:
+      - certs:/etc/letsencrypt:ro
+      - certbot-www:/var/www/certbot:ro
     deploy:
       resources:
         limits:
           cpus: '0.5'
           memory: 128M
 
+  # ─── Certbot (renovación automática SSL) ──────────────────────────
+  certbot:
+    image: certbot/certbot:latest
+    restart: unless-stopped
+    volumes:
+      - certs:/etc/letsencrypt
+      - certbot-www:/var/www/certbot
+    entrypoint: /bin/sh -c 'trap exit TERM; while :; do certbot renew --quiet --webroot --webroot-path=/var/www/certbot; sleep 12h; done'
+    deploy:
+      resources:
+        limits:
+          cpus: '0.1'
+          memory: 64M
+
 volumes:
   pgdata:
     driver: local
   backend_logs:
+    driver: local
+  certs:
+    driver: local
+  certbot-www:
     driver: local

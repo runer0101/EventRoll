@@ -9,3 +9,5 @@ dist
 backend/node_modules
 backend/logs
 backend/tests
+scripts
+backups
