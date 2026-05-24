@@ -12,30 +12,28 @@ function sanitizeDbError(msg = '') {
     .replace(/password[^,}\s]*/gi, 'password=***')
 }
 
-// SSL solo en producción — en test/development el Postgres local no tiene SSL
+// SSL según el entorno y la URL de conexión.
+// Render/Supabase: DATABASE_URL trae sslmode=require → forzar SSL.
+// VPS/Docker local: PostgreSQL sin SSL → DB_SSL=false desactiva SSL.
+// DB_SSL_REJECT_UNAUTHORIZED=false desactiva la validación del certificado.
 const isProduction = process.env.NODE_ENV === 'production'
+const useSSL = isProduction && process.env.DB_SSL !== 'false'
 
-// En producción con Render/Heroku la URL trae sslmode=require.
-// DB_SSL_REJECT_UNAUTHORIZED=false desactiva la validación del certificado (no recomendado).
-// Por defecto true en producción para validar el certificado SSL del servidor de BD.
 const dbUrl = process.env.DATABASE_URL
   ? process.env.DATABASE_URL.replace('sslmode=require', 'sslmode=no-verify')
   : undefined
 
-// En producción: true por defecto (seguro), false solo si se define explícitamente.
-// En otros entornos: false por defecto (BD local sin SSL).
-const sslRejectUnauthorized = isProduction
+const sslRejectUnauthorized = useSSL
   ? process.env.DB_SSL_REJECT_UNAUTHORIZED !== 'false'
-  : process.env.DB_SSL_REJECT_UNAUTHORIZED === 'true'
+  : false
 
-// Configuración del pool de conexiones
 const pool = new Pool({
   connectionString: dbUrl,
-  ssl: isProduction ? { rejectUnauthorized: sslRejectUnauthorized } : false,
+  ssl: useSSL ? { rejectUnauthorized: sslRejectUnauthorized } : false,
   max: 10,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 10000,
-  statement_timeout: 30000, // 30 segundos máximo por query
+  statement_timeout: 30000,
 })
 
 // Errores inesperados del pool (ej: BD caída en producción)
