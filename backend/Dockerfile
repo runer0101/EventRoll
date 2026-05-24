@@ -8,6 +8,9 @@ RUN npm install --omit=dev --ignore-scripts
 # ─── Stage 2: Runner ───────────────────────────────────────────────
 FROM node:22-alpine AS runner
 
+# wget para healthcheck
+RUN apk add --no-cache wget
+
 # Usuario no-root para seguridad
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 

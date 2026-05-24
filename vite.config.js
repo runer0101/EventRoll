@@ -17,8 +17,9 @@ export default defineConfig({
       thresholds: { lines: 70, functions: 70, branches: 60 },
     },
   },
-  // IMPORTANTE: debe coincidir exactamente con el nombre del repositorio en GitHub (case-sensitive)
-  base: process.env.NODE_ENV === 'production' ? '/EventRoll/' : '/',
+  // GitHub Pages usa /EventRoll/ (nombre del repo). VPS y otros deploys pueden
+  // sobrescribir con la variable VITE_BASE_URL (ej: VITE_BASE_URL=/).
+  base: process.env.VITE_BASE_URL || (process.env.NODE_ENV === 'production' ? '/EventRoll/' : '/'),
 
   plugins: [
     vue(),

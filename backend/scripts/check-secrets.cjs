@@ -8,21 +8,6 @@ function getStagedFiles() {
   return out.split(/\r?\n/).filter(Boolean);
 }
 
-function walkAllFiles(dir) {
-  const results = [];
-  const entries = fs.readdirSync(dir, { withFileTypes: true });
-  for (const ent of entries) {
-    const p = path.join(dir, ent.name);
-    if (ent.isDirectory()) {
-      if (['node_modules', '.git', '.husky'].includes(ent.name)) continue;
-      results.push(...walkAllFiles(p));
-    } else {
-      results.push(path.relative(process.cwd(), p));
-    }
-  }
-  return results;
-}
-
 const regexes = [
   /aws[_-]?secret[_-]?access[_-]?key/i,
   /aws[_-]?access[_-]?key/i,
@@ -31,7 +16,7 @@ const regexes = [
   /-----BEGIN OPENSSH PRIVATE KEY-----/i,
   /ghp_[0-9A-Za-z_]{36}/,
   /GITHUB[_-]?TOKEN/i,
-  /\bAPI[_-]?KEY\b\s*[:=]\s*(['"])(?![<`])[^'"\n]{8,}\1/i,
+  /API[_-]?KEY/i,
   // Match likely secret assignments with literal values, not runtime variables like token = jwt.sign(...)
   /\b(?:PASSWORD|PASSWD|SECRET|TOKEN)\b\s*[:=]\s*(['"])(?![<`])[^'"\n]{8,}\1/,
   /mongo(db)?(uri)?=|mongodb(?:\+srv)?:\/\//i,
@@ -59,31 +44,14 @@ function rel(p) { return path.relative(process.cwd(), p); }
 
 (function main() {
   try {
-    const args = process.argv.slice(2);
-    const scanAll = args.includes('--scan-all');
-    const files = scanAll ? walkAllFiles(process.cwd()) : getStagedFiles();
+    const files = getStagedFiles();
     if (files.length === 0) {
-      console.log(scanAll ? 'No hay archivos para escanear.' : 'No hay archivos en stage.');
+      console.log('No hay archivos en stage.');
       process.exit(0);
     }
 
     let found = false;
-    // Ignore our own security tooling and generated reports to prevent false positives
-    const ignoredPaths = [
-      '.husky',
-      '.gitleaks.toml',
-      '.github/workflows',
-      'docs/PURGE_HISTORY.md',
-      'backend/scripts/check-secrets.cjs',
-      'backend/scripts/check-secrets.js',
-      'backend/scripts/cambiar-password.js',
-      'scripts/generate-scan-report.cjs',
-      'scripts/generate-replacements-from-gitleaks.js',
-      'README.md',
-      'dist/',
-      'replacements.txt'
-    ];
-
+    const ignoredPaths = ['.husky', '.gitleaks.toml', 'docs/PURGE_HISTORY.md', 'backend/scripts/check-secrets.cjs', 'backend/scripts/check-secrets.js', 'backend/scripts/cambiar-password.js', 'README.md', 'dist/', 'replacements.txt'];
     for (const f of files) {
       // Normalize path separators to forward slashes so ignores work on Windows
       const nf = f.replace(/\\+/g, '/');

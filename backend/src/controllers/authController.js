@@ -11,14 +11,21 @@ const parseDurationMs = (str = '24h') => {
   return parseInt(n, 10) * factors[unit]
 }
 
-const buildCookieOptions = () => ({
-  httpOnly: true,
-  secure: process.env.NODE_ENV === 'production',
-  // 'none' requerido para cross-origin (GitHub Pages → Render). Requiere secure:true.
-  sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-  maxAge: parseDurationMs(process.env.JWT_EXPIRES_IN || '24h'),
-  path: '/',
-})
+const buildCookieOptions = () => {
+  const cookieSecure = process.env.COOKIE_SECURE !== undefined
+    ? process.env.COOKIE_SECURE === 'true'
+    : process.env.NODE_ENV === 'production'
+  // 'none' para cross-origin (GitHub Pages → Render, requiere Secure).
+  // 'lax' para same-origin (nginx proxy en VPS, no requiere Secure).
+  const sameSite = (process.env.NODE_ENV === 'production' && cookieSecure) ? 'none' : 'lax'
+  return {
+    httpOnly: true,
+    secure: cookieSecure,
+    sameSite,
+    maxAge: parseDurationMs(process.env.JWT_EXPIRES_IN || '24h'),
+    path: '/',
+  }
+}
 
 // @desc    Login de usuario
 // @route   POST /api/auth/login
@@ -73,12 +80,7 @@ export const logout = asyncHandler(async (req, res) => {
   const token = req.cookies?.token || req.headers['authorization']?.split(' ')[1]
   await authService.logout(req.user, token)
 
-  res.clearCookie('token', {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-    path: '/',
-  })
+  res.clearCookie('token', buildCookieOptions())
 
   res.json({
     success: true,
