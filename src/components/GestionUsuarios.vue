@@ -1080,7 +1080,7 @@ function copiarCodigo(codigo) {
 }
 
 /* Columna código de acceso */
-.codigo-cell { min-width: 160px; }
+.codigo-cell { min-width: 120px; }
 
 .codigo-badge {
   display: inline-flex;
@@ -1166,6 +1166,17 @@ function copiarCodigo(codigo) {
   .btn-guardar, .btn-cancelar { width: 100%; }
   .tabla-usuarios { font-size: 0.85rem; }
   .tabla-usuarios th, .tabla-usuarios td { padding: 9px 8px; }
+}
+
+@media (max-width: 480px) {
+  .tabla-usuarios { font-size: 0.78rem; }
+  .tabla-usuarios th, .tabla-usuarios td { padding: 7px 6px; }
+  .acciones-cell { flex-direction: column; gap: 4px; }
+  .btn-editar, .btn-eliminar { padding: 4px 8px; }
+  .codigo-badge { flex-wrap: wrap; gap: 2px; }
+  .nombre-cell { gap: 6px; }
+  .avatar-small { width: 24px; height: 24px; font-size: 10px; }
+  .badge-rol { font-size: 0.65rem; padding: 2px 6px; }
 }
 
 /* Edit mode form highlight */

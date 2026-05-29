@@ -2497,6 +2497,7 @@ h2 {
   .formulario { flex-direction: column; }
   .barra-busqueda { flex-direction: column; }
   .barra-busqueda select { width: 100%; }
+  .search-container { min-width: 0; }
 
   .info-invitado {
     flex-direction: column;
@@ -2509,6 +2510,22 @@ h2 {
   .estadisticas-card:last-child { border-bottom: none; }
 
   .panel-filtros-guardados { padding: 10px; }
+
+  .paginacion-controles {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .btn-paginacion {
+    padding: 6px 10px;
+    font-size: 11px;
+  }
+  .pagina-actual {
+    padding: 6px 10px;
+    font-size: 11px;
+  }
+  .paginacion-tamanio {
+    font-size: 11px;
+  }
 }
 
 /* ── Mobile M–L (481–768px) ── */
@@ -2534,6 +2551,20 @@ h2 {
   }
 
   .acciones-excel { flex-wrap: wrap; gap: 8px; }
+  .btn-plantilla { margin-left: 0; }
+
+  .paginacion-controles {
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+  .btn-paginacion {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+  .pagina-actual {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
 
   .estadisticas { flex-wrap: wrap; }
   .estadisticas-card { flex: 1 1 45%; }
@@ -2550,6 +2581,8 @@ h2 {
 
   .barra-busqueda { flex-wrap: wrap; gap: 8px; }
   .barra-busqueda select { flex: 1 1 160px; }
+
+  .btn-plantilla { margin-left: 0; }
 }
 
 /* Estilos para historial de búsqueda y filtros guardados */

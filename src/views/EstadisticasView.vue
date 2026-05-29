@@ -239,5 +239,13 @@ const eventoIdActual = inject(EventoIdActualKey)
 
 @media (max-width: 640px) {
   .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 0.65rem; }
+  .stat-card { padding: 1rem; gap: 0.75rem; }
+}
+
+@media (max-width: 480px) {
+  .stats-grid { grid-template-columns: 1fr; gap: 0.75rem; }
+  .stat-card { flex-direction: row; padding: 1rem 1.25rem; }
+  .stat-icon { font-size: 1.5rem; }
+  .stat-value { font-size: 1.5rem; }
 }
 </style>

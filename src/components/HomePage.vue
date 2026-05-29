@@ -681,7 +681,7 @@ const year = new Date().getFullYear()
 
 .mock-window {
   width: 100%;
-  max-width: 460px;
+  max-width: min(460px, 90vw);
   background: #0f0f0f;
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 14px;
