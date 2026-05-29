@@ -26,6 +26,7 @@ services:
 
   # ─── Backend API ──────────────────────────────────────────────────
   backend:
+    container_name: eventroll-backend
     build:
       context: ./backend
       dockerfile: Dockerfile
@@ -57,6 +58,9 @@ services:
       DEFAULT_ADMIN_PASSWORD: ${DEFAULT_ADMIN_PASSWORD:-}
     volumes:
       - backend_logs:/app/logs
+    networks:
+      - default
+      - zentramind-net
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:3000/health || exit 1"]
       interval: 30s
@@ -71,6 +75,7 @@ services:
 
   # ─── Frontend (nginx) ─────────────────────────────────────────────
   frontend:
+    container_name: eventroll-frontend
     build:
       context: .
       dockerfile: Dockerfile.frontend
@@ -86,6 +91,9 @@ services:
     # ports definidos en el override correspondiente:
     #   local:  80:80 + 443:443 (docker-compose.override.yml)
     #   VPS:    8080:80         (docker-compose.vps.yml)
+    networks:
+      - default
+      - zentramind-net
     volumes:
       - certs:/etc/letsencrypt:ro
       - certbot-www:/var/www/certbot:ro
@@ -96,9 +104,12 @@ services:
           memory: 128M
 
   # ─── Certbot (renovación automática SSL) ──────────────────────────
+  # Solo se levanta con --profile ssl (el SSL suele manejarlo un reverse proxy externo)
   certbot:
     image: certbot/certbot:latest
     restart: unless-stopped
+    profiles:
+      - ssl
     volumes:
       - certs:/etc/letsencrypt
       - certbot-www:/var/www/certbot
@@ -108,6 +119,11 @@ services:
         limits:
           cpus: '0.1'
           memory: 64M
+
+networks:
+  zentramind-net:
+    external: true
+    name: zentramind_zentramind-net
 
 volumes:
   pgdata:

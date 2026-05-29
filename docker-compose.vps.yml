@@ -1,0 +1,25 @@
+# =============================================================================
+# EventRoll — Override para VPS (producción)
+# =============================================================================
+# Uso:
+#   docker compose -f docker-compose.yml -f docker-compose.vps.yml up -d
+#
+# Si el SSL lo maneja un reverse proxy externo (ej: nginx de Zentramind),
+# los contenedores se comunican por la red Docker compartida y los puertos
+# mapeados abajo son solo para debugging o health checks directos al host.
+
+version: '3.9'
+
+services:
+  frontend:
+    ports:
+      - "8080:80"
+    # certs y certbot-www no son necesarios si el SSL está en otro nginx
+    volumes: []
+
+  certbot:
+    # Deshabilitado en VPS: el SSL lo maneja el reverse proxy externo (Zentramind).
+    # Además, el servicio ya tiene profiles: [ssl] en docker-compose.yml,
+    # por lo que no arranca sin --profile ssl explícito.
+    deploy:
+      replicas: 0
