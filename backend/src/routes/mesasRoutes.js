@@ -8,22 +8,29 @@ import {
   desasignarInvitado,
   getInvitadosSinMesa
 } from '../controllers/mesasController.js'
-import { authenticateToken } from '../middleware/auth.js'
+import { authenticateToken, requirePermiso } from '../middleware/auth.js'
+import {
+  validateCreateMesa,
+  validateUpdateMesa,
+  validateAsignarInvitado,
+  validateDesasignarInvitado,
+  validateGetMesas
+} from '../middleware/validators.js'
 
 const router = express.Router()
 
 router.use(authenticateToken)
 
 router.route('/')
-  .get(getMesas)
-  .post(createMesa)
+  .get(validateGetMesas, requirePermiso('verInvitados'), getMesas)
+  .post(validateCreateMesa, requirePermiso('agregarInvitados'), createMesa)
 
 router.route('/:id')
-  .put(updateMesa)
-  .delete(deleteMesa)
+  .put(validateUpdateMesa, requirePermiso('editarInvitados'), updateMesa)
+  .delete(requirePermiso('eliminarInvitados'), deleteMesa)
 
-router.get('/sin-mesa', getInvitadosSinMesa)
-router.post('/:mesaId/asignar', asignarInvitado)
-router.delete('/desasignar/:invitadoId', desasignarInvitado)
+router.get('/sin-mesa', validateGetMesas, requirePermiso('verInvitados'), getInvitadosSinMesa)
+router.post('/:mesaId/asignar', validateAsignarInvitado, requirePermiso('editarInvitados'), asignarInvitado)
+router.delete('/desasignar/:invitadoId', validateDesasignarInvitado, requirePermiso('editarInvitados'), desasignarInvitado)
 
 export default router

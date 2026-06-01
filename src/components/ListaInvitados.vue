@@ -221,7 +221,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted, inject } from 'vue'
+import { ref, computed, onMounted, inject } from 'vue'
 
 import EmptyState from './EmptyState.vue'
 import GuestStats from './GuestStats.vue'
@@ -234,12 +234,12 @@ import { useLoading } from '../composables/useLoading'
 import { useSearchHistory } from '../composables/useSearchHistory'
 import { useSavedFilters } from '../composables/useSavedFilters'
 import { useKeyboardShortcuts } from '../composables/useKeyboardShortcuts'
+import { useInvitados } from '../composables/useInvitados'
+import { useExcelOperations } from '../composables/useExcelOperations'
 import { PermisosKey, RegistrarActividadKey, EventoIdActualKey } from '../composables/injection-keys'
 
-import { invitadosAPI } from '../services/api'
-
-const { success, error, warning } = useToast()
-const { show: showLoading, hide: hideLoading, updateProgress } = useLoading()
+const toast = useToast()
+const loading = useLoading()
 const { addSearch } = useSearchHistory()
 const { savedFilters, saveFilter, deleteFilter, applyFilter } = useSavedFilters()
 const shortcuts = useKeyboardShortcuts()
@@ -258,34 +258,79 @@ const eventoIdActual = computed(() => {
 const nuevoNombre = ref('')
 const nuevoApellido = ref('')
 const nuevaCategoria = ref('General')
-const invitados = ref([])
 const textoBusqueda = ref('')
 const filtroCategoria = ref('')
 const filtroEstado = ref('')
-const sillasDisponibles = ref(100)
-const editandoId = ref(null)
-const nombreEditando = ref('')
-const apellidoEditando = ref('')
-const inputArchivo = ref(null)
 const ordenAscendente = ref(true)
 const mostrarFiltrosGuardados = ref(false)
 const nombreFiltroNuevo = ref('')
-const currentPage = ref(1)
-const pageSize = ref(50)
-const isFetching = ref(false)
-const backendPagination = ref({
-  total: 0,
-  confirmados: 0,
-  pendientes: 0,
-  page: 1,
-  limit: 50,
-  totalPages: 1
-})
 
 const searchBarRef = ref(null)
 const nombreInput = ref(null)
 
-const modoBackend = ref(true)
+const invitadosCtx = useInvitados({
+  permisos,
+  eventoIdActual,
+  registrarActividad,
+  toast: { success: toast.success, error: toast.error, warning: toast.warning },
+  loading: { show: loading.show, hide: loading.hide, updateProgress: loading.updateProgress },
+  addSearch,
+  filtroCategoria,
+  filtroEstado,
+  ordenAscendente,
+  textoBusqueda,
+  nuevoNombre,
+  nuevoApellido,
+  nuevaCategoria,
+})
+
+const {
+  invitados,
+  modoBackend,
+  sillasDisponibles,
+  currentPage,
+  pageSize,
+  editandoId,
+  nombreEditando,
+  apellidoEditando,
+  cargarDatos,
+  agregarInvitado,
+  toggleConfirmacion,
+  eliminarInvitado,
+  iniciarEdicion,
+  guardarEdicion,
+  cancelarEdicion,
+  irAPagina,
+  invitadosConfirmados,
+  invitadosPendientes,
+  sillasRestantes,
+  porcentajeOcupacion,
+  totalFiltrados,
+  hayFiltrosActivos,
+  invitadosMostrados,
+  isFetching,
+  backendPagination,
+} = invitadosCtx
+
+const excelCtx = useExcelOperations({
+  permisos,
+  invitados,
+  modoBackend,
+  eventoIdActual,
+  registrarActividad,
+  toast: { success: toast.success, error: toast.error, warning: toast.warning },
+  loading: { show: loading.show, hide: loading.hide, updateProgress: loading.updateProgress },
+  cargarDatos,
+})
+
+const {
+  inputArchivo,
+  exportarCSV,
+  exportarExcel,
+  importarExcel,
+  abrirSelectorArchivo,
+  descargarPlantilla,
+} = excelCtx
 
 onMounted(() => {
   cargarDatos()
@@ -337,695 +382,8 @@ function configurarAtajosTeclado() {
   }, 'Nuevo invitado')
 }
 
-let _fetchSeq = 0
-
-async function cargarDatos(page = currentPage.value) {
-  const mySeq = ++_fetchSeq
-  isFetching.value = true
-
-  try {
-    const filters = {
-      page,
-      limit: pageSize.value,
-      order: ordenAscendente.value ? 'asc' : 'desc'
-    }
-
-    if (eventoIdActual.value) filters.evento_id = eventoIdActual.value
-
-    if (filtroCategoria.value) filters.categoria = filtroCategoria.value
-    if (textoBusqueda.value.trim()) filters.search = textoBusqueda.value.trim()
-    if (filtroEstado.value === 'confirmado') filters.confirmado = true
-    if (filtroEstado.value === 'pendiente') filters.confirmado = false
-
-    const response = await invitadosAPI.getAll(filters)
-
-    if (mySeq !== _fetchSeq) return
-
-    if (response.success && Array.isArray(response.data)) {
-      invitados.value = response.data.map(inv => ({
-        id: inv.id,
-        nombre: inv.nombre,
-        apellido: inv.apellido || '',
-        categoria: inv.categoria || 'General',
-        confirmado: inv.confirmado || false
-      }))
-
-      if (response.pagination) {
-        backendPagination.value = {
-          total: Number(response.pagination.total || 0),
-          confirmados: Number(response.pagination.confirmados || 0),
-          pendientes: Number(response.pagination.pendientes || 0),
-          page: Number(response.pagination.page || 1),
-          limit: Number(response.pagination.limit || pageSize.value),
-          totalPages: Math.max(1, Number(response.pagination.totalPages || 1))
-        }
-        currentPage.value = backendPagination.value.page
-      } else {
-        backendPagination.value = {
-          total: invitados.value.length,
-          confirmados: invitados.value.filter(inv => inv.confirmado).length,
-          pendientes: invitados.value.filter(inv => !inv.confirmado).length,
-          page: 1,
-          limit: pageSize.value,
-          totalPages: 1
-        }
-      }
-
-      modoBackend.value = true
-    }
-  } catch {
-    if (mySeq !== _fetchSeq) return
-    modoBackend.value = false
-    cargarDatosLocalStorage()
-  } finally {
-    if (mySeq === _fetchSeq) isFetching.value = false
-  }
-}
-
-function cargarDatosLocalStorage() {
-  try {
-    const invitadosGuardados = localStorage.getItem('invitados')
-    const sillasGuardadas = localStorage.getItem('sillasDisponibles')
-
-    if (invitadosGuardados) {
-      const parsed = JSON.parse(invitadosGuardados)
-      if (Array.isArray(parsed)) {
-        invitados.value = parsed
-      }
-    }
-
-    if (sillasGuardadas) {
-      const parsed = parseInt(sillasGuardadas, 10)
-      if (!isNaN(parsed) && parsed >= 0) {
-        sillasDisponibles.value = parsed
-      }
-    }
-  } catch {
-    invitados.value = []
-    sillasDisponibles.value = 100
-  }
-}
-
-function guardarDatos() {
-  if (!modoBackend.value) {
-    try {
-      localStorage.setItem('invitados', JSON.stringify(invitados.value))
-      localStorage.setItem('sillasDisponibles', sillasDisponibles.value.toString())
-    } catch (storageErr) {
-      if (storageErr.name === 'QuotaExceededError') {
-        warning('Espacio de almacenamiento lleno. Algunos datos pueden no guardarse.', 'Almacenamiento')
-      }
-    }
-  }
-}
-
-watch([invitados, sillasDisponibles], () => {
-  guardarDatos()
-}, { deep: true })
-
-async function exportarCSV() {
-  if (!permisos.value.exportarExcel) {
-    error('No tienes permiso para exportar', 'Acceso Denegado')
-    return
-  }
-
-  if (invitados.value.length === 0) {
-    warning('No hay invitados para exportar', 'Lista Vacía')
-    return
-  }
-
-  try {
-    showLoading({ message: 'Exportando a CSV...', progress: 0 })
-
-    const headers = ['Nombre', 'Apellido', 'Categoría', 'Estado']
-
-    updateProgress(30, 'Procesando datos...')
-
-    const rows = invitados.value.map(inv => [
-      inv.nombre,
-      inv.apellido,
-      inv.categoria,
-      inv.confirmado ? 'Confirmado' : 'Pendiente'
-    ])
-
-    updateProgress(60, 'Generando archivo...')
-    await new Promise(resolve => setTimeout(resolve, 300))
-
-    const csvEscape = (val) => {
-      const str = val == null ? '' : String(val)
-      return /[,"\n\r]/.test(str) ? `"${str.replace(/"/g, '""')}"` : str
-    }
-
-    const csvContent = [
-      headers.map(csvEscape).join(','),
-      ...rows.map(row => row.map(csvEscape).join(','))
-    ].join('\n')
-
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
-    const link = document.createElement('a')
-    const url = URL.createObjectURL(blob)
-
-    updateProgress(90, 'Descargando archivo...')
-
-    const fecha = new Date().toISOString().split('T')[0]
-    link.setAttribute('href', url)
-    link.setAttribute('download', `Invitados_${fecha}.csv`)
-    link.style.visibility = 'hidden'
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-
-    updateProgress(100, 'Completado')
-    await new Promise(resolve => setTimeout(resolve, 300))
-
-    registrarActividad(`Exportó ${invitados.value.length} invitados a CSV`)
-    success(`Se exportaron ${invitados.value.length} invitados a CSV`, 'Exportación Exitosa', 4000)
-  } catch {
-    error('Ocurrió un error al exportar el archivo CSV', 'Error de Exportación')
-  } finally {
-    hideLoading()
-  }
-}
-
-async function exportarExcel() {
-  if (!permisos.value.exportarExcel) {
-    error('No tienes permiso para exportar a Excel', 'Acceso Denegado')
-    return
-  }
-
-  if (invitados.value.length === 0) {
-    warning('No hay invitados para exportar', 'Lista Vacía')
-    return
-  }
-
-  try {
-    showLoading({ message: 'Exportando a Excel...', progress: 0 })
-
-    const datosExcel = invitados.value.map(inv => ({
-      'Nombre': inv.nombre,
-      'Apellido': inv.apellido,
-      'Categoría': inv.categoria,
-      'Estado': inv.confirmado ? 'Confirmado' : 'Pendiente'
-    }))
-
-    updateProgress(30, 'Procesando datos...')
-    await new Promise(resolve => setTimeout(resolve, 300))
-
-    const mod = await import('exceljs')
-    const ExcelJS = mod.default || mod
-    const workbook = new ExcelJS.Workbook()
-    const sheet = workbook.addWorksheet('Invitados')
-
-    const headers = ['Nombre', 'Apellido', 'Categoría', 'Estado']
-    sheet.addRow(headers)
-
-    for (const r of datosExcel) {
-      sheet.addRow([r.Nombre, r.Apellido, r['Categoría'], r.Estado])
-    }
-
-    sheet.columns = [
-      { width: 20 },
-      { width: 20 },
-      { width: 15 },
-      { width: 15 }
-    ]
-
-    updateProgress(80, 'Creando archivo...')
-    await new Promise(resolve => setTimeout(resolve, 400))
-
-    const fecha = new Date().toISOString().split('T')[0]
-    const nombreArchivo = `Invitados_${fecha}.xlsx`
-
-    updateProgress(95, 'Descargando...')
-
-    const buffer = await workbook.xlsx.writeBuffer()
-    const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = nombreArchivo
-    document.body.appendChild(a)
-    a.click()
-    a.remove()
-    URL.revokeObjectURL(url)
-
-    updateProgress(100, 'Completado')
-    await new Promise(resolve => setTimeout(resolve, 300))
-
-    registrarActividad(`Exportó ${invitados.value.length} invitados a Excel`)
-    success(`Se exportaron ${invitados.value.length} invitados a Excel`, 'Exportación Exitosa', 4000)
-  } catch {
-    error('Ocurrió un error al exportar el archivo Excel', 'Error de Exportación')
-  } finally {
-    hideLoading()
-  }
-}
-
-async function importarExcel(evento) {
-  if (!permisos.value.importarExcel) {
-    error('No tienes permiso para importar desde Excel', 'Acceso Denegado')
-    evento.target.value = ''
-    return
-  }
-
-  const archivo = evento.target.files[0]
-
-  if (!archivo) return
-
-  const MAX_FILE_SIZE = 5 * 1024 * 1024
-  const ALLOWED_EXT = /\.(xlsx|xls|csv)$/i
-  const MAX_ROWS = 5000
-
-  if (archivo.size > MAX_FILE_SIZE) {
-    error('El archivo es demasiado grande. El límite es 5 MB.', 'Archivo Inválido')
-    evento.target.value = ''
-    return
-  }
-
-  if (!ALLOWED_EXT.test(archivo.name) && !(archivo.type && /spreadsheet|excel|csv|octet-stream/i.test(archivo.type))) {
-    error('Tipo de archivo no soportado. Usa .xlsx, .xls o .csv', 'Archivo Inválido')
-    evento.target.value = ''
-    return
-  }
-
-  showLoading({ message: `Cargando archivo ${archivo.name}...`, progress: 0 })
-
-  const lector = new FileReader()
-
-  lector.onload = async (e) => {
-    try {
-      updateProgress(20, 'Leyendo archivo Excel...')
-
-      const { parseExcelBuffer } = await import('@/utils/excelImporter.js')
-      let parsed
-      try {
-        parsed = await parseExcelBuffer(e.target.result, { maxRows: MAX_ROWS, maxFieldLength: 1000 })
-      } catch (parseErr) {
-        hideLoading()
-
-        if (String(parseErr.message).includes('Too many rows')) {
-          error(`El archivo contiene demasiadas filas. Límite: ${MAX_ROWS}`, 'Archivo Demasiado Grande')
-        } else {
-          error('El archivo no parece ser un Excel válido o está corrupto.', 'Archivo Inválido')
-        }
-        evento.target.value = ''
-        return
-      }
-
-      if (!parsed || !Array.isArray(parsed.rows) || parsed.rows.length === 0) {
-        hideLoading()
-        error('El archivo Excel está vacío o no tiene la estructura correcta. Asegúrate de que tenga encabezados y datos.', 'Archivo Inválido', 6000)
-        evento.target.value = ''
-        return
-      }
-
-      updateProgress(40, 'Procesando datos...')
-      await new Promise(resolve => setTimeout(resolve, 200))
-
-      let datosJson = parsed.rows
-
-      if (!Array.isArray(datosJson) || datosJson.length === 0) {
-        hideLoading()
-        error('El archivo Excel está vacío o no tiene la estructura correcta. Asegúrate de que tenga encabezados y datos.', 'Archivo Inválido', 6000)
-        evento.target.value = ''
-        return
-      }
-
-      if (datosJson.length > MAX_ROWS) {
-        hideLoading()
-        error(`El archivo contiene demasiadas filas (${datosJson.length}). Límite: ${MAX_ROWS}`, 'Archivo Demasiado Grande')
-        evento.target.value = ''
-        return
-      }
-
-      datosJson = datosJson.slice(0, MAX_ROWS).map(row => {
-        const cleaned = {}
-        for (const [k, v] of Object.entries(row)) {
-          const val = typeof v === 'string' ? v.trim() : String(v)
-          cleaned[k] = val.length > 1000 ? val.slice(0, 1000) : val
-        }
-        return cleaned
-      })
-
-      updateProgress(60, `Importando ${datosJson.length} filas...`)
-
-      if (modoBackend.value) {
-        try {
-          const invitadosParaImportar = datosJson.map(fila => {
-            const buscarColumna = (variaciones) => {
-              for (let variacion of variaciones) {
-                if (fila[variacion] !== undefined && fila[variacion] !== null && fila[variacion] !== '') {
-                  return String(fila[variacion]).trim()
-                }
-              }
-              return ''
-            }
-
-            const nombre = buscarColumna([
-              'Nombre', 'nombre', 'NOMBRE', 'Nombres', 'nombres', 'NOMBRES',
-              'Name', 'name', 'NAME', 'First Name', 'first name', 'FIRST NAME',
-              'FirstName', 'firstname', 'FIRSTNAME'
-            ])
-
-            const apellido = buscarColumna([
-              'Apellido', 'apellido', 'APELLIDO', 'Apellidos', 'apellidos', 'APELLIDOS',
-              'Last Name', 'last name', 'LAST NAME', 'LastName', 'lastname', 'LASTNAME',
-              'Surname', 'surname', 'SURNAME'
-            ])
-
-            const categoria = buscarColumna([
-              'Categoría', 'categoria', 'CATEGORIA', 'Categoria', 'CATEGORÍA',
-              'Category', 'category', 'CATEGORY', 'Tipo', 'tipo', 'TIPO',
-              'Type', 'type', 'TYPE'
-            ]) || 'General'
-
-            const estado = buscarColumna([
-              'Estado', 'estado', 'ESTADO', 'Status', 'status', 'STATUS',
-              'Confirmación', 'confirmacion', 'CONFIRMACION',
-              'Confirmado', 'confirmado', 'CONFIRMADO',
-              'Confirmed', 'confirmed', 'CONFIRMED'
-            ]) || 'Pendiente'
-
-            const categoriasValidas = ['General', 'VIP', 'Familia', 'Amigos', 'Trabajo']
-            const categoriaFinal = categoriasValidas.includes(categoria) ? categoria : 'General'
-
-            return {
-              nombre: nombre.trim(),
-              apellido: apellido.trim(),
-              categoria: categoriaFinal,
-              confirmado: estado.toLowerCase().includes('confirmado')
-            }
-          }).filter(inv => inv.nombre !== '')
-
-          updateProgress(75, `Enviando ${invitadosParaImportar.length} invitados al servidor...`)
-
-          const response = await invitadosAPI.import(invitadosParaImportar, eventoIdActual.value)
-
-          if (response.success && response.data) {
-            const { importados, duplicados, errores } = response.data
-
-            updateProgress(90, 'Recargando lista...')
-            await cargarDatos()
-
-            updateProgress(100, 'Completado')
-            await new Promise(resolve => setTimeout(resolve, 300))
-
-            hideLoading()
-
-            if (importados > 0 && errores.length === 0) {
-              success(`Se importaron ${importados} invitados correctamente`, 'Importación Exitosa', 5000)
-            } else if (importados > 0 && errores.length > 0) {
-              warning(`Se importaron ${importados} invitados. ${duplicados} duplicados omitidos.`, 'Importación con Advertencias', 6000)
-            } else {
-              error(`No se importó ningún invitado. ${duplicados} duplicados.`, 'Importación Fallida', 6000)
-            }
-
-            registrarActividad(`Importó ${importados} invitados desde Excel (${duplicados} duplicados)`)
-            evento.target.value = ''
-            return
-          }
-        } catch {
-          warning('Error al importar con backend, usando modo local', 'Modo Local', 4000)
-          modoBackend.value = false
-        }
-      }
-
-      let importados = 0
-      let duplicados = 0
-      let filasInvalidas = 0
-      const erroresPorFila = []
-
-      datosJson.forEach((fila, index) => {
-        const buscarColumna = (variaciones) => {
-          for (let variacion of variaciones) {
-            if (fila[variacion] !== undefined && fila[variacion] !== null && fila[variacion] !== '') {
-              return String(fila[variacion]).trim()
-            }
-          }
-          return ''
-        }
-
-        const nombre = buscarColumna([
-          'Nombre', 'nombre', 'NOMBRE',
-          'Nombres', 'nombres', 'NOMBRES',
-          'Name', 'name', 'NAME',
-          'First Name', 'first name', 'FIRST NAME',
-          'FirstName', 'firstname', 'FIRSTNAME'
-        ])
-
-        const apellido = buscarColumna([
-          'Apellido', 'apellido', 'APELLIDO',
-          'Apellidos', 'apellidos', 'APELLIDOS',
-          'Last Name', 'last name', 'LAST NAME',
-          'LastName', 'lastname', 'LASTNAME',
-          'Surname', 'surname', 'SURNAME'
-        ])
-
-        const categoria = buscarColumna([
-          'Categoría', 'categoria', 'CATEGORIA',
-          'Categoria', 'CATEGORÍA',
-          'Category', 'category', 'CATEGORY',
-          'Tipo', 'tipo', 'TIPO',
-          'Type', 'type', 'TYPE'
-        ]) || 'General'
-
-        const estado = buscarColumna([
-          'Estado', 'estado', 'ESTADO',
-          'Status', 'status', 'STATUS',
-          'Confirmación', 'confirmacion', 'CONFIRMACION',
-          'Confirmado', 'confirmado', 'CONFIRMADO',
-          'Confirmed', 'confirmed', 'CONFIRMED'
-        ]) || 'Pendiente'
-
-        if (!nombre.trim()) {
-          filasInvalidas++
-          erroresPorFila.push(`Fila ${index + 2}: Falta el nombre`)
-          return
-        }
-
-        const existe = invitados.value.some(inv =>
-          inv.nombre.toLowerCase() === nombre.toLowerCase() &&
-          inv.apellido.toLowerCase() === apellido.toLowerCase()
-        )
-
-        if (existe) {
-          duplicados++
-          erroresPorFila.push(`Fila ${index + 2}: "${nombre} ${apellido}" ya existe`)
-          return
-        }
-
-        const categoriasValidas = ['General', 'VIP', 'Familia', 'Amigos', 'Trabajo']
-        const categoriaFinal = categoriasValidas.includes(categoria) ? categoria : 'General'
-
-        invitados.value.push({
-          id: Date.now() + importados,
-          nombre: nombre.trim(),
-          apellido: apellido.trim(),
-          categoria: categoriaFinal,
-          confirmado: estado.toLowerCase().includes('confirmado')
-        })
-
-        importados++
-      })
-
-      updateProgress(90, 'Finalizando importación...')
-      await new Promise(resolve => setTimeout(resolve, 300))
-
-      updateProgress(100, 'Completado')
-      await new Promise(resolve => setTimeout(resolve, 300))
-
-      registrarActividad(`Importó ${importados} invitados desde Excel (${duplicados} duplicados, ${filasInvalidas} inválidos)`)
-
-      hideLoading()
-
-      if (importados > 0 && erroresPorFila.length === 0) {
-        success(`Se importaron ${importados} invitados correctamente`, 'Importación Exitosa', 5000)
-      } else if (importados > 0 && erroresPorFila.length > 0) {
-        warning(`Se importaron ${importados} invitados. ${duplicados} duplicados y ${filasInvalidas} inválidos omitidos.`, 'Importación con Advertencias', 6000)
-      } else {
-        error(`No se importó ningún invitado. ${duplicados} duplicados y ${filasInvalidas} inválidos.`, 'Importación Fallida', 6000)
-      }
-
-    } catch (err) {
-      hideLoading()
-
-      let mensajeError = ''
-
-      if (err.message.includes('Unsupported file')) {
-        mensajeError = 'El archivo no es un formato Excel válido. Formatos aceptados: .xlsx, .xls'
-      } else if (err.message.includes('Cannot read')) {
-        mensajeError = 'No se pudo leer el archivo. Puede estar corrupto, protegido con contraseña o abierto en otro programa.'
-      } else {
-        mensajeError = `Error inesperado: ${err.message}`
-      }
-
-      error(mensajeError, 'Error al Procesar Archivo', 6000)
-
-    }
-
-    evento.target.value = ''
-  }
-
-  lector.readAsArrayBuffer(archivo)
-}
-
-function abrirSelectorArchivo() {
-  inputArchivo.value.click()
-}
-
-async function descargarPlantilla() {
-  try {
-    const { createTemplateBuffer } = await import('@/utils/excelImporter.js')
-    const buffer = await createTemplateBuffer()
-    const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = 'Plantilla_Invitados.xlsx'
-    document.body.appendChild(a)
-    a.click()
-    a.remove()
-    URL.revokeObjectURL(url)
-    success('Plantilla descargada. Editala y luego importa el archivo.', 'Plantilla lista')
-  } catch {
-    error('Error generando la plantilla. Intenta nuevamente.', 'Error')
-  }
-}
-
-const invitadosFiltrados = computed(() => {
-  if (modoBackend.value) {
-    return invitados.value
-  }
-
-  let resultado = [...invitados.value]
-
-  if (textoBusqueda.value.trim() !== '') {
-    const termino = textoBusqueda.value.toLowerCase()
-
-    resultado = resultado.filter(inv => {
-      const coincideNombre = inv.nombre.toLowerCase().includes(termino)
-      const coincideApellido = inv.apellido.toLowerCase().includes(termino)
-      const nombreCompleto = `${inv.nombre} ${inv.apellido}`.toLowerCase()
-      const coincideCompleto = nombreCompleto.includes(termino)
-      return coincideNombre || coincideApellido || coincideCompleto
-    })
-  }
-
-  if (filtroCategoria.value !== '') {
-    resultado = resultado.filter(inv => inv.categoria === filtroCategoria.value)
-  }
-
-  if (filtroEstado.value === 'confirmado') {
-    resultado = resultado.filter(inv => inv.confirmado)
-  } else if (filtroEstado.value === 'pendiente') {
-    resultado = resultado.filter(inv => !inv.confirmado)
-  }
-
-  resultado.sort((a, b) => {
-    const apellidoA = a.apellido.toLowerCase()
-    const apellidoB = b.apellido.toLowerCase()
-    const nombreA = a.nombre.toLowerCase()
-    const nombreB = b.nombre.toLowerCase()
-
-    if (ordenAscendente.value) {
-      if (apellidoA < apellidoB) return -1
-      if (apellidoA > apellidoB) return 1
-      if (nombreA < nombreB) return -1
-      if (nombreA > nombreB) return 1
-      return 0
-    }
-
-    if (apellidoA > apellidoB) return -1
-    if (apellidoA < apellidoB) return 1
-    if (nombreA > nombreB) return -1
-    if (nombreA < nombreB) return 1
-    return 0
-  })
-
-  return resultado
-})
-
-const invitadosMostrados = computed(() => invitadosFiltrados.value)
-
-const totalFiltrados = computed(() => {
-  return modoBackend.value ? backendPagination.value.total : invitadosFiltrados.value.length
-})
-
-const hayFiltrosActivos = computed(() => {
-  return Boolean(textoBusqueda.value.trim() || filtroCategoria.value || filtroEstado.value)
-})
-
-const invitadosConfirmados = computed(() => {
-  if (modoBackend.value) return backendPagination.value.confirmados
-  return invitados.value.filter(inv => inv.confirmado).length
-})
-
-const invitadosPendientes = computed(() => {
-  if (modoBackend.value) return backendPagination.value.pendientes
-  return invitados.value.filter(inv => !inv.confirmado).length
-})
-
-const sillasRestantes = computed(() => {
-  const restantes = sillasDisponibles.value - invitadosConfirmados.value
-  return Math.max(0, restantes)
-})
-
-const porcentajeOcupacion = computed(() => {
-  if (sillasDisponibles.value === 0) return 0
-  return Math.round((invitadosConfirmados.value / sillasDisponibles.value) * 100)
-})
-
-watch(textoBusqueda, (newValue, oldValue) => {
-  if (newValue && newValue.length >= 3 && newValue !== oldValue) {
-    setTimeout(() => {
-      if (textoBusqueda.value === newValue) {
-        addSearch(newValue)
-      }
-    }, 1000)
-  }
-})
-
-let recargaBackendTimer = null
-
-function programarRecargaBackend(resetPage = true, delay = 250) {
-  if (!modoBackend.value) return
-
-  if (recargaBackendTimer) {
-    clearTimeout(recargaBackendTimer)
-  }
-
-  recargaBackendTimer = setTimeout(async () => {
-    if (resetPage && currentPage.value !== 1) {
-      currentPage.value = 1
-      return
-    }
-    await cargarDatos(currentPage.value)
-  }, delay)
-}
-
-watch([filtroCategoria, filtroEstado, ordenAscendente, pageSize, eventoIdActual], () => {
-  programarRecargaBackend(true, 250)
-})
-
-watch(textoBusqueda, () => {
-  programarRecargaBackend(true, 400)
-})
-
-watch(currentPage, (newPage, oldPage) => {
-  if (modoBackend.value && newPage !== oldPage) {
-    cargarDatos(newPage)
-  }
-})
-
-function irAPagina(page) {
-  const pageNum = Number(page)
-  if (!Number.isInteger(pageNum)) return
-  if (pageNum < 1 || pageNum > backendPagination.value.totalPages) return
-  if (pageNum === currentPage.value) return
-  currentPage.value = pageNum
-}
-
 function guardarFiltroActual() {
+  const { success, error, warning } = toast
   if (!nombreFiltroNuevo.value || nombreFiltroNuevo.value.trim() === '') {
     warning('Por favor ingresa un nombre para el filtro', 'Nombre Requerido')
     return
@@ -1049,6 +407,7 @@ function guardarFiltroActual() {
 }
 
 function aplicarFiltroGuardado(filterId) {
+  const { success } = toast
   const filters = applyFilter(filterId)
   if (filters) {
     textoBusqueda.value = filters.searchText || ''
@@ -1060,221 +419,12 @@ function aplicarFiltroGuardado(filterId) {
 }
 
 function eliminarFiltroGuardado(filterId) {
+  const { success } = toast
   const confirmar = confirm('¿Estás seguro de eliminar este filtro guardado?')
   if (confirmar) {
     deleteFilter(filterId)
     success('Filtro eliminado correctamente', 'Filtro Eliminado')
   }
-}
-
-async function agregarInvitado() {
-  if (!permisos.value.agregarInvitados) {
-    error('No tienes permiso para agregar invitados', 'Acceso Denegado')
-    return
-  }
-
-  const nombre = nuevoNombre.value.trim()
-  const apellido = nuevoApellido.value.trim()
-
-  if (nombre === '') {
-    warning('Por favor escribe al menos el nombre', 'Nombre Requerido')
-    return
-  }
-
-  const existe = invitados.value.some(inv =>
-    inv.nombre.toLowerCase() === nombre.toLowerCase() &&
-    inv.apellido.toLowerCase() === apellido.toLowerCase()
-  )
-
-  if (existe) {
-    warning('Este invitado ya está en la lista', 'Duplicado')
-    return
-  }
-
-  if (sillasRestantes.value === 0) {
-    warning('No hay sillas disponibles', 'Sillas Agotadas')
-  }
-
-  try {
-    if (modoBackend.value) {
-      showLoading({ message: 'Agregando invitado...' })
-
-      const invitadoPayload = {
-        nombre,
-        apellido,
-        categoria: nuevaCategoria.value,
-        confirmado: false,
-        ...(eventoIdActual.value ? { evento_id: eventoIdActual.value } : {})
-      }
-
-      const response = await invitadosAPI.create(invitadoPayload)
-
-      if (response.success && response.data) {
-        await cargarDatos(currentPage.value)
-        success(`Invitado ${nombre} ${apellido} agregado`, 'Invitado Agregado')
-      }
-
-      hideLoading()
-    } else {
-      invitados.value.push({
-        id: Date.now(),
-        nombre,
-        apellido,
-        categoria: nuevaCategoria.value,
-        confirmado: false
-      })
-      success(`Invitado ${nombre} ${apellido} agregado`, 'Invitado Agregado')
-    }
-
-    registrarActividad(`Agregó invitado: ${nombre} ${apellido}`)
-
-    nuevoNombre.value = ''
-    nuevoApellido.value = ''
-    nuevaCategoria.value = 'General'
-  } catch (err) {
-    hideLoading()
-
-    error(err.message || 'No se pudo agregar el invitado', 'Error')
-  }
-}
-
-async function toggleConfirmacion(id) {
-  if (!permisos.value.confirmarInvitados) {
-    error('No tienes permiso para confirmar invitados', 'Acceso Denegado')
-    return
-  }
-
-  const invitado = invitados.value.find(inv => inv.id === id)
-
-  if (invitado) {
-    if (!invitado.confirmado && sillasRestantes.value === 0) {
-      warning('No hay sillas disponibles', 'Sillas Agotadas')
-      return
-    }
-
-    const nuevoEstado = !invitado.confirmado
-
-    try {
-      if (modoBackend.value) {
-        const response = await invitadosAPI.update(id, {
-          confirmado: nuevoEstado
-        })
-
-        if (response.success) {
-          invitado.confirmado = nuevoEstado
-          const mensaje = nuevoEstado ? 'confirmado' : 'marcado como pendiente'
-          success(`Invitado ${mensaje}`, 'Estado Actualizado')
-        }
-      } else {
-        invitado.confirmado = nuevoEstado
-      }
-
-      const estado = nuevoEstado ? 'confirmó' : 'marcó como pendiente'
-      registrarActividad(`${estado} a: ${invitado.nombre} ${invitado.apellido}`)
-    } catch (err) {
-      error(err.message || 'No se pudo actualizar el estado', 'Error')
-    }
-  }
-}
-
-async function eliminarInvitado(id) {
-  if (!permisos.value.eliminarInvitados) {
-    error('No tienes permiso para eliminar invitados', 'Acceso Denegado')
-    return
-  }
-
-  const invitado = invitados.value.find(inv => inv.id === id)
-
-  if (confirm(`¿Estás seguro de eliminar a "${invitado.nombre} ${invitado.apellido}"?`)) {
-    try {
-      if (modoBackend.value) {
-        showLoading({ message: 'Eliminando invitado...' })
-
-        const response = await invitadosAPI.delete(id)
-
-        if (response.success) {
-          const targetPage = invitados.value.length === 1 && currentPage.value > 1
-            ? currentPage.value - 1
-            : currentPage.value
-          await cargarDatos(targetPage)
-          success(`Invitado ${invitado.nombre} ${invitado.apellido} eliminado`, 'Invitado Eliminado')
-        }
-
-        hideLoading()
-      } else {
-        const index = invitados.value.findIndex(inv => inv.id === id)
-        invitados.value.splice(index, 1)
-        success(`Invitado ${invitado.nombre} ${invitado.apellido} eliminado`, 'Invitado Eliminado')
-      }
-
-      registrarActividad(`Eliminó invitado: ${invitado.nombre} ${invitado.apellido}`)
-    } catch (err) {
-      hideLoading()
-
-      error(err.message || 'No se pudo eliminar el invitado', 'Error')
-    }
-  }
-}
-
-function iniciarEdicion(invitado) {
-  if (!permisos.value.editarInvitados) {
-    warning('No tienes permiso para editar invitados', 'Sin permiso')
-    return
-  }
-
-  editandoId.value = invitado.id
-  nombreEditando.value = invitado.nombre
-  apellidoEditando.value = invitado.apellido
-}
-
-async function guardarEdicion() {
-  const nombre = nombreEditando.value.trim()
-  const apellido = apellidoEditando.value.trim()
-
-  if (nombre === '') {
-    warning('El nombre no puede estar vacío', 'Nombre Requerido')
-    return
-  }
-
-  const invitado = invitados.value.find(inv => inv.id === editandoId.value)
-
-  if (invitado) {
-    try {
-      if (modoBackend.value) {
-        showLoading({ message: 'Guardando cambios...' })
-
-        const response = await invitadosAPI.update(editandoId.value, {
-          nombre,
-          apellido
-        })
-
-        if (response.success) {
-          invitado.nombre = nombre
-          invitado.apellido = apellido
-          success('Invitado actualizado correctamente', 'Guardado')
-        }
-
-        hideLoading()
-      } else {
-        invitado.nombre = nombre
-        invitado.apellido = apellido
-        success('Invitado actualizado correctamente', 'Guardado')
-      }
-
-      registrarActividad(`Editó invitado: ${nombre} ${apellido}`)
-      cancelarEdicion()
-    } catch (err) {
-      hideLoading()
-
-      error(err.message || 'No se pudo guardar los cambios', 'Error')
-    }
-  }
-}
-
-function cancelarEdicion() {
-  editandoId.value = null
-  nombreEditando.value = ''
-  apellidoEditando.value = ''
 }
 </script>
 

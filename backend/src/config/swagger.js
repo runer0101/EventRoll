@@ -6,7 +6,7 @@ export const swaggerSpec = {
   openapi: '3.0.0',
   info: {
     title: 'EventRoll API',
-    version: '1.3.0',
+    version: '1.9.0',
     description: 'Guest management & check-in API — authentication via HttpOnly cookie',
     contact: { name: 'EventRoll' },
   },
@@ -344,6 +344,182 @@ export const swaggerSpec = {
         summary: 'Establecer nueva contraseña',
         security: [],
         responses: { 200: { description: 'Contraseña actualizada exitosamente' } },
+      },
+    },
+    // ─── REGISTRO ─────────────────────────────────────────────
+    '/auth/register': {
+      post: {
+        tags: ['Auth'],
+        summary: 'Registrar nuevo usuario (rol admin por defecto)',
+        security: [],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['nombre', 'email', 'password'],
+                properties: {
+                  nombre: { type: 'string' },
+                  email: { type: 'string', format: 'email' },
+                  password: { type: 'string', minLength: 8 },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          201: { description: 'Usuario creado y sesión iniciada' },
+          400: { description: 'Datos inválidos o email ya registrado' },
+          429: { description: 'Demasiados intentos de registro' },
+        },
+      },
+    },
+    '/auth/login-con-codigo': {
+      post: {
+        tags: ['Auth'],
+        summary: 'Iniciar sesión con código de acceso (modo guardia)',
+        security: [],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['codigo'],
+                properties: {
+                  codigo: { type: 'string', maxLength: 12 },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          200: { description: 'Login exitoso con código de acceso' },
+          401: { description: 'Código inválido o expirado' },
+          429: { description: 'Demasiados intentos' },
+        },
+      },
+    },
+    // ─── MESAS ────────────────────────────────────────────────
+    '/mesas': {
+      get: {
+        tags: ['Mesas'],
+        summary: 'Listar mesas con asignaciones de invitados',
+        parameters: [
+          { name: 'evento_id', in: 'query', required: true, schema: { type: 'string', format: 'uuid' }, description: 'ID del evento' },
+        ],
+        responses: {
+          200: { description: 'Lista de mesas con invitados asignados' },
+          400: { description: 'evento_id requerido' },
+        },
+      },
+      post: {
+        tags: ['Mesas'],
+        summary: 'Crear una nueva mesa',
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['evento_id', 'nombre'],
+                properties: {
+                  evento_id: { type: 'string', format: 'uuid' },
+                  nombre: { type: 'string', maxLength: 50 },
+                  sillas: { type: 'integer', minimum: 2, maximum: 20, default: 8 },
+                  pos_x: { type: 'number', default: 0 },
+                  pos_y: { type: 'number', default: 0 },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          201: { description: 'Mesa creada' },
+          400: { description: 'Datos inválidos' },
+          403: { description: 'Sin permisos para crear mesas' },
+        },
+      },
+    },
+    '/mesas/{id}': {
+      put: {
+        tags: ['Mesas'],
+        summary: 'Actualizar posición o datos de una mesa',
+        parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+        responses: {
+          200: { description: 'Mesa actualizada' },
+          404: { description: 'Mesa no encontrada' },
+        },
+      },
+      delete: {
+        tags: ['Mesas'],
+        summary: 'Eliminar una mesa y sus asignaciones',
+        parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+        responses: {
+          200: { description: 'Mesa eliminada' },
+          404: { description: 'Mesa no encontrada' },
+        },
+      },
+    },
+    '/mesas/sin-mesa': {
+      get: {
+        tags: ['Mesas'],
+        summary: 'Listar invitados sin mesa asignada',
+        parameters: [
+          { name: 'evento_id', in: 'query', required: true, schema: { type: 'string', format: 'uuid' } },
+        ],
+        responses: {
+          200: { description: 'Lista de invitados sin asignar' },
+        },
+      },
+    },
+    '/mesas/{mesaId}/asignar': {
+      post: {
+        tags: ['Mesas'],
+        summary: 'Asignar un invitado a una silla de una mesa',
+        parameters: [{ name: 'mesaId', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['invitado_id', 'posicion'],
+                properties: {
+                  invitado_id: { type: 'string', format: 'uuid' },
+                  posicion: { type: 'integer', minimum: 1 },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          200: { description: 'Invitado asignado a la mesa' },
+          400: { description: 'Posición inválida o mesa llena' },
+          404: { description: 'Mesa no encontrada' },
+        },
+      },
+    },
+    '/mesas/desasignar/{invitadoId}': {
+      delete: {
+        tags: ['Mesas'],
+        summary: 'Desasignar un invitado de su mesa',
+        parameters: [{ name: 'invitadoId', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+        responses: {
+          200: { description: 'Invitado desasignado' },
+          404: { description: 'Invitado no estaba asignado' },
+        },
+      },
+    },
+    // ─── EVENTOS ──────────────────────────────────────────────
+    '/eventos': {
+      get: {
+        tags: ['Eventos'],
+        summary: 'Listar todos los eventos del usuario',
+        responses: {
+          200: { description: 'Lista de eventos' },
+        },
       },
     },
   },
