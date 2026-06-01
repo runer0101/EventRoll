@@ -1,67 +1,16 @@
 <template>
-  <!-- SECCIÓN 1: LA VISTA (lo que el usuario ve) -->
   <div class="lista-invitados">
 
-    <!-- Título principal -->
     <h2>Gestión de Invitados</h2>
 
-    <!-- ========== STATS GRID ========== -->
-    <div class="stats-grid">
-      <div class="stat-card stat-card--total">
-        <div class="stat-card__icon">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="12" y1="12" x2="12" y2="12"/></svg>
-        </div>
-        <div class="stat-card__body">
-          <span class="stat-card__label">Capacidad</span>
-          <div class="stat-card__value-row">
-            <input
-              v-if="permisos.configurarSillas"
-              type="number"
-              min="1"
-              class="input-sillas"
-              :value="sillasDisponibles"
-              @change="sillasDisponibles = Math.max(1, parseInt($event.target.value) || 1)"
-            />
-            <span v-else class="stat-card__number">{{ sillasDisponibles }}</span>
-          </div>
-        </div>
-      </div>
+    <GuestStats
+      v-model:sillas-disponibles="sillasDisponibles"
+      :sillas-restantes="sillasRestantes"
+      :invitados-confirmados="invitadosConfirmados"
+      :porcentaje-ocupacion="porcentajeOcupacion"
+      :permisos="permisos"
+    />
 
-      <div class="stat-card stat-card--available">
-        <div class="stat-card__icon">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-        </div>
-        <div class="stat-card__body">
-          <span class="stat-card__label">Disponibles</span>
-          <span class="stat-card__number">{{ sillasRestantes }}</span>
-        </div>
-      </div>
-
-      <div class="stat-card stat-card--confirmed">
-        <div class="stat-card__icon">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
-        </div>
-        <div class="stat-card__body">
-          <span class="stat-card__label">Confirmados</span>
-          <span class="stat-card__number">{{ invitadosConfirmados }}</span>
-        </div>
-      </div>
-
-      <div class="stat-card stat-card--occupation">
-        <div class="stat-card__icon">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-        </div>
-        <div class="stat-card__body">
-          <span class="stat-card__label">Ocupación</span>
-          <span class="stat-card__number">{{ porcentajeOcupacion }}<small>%</small></span>
-        </div>
-        <div class="stat-progress">
-          <div class="stat-progress__fill" :style="{ width: Math.min(porcentajeOcupacion, 100) + '%' }"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ========== ACCIONES ========== -->
     <div class="acciones-excel">
       <div v-if="permisos.exportarExcel || permisos.importarExcel" class="acciones-group">
         <button
@@ -93,7 +42,6 @@
         </button>
       </div>
 
-      <!-- Input oculto para seleccionar archivo -->
       <input
         ref="inputArchivo"
         type="file"
@@ -108,67 +56,16 @@
       </button>
     </div>
 
-    <!-- ========== BÚSQUEDA Y FILTROS ========== -->
-    <div class="barra-busqueda">
-      <div class="search-container">
-        <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input
-          ref="searchInput"
-          v-model="textoBusqueda"
-          type="text"
-          placeholder="Buscar por nombre o apellido..."
-          class="input-busqueda"
-          @focus="mostrarHistorial = getRecentSearches().length > 0"
-          @blur="setTimeout(() => mostrarHistorial = false, 200)"
-        />
+    <SearchBar
+      ref="searchBarRef"
+      v-model:texto-busqueda="textoBusqueda"
+      v-model:filtro-categoria="filtroCategoria"
+      v-model:filtro-estado="filtroEstado"
+      v-model:orden-ascendente="ordenAscendente"
+      v-model:mostrar-filtros-guardados="mostrarFiltrosGuardados"
+      :saved-filters-count="savedFilters.length"
+    />
 
-        <!-- Dropdown de historial de búsqueda -->
-        <div v-if="mostrarHistorial && getRecentSearches().length > 0" class="historial-dropdown">
-          <div class="historial-header">
-            <span>Búsquedas recientes</span>
-            <button class="btn-limpiar-historial" title="Limpiar historial" @click="clearHistory(); mostrarHistorial = false">Limpiar</button>
-          </div>
-          <div
-            v-for="item in getRecentSearches()"
-            :key="item.timestamp"
-            class="historial-item"
-            @click="aplicarBusquedaHistorial(item.text)"
-          >
-            <span class="historial-text">{{ item.text }}</span>
-            <button class="btn-eliminar-historial" title="Eliminar" @click.stop="removeSearch(item.text)">×</button>
-          </div>
-        </div>
-      </div>
-
-      <select v-model="filtroCategoria" class="select-filtro">
-        <option value="">Todas las categorías</option>
-        <option value="General">General</option>
-        <option value="VIP">VIP</option>
-        <option value="Familia">Familia</option>
-        <option value="Amigos">Amigos</option>
-        <option value="Trabajo">Trabajo</option>
-      </select>
-
-      <select v-model="filtroEstado" class="select-filtro">
-        <option value="">Todos los estados</option>
-        <option value="confirmado">Confirmados</option>
-        <option value="pendiente">Pendientes</option>
-      </select>
-
-      <button class="btn-ordenar" title="Ordenar alfabéticamente" @click="ordenarInvitados">
-        {{ ordenAscendente ? 'A-Z ↑' : 'Z-A ↓' }}
-      </button>
-
-      <button class="btn-limpiar" title="Limpiar todos los filtros" @click="limpiarFiltros">
-        Limpiar
-      </button>
-
-      <button class="btn-filtros-guardados" title="Gestionar filtros guardados" @click="mostrarFiltrosGuardados = !mostrarFiltrosGuardados">
-        Filtros {{ savedFilters.length > 0 ? `(${savedFilters.length})` : '' }}
-      </button>
-    </div>
-
-    <!-- ========== FORMULARIO PARA AGREGAR ========== -->
     <div v-if="permisos.agregarInvitados" class="seccion-agregar">
       <div class="seccion-agregar__header">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -194,7 +91,6 @@
           @keyup.enter="agregarInvitado"
         />
 
-        <!-- SELECT de categoría -->
         <select v-model="nuevaCategoria" class="select-categoria" title="Selecciona la categoría del invitado">
           <option value="General">General</option>
           <option value="VIP">VIP - Invitados especiales</option>
@@ -209,14 +105,12 @@
       </div>
     </div>
 
-    <!-- Panel de filtros guardados -->
     <div v-if="mostrarFiltrosGuardados" class="panel-filtros-guardados">
       <div class="panel-header">
         <h3>Filtros Guardados</h3>
         <button class="btn-cerrar-panel" @click="mostrarFiltrosGuardados = false">×</button>
       </div>
 
-      <!-- Guardar filtro actual -->
       <div class="guardar-filtro-section">
         <h4>Guardar Filtro Actual</h4>
         <div class="filtro-actual-info">
@@ -236,7 +130,6 @@
         </div>
       </div>
 
-      <!-- Lista de filtros guardados -->
       <div class="lista-filtros-guardados">
         <h4>Mis Filtros ({{ savedFilters.length }})</h4>
         <div v-if="savedFilters.length === 0" class="filtros-vacio">
@@ -260,7 +153,6 @@
       </div>
     </div>
 
-    <!-- ========== ESTADÍSTICAS ========== -->
     <div class="estadisticas">
       <div class="estadisticas-card">
         <div class="stat-numero">{{ totalFiltrados }}</div>
@@ -276,7 +168,6 @@
       </div>
     </div>
 
-    <!-- ========== LISTA DE INVITADOS ========== -->
     <div class="lista-wrapper" :class="{ 'lista-fetching': isFetching }">
       <div v-if="isFetching" class="lista-loading-indicator" aria-live="polite">
         <span class="loading-dot"></span>
@@ -284,141 +175,44 @@
       </div>
 
       <TransitionGroup name="list" tag="div" class="lista">
-        <div
+        <GuestRow
           v-for="invitado in invitadosMostrados"
           :key="invitado.id"
-          class="invitado-item"
-          :class="{ confirmado: invitado.confirmado }"
-        >
-        <!-- Modo EDICIÓN -->
-        <div v-if="editandoId === invitado.id" class="modo-edicion">
-          <input
-            v-model="nombreEditando"
-            type="text"
-            placeholder="Nombre(s)"
-            class="input-editar"
-            @keyup.enter="guardarEdicion"
-            @keyup.esc="cancelarEdicion"
-          />
-          <input
-            v-model="apellidoEditando"
-            type="text"
-            placeholder="Apellido(s)"
-            class="input-editar"
-            @keyup.enter="guardarEdicion"
-            @keyup.esc="cancelarEdicion"
-          />
-          <button class="btn-guardar" @click="guardarEdicion">Guardar</button>
-          <button class="btn-cancelar" @click="cancelarEdicion">Cancelar</button>
-        </div>
-
-        <!-- Modo NORMAL -->
-        <div v-else class="info-invitado">
-          <div class="nombre-categoria">
-            <div class="invitado-avatar" :class="invitado.confirmado ? 'avatar--confirmed' : 'avatar--pending'">
-              {{ (invitado.nombre || '?').charAt(0).toUpperCase() }}
-            </div>
-            <div class="invitado-name-wrap">
-              <span class="nombre">{{ invitado.nombre }} {{ invitado.apellido }}</span>
-              <span class="badge" :class="invitado.categoria.toLowerCase()">
-                {{ invitado.categoria }}
-              </span>
-            </div>
-          </div>
-
-          <div class="acciones">
-            <button
-              v-if="permisos.editarInvitados"
-              class="btn-editar"
-              :title="`Editar: ${invitado.nombre} ${invitado.apellido || ''}`"
-              :aria-label="`Editar invitado: ${invitado.nombre} ${invitado.apellido || ''}`"
-              @click="iniciarEdicion(invitado)"
-            >
-              Editar
-            </button>
-
-            <button
-              v-if="permisos.confirmarInvitados"
-              class="btn-confirmar"
-              :class="{ activo: invitado.confirmado }"
-              :aria-label="`${invitado.confirmado ? 'Quitar confirmación' : 'Confirmar asistencia'} de ${invitado.nombre} ${invitado.apellido || ''}`"
-              :aria-pressed="invitado.confirmado"
-              @click="toggleConfirmacion(invitado.id)"
-            >
-              {{ invitado.confirmado ? 'Confirmado' : 'Pendiente' }}
-            </button>
-
-            <button
-              v-if="permisos.eliminarInvitados"
-              class="btn-eliminar"
-              :aria-label="`Eliminar invitado: ${invitado.nombre} ${invitado.apellido || ''}`"
-              @click="eliminarInvitado(invitado.id)"
-            >
-              Eliminar
-            </button>
-          </div>
-        </div>
-        </div>
+          v-model:nombre-editando="nombreEditando"
+          v-model:apellido-editando="apellidoEditando"
+          :invitado="invitado"
+          :editando-id="editandoId"
+          :permisos="permisos"
+          @confirm="toggleConfirmacion"
+          @delete="eliminarInvitado"
+          @start-edit="iniciarEdicion"
+          @save-edit="guardarEdicion"
+          @cancel-edit="cancelarEdicion"
+        />
       </TransitionGroup>
     </div>
 
-    <div v-if="modoBackend && backendPagination.totalPages > 1" class="paginacion">
-      <div class="paginacion-info">
-        Mostrando {{ invitadosMostrados.length }} de {{ backendPagination.total }} invitados
-      </div>
-      <div class="paginacion-controles">
-        <button
-          class="btn-paginacion"
-          :disabled="currentPage === 1 || isFetching"
-          @click="irAPagina(1)"
-        >
-          Primera
-        </button>
-        <button
-          class="btn-paginacion"
-          :disabled="currentPage === 1 || isFetching"
-          @click="irAPagina(currentPage - 1)"
-        >
-          Anterior
-        </button>
-        <span class="pagina-actual">Página {{ currentPage }} de {{ backendPagination.totalPages }}</span>
-        <button
-          class="btn-paginacion"
-          :disabled="currentPage >= backendPagination.totalPages || isFetching"
-          @click="irAPagina(currentPage + 1)"
-        >
-          Siguiente
-        </button>
-        <button
-          class="btn-paginacion"
-          :disabled="currentPage >= backendPagination.totalPages || isFetching"
-          @click="irAPagina(backendPagination.totalPages)"
-        >
-          Última
-        </button>
-      </div>
-      <div class="paginacion-tamanio">
-        <label for="page-size">Por página:</label>
-        <select id="page-size" v-model.number="pageSize" :disabled="isFetching">
-          <option :value="25">25</option>
-          <option :value="50">50</option>
-          <option :value="100">100</option>
-        </select>
-      </div>
-    </div>
+    <PaginationBar
+      v-if="modoBackend && backendPagination.totalPages > 1"
+      v-model:current-page="currentPage"
+      v-model:page-size="pageSize"
+      :total-pages="backendPagination.totalPages"
+      :total="invitadosMostrados.length"
+      :total-items="backendPagination.total"
+      :disabled="isFetching"
+      @go-to-page="irAPagina"
+    />
 
-    <!-- Estado vacío: sin invitados -->
     <EmptyState
       v-if="totalFiltrados === 0 && !hayFiltrosActivos"
-      icon="👥"
+      icon="Users"
       titulo="Sin invitados aún"
       descripcion="Agrega el primero con el formulario de arriba o importa un archivo Excel."
     />
 
-    <!-- Estado vacío: búsqueda sin resultados -->
     <EmptyState
       v-else-if="totalFiltrados === 0 && hayFiltrosActivos"
-      icon="🔍"
+      icon="Search"
       titulo="Sin resultados"
       descripcion="No se encontraron invitados con esos criterios. Intenta cambiar los filtros de búsqueda."
     />
@@ -427,18 +221,14 @@
 </template>
 
 <script setup>
-// SECCIÓN 2: LA LÓGICA MEJORADA CON EXCEL
-
-// Importamos funciones de Vue
 import { ref, computed, watch, onMounted, inject } from 'vue'
 
-// ExcelJS se carga dinámicamente cuando es necesario para reducir tamaño del bundle (lazy-load)
-// Se usa un helper en src/utils/excelImporter.js para la lógica de parsing/plantilla cuando es posible
-
-// Componentes
 import EmptyState from './EmptyState.vue'
+import GuestStats from './GuestStats.vue'
+import SearchBar from './SearchBar.vue'
+import PaginationBar from './PaginationBar.vue'
+import GuestRow from './GuestRow.vue'
 
-// Importamos composables
 import { useToast } from '../composables/useToast'
 import { useLoading } from '../composables/useLoading'
 import { useSearchHistory } from '../composables/useSearchHistory'
@@ -446,22 +236,18 @@ import { useSavedFilters } from '../composables/useSavedFilters'
 import { useKeyboardShortcuts } from '../composables/useKeyboardShortcuts'
 import { PermisosKey, RegistrarActividadKey, EventoIdActualKey } from '../composables/injection-keys'
 
-// Importar API de invitados
 import { invitadosAPI } from '../services/api'
 
-// Inicializar composables
 const { success, error, warning } = useToast()
 const { show: showLoading, hide: hideLoading, updateProgress } = useLoading()
-const { addSearch, removeSearch, clearHistory, getRecentSearches } = useSearchHistory()
+const { addSearch } = useSearchHistory()
 const { savedFilters, saveFilter, deleteFilter, applyFilter } = useSavedFilters()
 const shortcuts = useKeyboardShortcuts()
 
-// ========== PERMISOS ==========
 const obtenerPermisos = inject(PermisosKey, () => ({}))
 const registrarActividad = inject(RegistrarActividadKey, () => {})
 const obtenerEventoIdActual = inject(EventoIdActualKey, () => null)
 
-// Computed para obtener permisos actuales
 const permisos = computed(() => obtenerPermisos())
 const eventoIdActual = computed(() => {
   const value = obtenerEventoIdActual()
@@ -469,24 +255,21 @@ const eventoIdActual = computed(() => {
   return id ? id : null
 })
 
-// ========== DATOS REACTIVOS ==========
-
-const nuevoNombre = ref('')             // Nombre del nuevo invitado
-const nuevoApellido = ref('')           // Apellido del nuevo invitado
-const nuevaCategoria = ref('General')   // Categoría del nuevo invitado
-const invitados = ref([])               // Lista de todos los invitados
-const textoBusqueda = ref('')           // Texto de búsqueda
-const filtroCategoria = ref('')         // Filtro por categoría
-const filtroEstado = ref('')            // Filtro por estado (confirmado/pendiente)
-const sillasDisponibles = ref(100)      // Total de sillas disponibles
-const editandoId = ref(null)            // ID del invitado que se está editando
-const nombreEditando = ref('')          // Nombre temporal durante edición
-const apellidoEditando = ref('')        // Apellido temporal durante edición
-const inputArchivo = ref(null)          // Referencia al input de archivo
-const ordenAscendente = ref(true)       // Orden de clasificación A-Z o Z-A
-const mostrarHistorial = ref(false)     // Mostrar dropdown de historial
-const mostrarFiltrosGuardados = ref(false) // Mostrar panel de filtros guardados
-const nombreFiltroNuevo = ref('')       // Nombre para guardar filtro actual
+const nuevoNombre = ref('')
+const nuevoApellido = ref('')
+const nuevaCategoria = ref('General')
+const invitados = ref([])
+const textoBusqueda = ref('')
+const filtroCategoria = ref('')
+const filtroEstado = ref('')
+const sillasDisponibles = ref(100)
+const editandoId = ref(null)
+const nombreEditando = ref('')
+const apellidoEditando = ref('')
+const inputArchivo = ref(null)
+const ordenAscendente = ref(true)
+const mostrarFiltrosGuardados = ref(false)
+const nombreFiltroNuevo = ref('')
 const currentPage = ref(1)
 const pageSize = ref(50)
 const isFetching = ref(false)
@@ -499,38 +282,28 @@ const backendPagination = ref({
   totalPages: 1
 })
 
-// Referencias a elementos del DOM para atajos de teclado
-const searchInput = ref(null)
+const searchBarRef = ref(null)
 const nombreInput = ref(null)
 
-// Estado de modo de operación
-const modoBackend = ref(true) // true = backend, false = localStorage
-
-// ========== FUNCIONES DE PERSISTENCIA ==========
+const modoBackend = ref(true)
 
 onMounted(() => {
   cargarDatos()
   configurarAtajosTeclado()
 })
 
-// ========== ATAJOS DE TECLADO ==========
-
 function configurarAtajosTeclado() {
-  // Inicializar el sistema de atajos
   shortcuts.init()
 
-  // Ctrl+F: Enfocar búsqueda
   shortcuts.register('ctrl+f', (e) => {
     e.preventDefault()
-    searchInput.value?.focus()
+    searchBarRef.value?.searchInput?.focus()
   }, 'Enfocar búsqueda')
 
-  // Ctrl+K: Alternar panel de filtros guardados
   shortcuts.register('ctrl+k', () => {
     mostrarFiltrosGuardados.value = !mostrarFiltrosGuardados.value
   }, 'Alternar filtros guardados')
 
-  // Esc: Limpiar búsqueda o cerrar panel
   shortcuts.register('escape', () => {
     if (mostrarFiltrosGuardados.value) {
       mostrarFiltrosGuardados.value = false
@@ -539,28 +312,24 @@ function configurarAtajosTeclado() {
     }
   }, 'Limpiar búsqueda/cerrar panel')
 
-  // Ctrl+E: Exportar a Excel
   shortcuts.register('ctrl+e', () => {
     if (permisos.value.exportarExcel) {
       exportarExcel()
     }
   }, 'Exportar a Excel')
 
-  // Ctrl+Shift+E: Exportar a CSV
   shortcuts.register('ctrl+shift+e', () => {
     if (permisos.value.exportarExcel) {
       exportarCSV()
     }
   }, 'Exportar a CSV')
 
-  // Ctrl+I: Abrir importador
   shortcuts.register('ctrl+i', () => {
     if (permisos.value.importarExcel) {
       abrirSelectorArchivo()
     }
   }, 'Importar desde Excel')
 
-  // Ctrl+N: Enfocar campo de nombre para nuevo invitado
   shortcuts.register('ctrl+n', () => {
     if (permisos.value.agregarInvitados) {
       nombreInput.value?.focus()
@@ -568,7 +337,6 @@ function configurarAtajosTeclado() {
   }, 'Nuevo invitado')
 }
 
-// Counter para descartar respuestas obsoletas (race condition en búsquedas rápidas)
 let _fetchSeq = 0
 
 async function cargarDatos(page = currentPage.value) {
@@ -591,7 +359,6 @@ async function cargarDatos(page = currentPage.value) {
 
     const response = await invitadosAPI.getAll(filters)
 
-    // Si ya se lanzó una request más reciente, ignorar esta respuesta
     if (mySeq !== _fetchSeq) return
 
     if (response.success && Array.isArray(response.data)) {
@@ -642,7 +409,6 @@ function cargarDatosLocalStorage() {
 
     if (invitadosGuardados) {
       const parsed = JSON.parse(invitadosGuardados)
-      // Validar que sea un array
       if (Array.isArray(parsed)) {
         invitados.value = parsed
       }
@@ -650,28 +416,22 @@ function cargarDatosLocalStorage() {
 
     if (sillasGuardadas) {
       const parsed = parseInt(sillasGuardadas, 10)
-      // Validar que sea un número válido
       if (!isNaN(parsed) && parsed >= 0) {
         sillasDisponibles.value = parsed
       }
     }
   } catch {
-
-    // En caso de error, usar valores por defecto
     invitados.value = []
     sillasDisponibles.value = 100
   }
 }
 
 function guardarDatos() {
-  // Solo guardar en localStorage si estamos en modo localStorage
   if (!modoBackend.value) {
     try {
       localStorage.setItem('invitados', JSON.stringify(invitados.value))
       localStorage.setItem('sillasDisponibles', sillasDisponibles.value.toString())
     } catch (storageErr) {
-
-      // Posible causa: localStorage lleno o no disponible
       if (storageErr.name === 'QuotaExceededError') {
         warning('Espacio de almacenamiento lleno. Algunos datos pueden no guardarse.', 'Almacenamiento')
       }
@@ -683,11 +443,7 @@ watch([invitados, sillasDisponibles], () => {
   guardarDatos()
 }, { deep: true })
 
-// ========== FUNCIONES DE EXCEL ==========
-
-// Función para EXPORTAR a CSV
 async function exportarCSV() {
-  // Verificar permiso
   if (!permisos.value.exportarExcel) {
     error('No tienes permiso para exportar', 'Acceso Denegado')
     return
@@ -701,12 +457,10 @@ async function exportarCSV() {
   try {
     showLoading({ message: 'Exportando a CSV...', progress: 0 })
 
-    // Crear encabezados
     const headers = ['Nombre', 'Apellido', 'Categoría', 'Estado']
 
     updateProgress(30, 'Procesando datos...')
 
-    // Crear filas
     const rows = invitados.value.map(inv => [
       inv.nombre,
       inv.apellido,
@@ -717,19 +471,16 @@ async function exportarCSV() {
     updateProgress(60, 'Generando archivo...')
     await new Promise(resolve => setTimeout(resolve, 300))
 
-    // Escapado RFC 4180: envuelve en comillas y dobla las comillas internas
     const csvEscape = (val) => {
       const str = val == null ? '' : String(val)
       return /[,"\n\r]/.test(str) ? `"${str.replace(/"/g, '""')}"` : str
     }
 
-    // Combinar encabezados y filas con escaping correcto
     const csvContent = [
       headers.map(csvEscape).join(','),
       ...rows.map(row => row.map(csvEscape).join(','))
     ].join('\n')
 
-    // Crear blob y descargar
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
     const link = document.createElement('a')
     const url = URL.createObjectURL(blob)
@@ -750,22 +501,18 @@ async function exportarCSV() {
     registrarActividad(`Exportó ${invitados.value.length} invitados a CSV`)
     success(`Se exportaron ${invitados.value.length} invitados a CSV`, 'Exportación Exitosa', 4000)
   } catch {
-
     error('Ocurrió un error al exportar el archivo CSV', 'Error de Exportación')
   } finally {
     hideLoading()
   }
 }
 
-// Función para EXPORTAR a Excel
 async function exportarExcel() {
-  // Verificar permiso
   if (!permisos.value.exportarExcel) {
     error('No tienes permiso para exportar a Excel', 'Acceso Denegado')
     return
   }
 
-  // Si no hay invitados, mostrar mensaje
   if (invitados.value.length === 0) {
     warning('No hay invitados para exportar', 'Lista Vacía')
     return
@@ -774,8 +521,6 @@ async function exportarExcel() {
   try {
     showLoading({ message: 'Exportando a Excel...', progress: 0 })
 
-    // Preparar los datos para Excel
-    // Convertimos el array de objetos a un formato tabular
     const datosExcel = invitados.value.map(inv => ({
       'Nombre': inv.nombre,
       'Apellido': inv.apellido,
@@ -786,22 +531,18 @@ async function exportarExcel() {
     updateProgress(30, 'Procesando datos...')
     await new Promise(resolve => setTimeout(resolve, 300))
 
-    // Cargar ExcelJS de forma dinámica para evitar cargarlo en el bundle inicial
     const mod = await import('exceljs')
     const ExcelJS = mod.default || mod
     const workbook = new ExcelJS.Workbook()
     const sheet = workbook.addWorksheet('Invitados')
 
-    // Agregar encabezado
     const headers = ['Nombre', 'Apellido', 'Categoría', 'Estado']
     sheet.addRow(headers)
 
-    // Agregar filas de datos
     for (const r of datosExcel) {
       sheet.addRow([r.Nombre, r.Apellido, r['Categoría'], r.Estado])
     }
 
-    // Ajustar anchos básicos
     sheet.columns = [
       { width: 20 },
       { width: 20 },
@@ -812,13 +553,11 @@ async function exportarExcel() {
     updateProgress(80, 'Creando archivo...')
     await new Promise(resolve => setTimeout(resolve, 400))
 
-    // Generar nombre del archivo con la fecha actual
     const fecha = new Date().toISOString().split('T')[0]
     const nombreArchivo = `Invitados_${fecha}.xlsx`
 
     updateProgress(95, 'Descargando...')
 
-    // Generar buffer y descargar usando Blob
     const buffer = await workbook.xlsx.writeBuffer()
     const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
     const url = URL.createObjectURL(blob)
@@ -836,30 +575,24 @@ async function exportarExcel() {
     registrarActividad(`Exportó ${invitados.value.length} invitados a Excel`)
     success(`Se exportaron ${invitados.value.length} invitados a Excel`, 'Exportación Exitosa', 4000)
   } catch {
-
     error('Ocurrió un error al exportar el archivo Excel', 'Error de Exportación')
   } finally {
     hideLoading()
   }
 }
 
-// Función para IMPORTAR desde Excel
 async function importarExcel(evento) {
-  // Verificar permiso
   if (!permisos.value.importarExcel) {
     error('No tienes permiso para importar desde Excel', 'Acceso Denegado')
-    evento.target.value = '' // Limpiar input
+    evento.target.value = ''
     return
   }
 
-  // Obtener el archivo seleccionado
   const archivo = evento.target.files[0]
 
-  // Verificar que se seleccionó un archivo
   if (!archivo) return
 
-  // Validaciones básicas de seguridad: tamaño y extensión
-  const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5 MB
+  const MAX_FILE_SIZE = 5 * 1024 * 1024
   const ALLOWED_EXT = /\.(xlsx|xls|csv)$/i
   const MAX_ROWS = 5000
 
@@ -877,16 +610,12 @@ async function importarExcel(evento) {
 
   showLoading({ message: `Cargando archivo ${archivo.name}...`, progress: 0 })
 
-  // FileReader es una API del navegador para leer archivos
   const lector = new FileReader()
 
-  // Esta función se ejecuta cuando termina de leer el archivo
   lector.onload = async (e) => {
     try {
       updateProgress(20, 'Leyendo archivo Excel...')
-      // e.target.result contiene los datos del archivo (ArrayBuffer)
 
-      // Usar helper que parsea Excel y aplica límites (lazy-load de ExcelJS dentro)
       const { parseExcelBuffer } = await import('@/utils/excelImporter.js')
       let parsed
       try {
@@ -913,10 +642,8 @@ async function importarExcel(evento) {
       updateProgress(40, 'Procesando datos...')
       await new Promise(resolve => setTimeout(resolve, 200))
 
-      // Datos ya retornados por el helper
       let datosJson = parsed.rows
 
-      // Validar que el archivo tenga datos
       if (!Array.isArray(datosJson) || datosJson.length === 0) {
         hideLoading()
         error('El archivo Excel está vacío o no tiene la estructura correcta. Asegúrate de que tenga encabezados y datos.', 'Archivo Inválido', 6000)
@@ -931,7 +658,6 @@ async function importarExcel(evento) {
         return
       }
 
-      // Sanitizar valores y limitar longitud de campos para evitar payloads excesivos
       datosJson = datosJson.slice(0, MAX_ROWS).map(row => {
         const cleaned = {}
         for (const [k, v] of Object.entries(row)) {
@@ -943,10 +669,8 @@ async function importarExcel(evento) {
 
       updateProgress(60, `Importando ${datosJson.length} filas...`)
 
-      // Si estamos en modo backend, usar la API de importación
       if (modoBackend.value) {
         try {
-          // Preparar datos para importación al backend
           const invitadosParaImportar = datosJson.map(fila => {
             const buscarColumna = (variaciones) => {
               for (let variacion of variaciones) {
@@ -982,7 +706,6 @@ async function importarExcel(evento) {
               'Confirmed', 'confirmed', 'CONFIRMED'
             ]) || 'Pendiente'
 
-            // Validar categoría
             const categoriasValidas = ['General', 'VIP', 'Familia', 'Amigos', 'Trabajo']
             const categoriaFinal = categoriasValidas.includes(categoria) ? categoria : 'General'
 
@@ -992,7 +715,7 @@ async function importarExcel(evento) {
               categoria: categoriaFinal,
               confirmado: estado.toLowerCase().includes('confirmado')
             }
-          }).filter(inv => inv.nombre !== '') // Solo invitados con nombre
+          }).filter(inv => inv.nombre !== '')
 
           updateProgress(75, `Enviando ${invitadosParaImportar.length} invitados al servidor...`)
 
@@ -1002,7 +725,7 @@ async function importarExcel(evento) {
             const { importados, duplicados, errores } = response.data
 
             updateProgress(90, 'Recargando lista...')
-            await cargarDatos() // Recargar toda la lista desde backend
+            await cargarDatos()
 
             updateProgress(100, 'Completado')
             await new Promise(resolve => setTimeout(resolve, 300))
@@ -1022,25 +745,18 @@ async function importarExcel(evento) {
             return
           }
         } catch {
-
           warning('Error al importar con backend, usando modo local', 'Modo Local', 4000)
           modoBackend.value = false
-          // Continuar con importación local
         }
       }
 
-      // Modo localStorage (original)
-      // Contador de invitados importados
       let importados = 0
       let duplicados = 0
       let filasInvalidas = 0
       const erroresPorFila = []
 
-      // Procesar cada fila del Excel
       datosJson.forEach((fila, index) => {
-        // FUNCIÓN AUXILIAR: Busca el valor en múltiples variaciones de columna
         const buscarColumna = (variaciones) => {
-          // Busca en todas las variaciones posibles
           for (let variacion of variaciones) {
             if (fila[variacion] !== undefined && fila[variacion] !== null && fila[variacion] !== '') {
               return String(fila[variacion]).trim()
@@ -1049,50 +765,44 @@ async function importarExcel(evento) {
           return ''
         }
 
-        // NOMBRE: Acepta muchas variaciones en español e inglés
         const nombre = buscarColumna([
-          'Nombre', 'nombre', 'NOMBRE',           // Español variaciones
-          'Nombres', 'nombres', 'NOMBRES',         // Plural
-          'Name', 'name', 'NAME',                  // Inglés
-          'First Name', 'first name', 'FIRST NAME', // Inglés con espacio
-          'FirstName', 'firstname', 'FIRSTNAME'    // Inglés sin espacio
+          'Nombre', 'nombre', 'NOMBRE',
+          'Nombres', 'nombres', 'NOMBRES',
+          'Name', 'name', 'NAME',
+          'First Name', 'first name', 'FIRST NAME',
+          'FirstName', 'firstname', 'FIRSTNAME'
         ])
 
-        // APELLIDO: Acepta muchas variaciones
         const apellido = buscarColumna([
-          'Apellido', 'apellido', 'APELLIDO',      // Español variaciones
-          'Apellidos', 'apellidos', 'APELLIDOS',   // Plural
-          'Last Name', 'last name', 'LAST NAME',   // Inglés con espacio
-          'LastName', 'lastname', 'LASTNAME',      // Inglés sin espacio
-          'Surname', 'surname', 'SURNAME'          // Apellido formal
+          'Apellido', 'apellido', 'APELLIDO',
+          'Apellidos', 'apellidos', 'APELLIDOS',
+          'Last Name', 'last name', 'LAST NAME',
+          'LastName', 'lastname', 'LASTNAME',
+          'Surname', 'surname', 'SURNAME'
         ])
 
-        // CATEGORÍA: Acepta muchas variaciones
         const categoria = buscarColumna([
-          'Categoría', 'categoria', 'CATEGORIA',   // Español con/sin tilde
-          'Categoria', 'CATEGORÍA',                // Variaciones tilde
-          'Category', 'category', 'CATEGORY',      // Inglés
-          'Tipo', 'tipo', 'TIPO',                  // Alternativa español
-          'Type', 'type', 'TYPE'                   // Alternativa inglés
+          'Categoría', 'categoria', 'CATEGORIA',
+          'Categoria', 'CATEGORÍA',
+          'Category', 'category', 'CATEGORY',
+          'Tipo', 'tipo', 'TIPO',
+          'Type', 'type', 'TYPE'
         ]) || 'General'
 
-        // ESTADO: Acepta muchas variaciones
         const estado = buscarColumna([
-          'Estado', 'estado', 'ESTADO',            // Español
-          'Status', 'status', 'STATUS',            // Inglés
-          'Confirmación', 'confirmacion', 'CONFIRMACION', // Español variaciones
+          'Estado', 'estado', 'ESTADO',
+          'Status', 'status', 'STATUS',
+          'Confirmación', 'confirmacion', 'CONFIRMACION',
           'Confirmado', 'confirmado', 'CONFIRMADO',
-          'Confirmed', 'confirmed', 'CONFIRMED'    // Inglés
+          'Confirmed', 'confirmed', 'CONFIRMED'
         ]) || 'Pendiente'
 
-        // Validar que tenga al menos nombre
         if (!nombre.trim()) {
           filasInvalidas++
           erroresPorFila.push(`Fila ${index + 2}: Falta el nombre`)
-          return // Saltar esta fila
+          return
         }
 
-        // Verificar si ya existe (por nombre y apellido)
         const existe = invitados.value.some(inv =>
           inv.nombre.toLowerCase() === nombre.toLowerCase() &&
           inv.apellido.toLowerCase() === apellido.toLowerCase()
@@ -1101,16 +811,14 @@ async function importarExcel(evento) {
         if (existe) {
           duplicados++
           erroresPorFila.push(`Fila ${index + 2}: "${nombre} ${apellido}" ya existe`)
-          return // Saltar duplicado
+          return
         }
 
-        // Validar categoría (usar General si no es válida)
         const categoriasValidas = ['General', 'VIP', 'Familia', 'Amigos', 'Trabajo']
         const categoriaFinal = categoriasValidas.includes(categoria) ? categoria : 'General'
 
-        // Crear nuevo invitado
         invitados.value.push({
-          id: Date.now() + importados, // ID único
+          id: Date.now() + importados,
           nombre: nombre.trim(),
           apellido: apellido.trim(),
           categoria: categoriaFinal,
@@ -1130,7 +838,6 @@ async function importarExcel(evento) {
 
       hideLoading()
 
-      // Mostrar toast según el resultado
       if (importados > 0 && erroresPorFila.length === 0) {
         success(`Se importaron ${importados} invitados correctamente`, 'Importación Exitosa', 5000)
       } else if (importados > 0 && erroresPorFila.length > 0) {
@@ -1156,23 +863,17 @@ async function importarExcel(evento) {
 
     }
 
-    // Limpiar el input para poder importar el mismo archivo de nuevo
     evento.target.value = ''
   }
 
-  // Leer el archivo como ArrayBuffer
   lector.readAsArrayBuffer(archivo)
 }
 
-// Función para abrir el selector de archivos
 function abrirSelectorArchivo() {
-  // .click() simula un click en el input oculto
   inputArchivo.value.click()
 }
 
-// Función para descargar una plantilla de Excel vacía
 async function descargarPlantilla() {
-  // Usar helper que genera la plantilla (lazy-load de ExcelJS dentro)
   try {
     const { createTemplateBuffer } = await import('@/utils/excelImporter.js')
     const buffer = await createTemplateBuffer()
@@ -1187,16 +888,11 @@ async function descargarPlantilla() {
     URL.revokeObjectURL(url)
     success('Plantilla descargada. Editala y luego importa el archivo.', 'Plantilla lista')
   } catch {
-
     error('Error generando la plantilla. Intenta nuevamente.', 'Error')
   }
 }
 
-// ========== PROPIEDADES COMPUTADAS ==========
-
-// Invitados filtrados con búsqueda mejorada
 const invitadosFiltrados = computed(() => {
-  // En modo backend, los filtros y orden ya vienen aplicados por API
   if (modoBackend.value) {
     return invitados.value
   }
@@ -1279,13 +975,8 @@ const porcentajeOcupacion = computed(() => {
   return Math.round((invitadosConfirmados.value / sillasDisponibles.value) * 100)
 })
 
-// ========== FUNCIONES DE HISTORIAL Y FILTROS ==========
-
-// Watch para agregar búsquedas al historial
 watch(textoBusqueda, (newValue, oldValue) => {
-  // Solo agregar si tiene al menos 3 caracteres y el usuario dejó de escribir
   if (newValue && newValue.length >= 3 && newValue !== oldValue) {
-    // Usar debounce para no agregar cada tecla
     setTimeout(() => {
       if (textoBusqueda.value === newValue) {
         addSearch(newValue)
@@ -1316,7 +1007,6 @@ watch([filtroCategoria, filtroEstado, ordenAscendente, pageSize, eventoIdActual]
   programarRecargaBackend(true, 250)
 })
 
-// Búsqueda con debounce mayor: el usuario suele escribir varias letras seguidas
 watch(textoBusqueda, () => {
   programarRecargaBackend(true, 400)
 })
@@ -1335,14 +1025,6 @@ function irAPagina(page) {
   currentPage.value = pageNum
 }
 
-// Aplicar una búsqueda del historial
-function aplicarBusquedaHistorial(searchText) {
-  textoBusqueda.value = searchText
-  mostrarHistorial.value = false
-  addSearch(searchText) // Actualizar como búsqueda reciente
-}
-
-// Guardar filtro actual
 function guardarFiltroActual() {
   if (!nombreFiltroNuevo.value || nombreFiltroNuevo.value.trim() === '') {
     warning('Por favor ingresa un nombre para el filtro', 'Nombre Requerido')
@@ -1366,7 +1048,6 @@ function guardarFiltroActual() {
   }
 }
 
-// Aplicar un filtro guardado
 function aplicarFiltroGuardado(filterId) {
   const filters = applyFilter(filterId)
   if (filters) {
@@ -1378,7 +1059,6 @@ function aplicarFiltroGuardado(filterId) {
   }
 }
 
-// Eliminar un filtro guardado
 function eliminarFiltroGuardado(filterId) {
   const confirmar = confirm('¿Estás seguro de eliminar este filtro guardado?')
   if (confirmar) {
@@ -1387,17 +1067,7 @@ function eliminarFiltroGuardado(filterId) {
   }
 }
 
-// Limpiar todos los filtros actuales
-function limpiarFiltros() {
-  textoBusqueda.value = ''
-  filtroCategoria.value = ''
-  filtroEstado.value = ''
-}
-
-// ========== FUNCIONES PRINCIPALES ==========
-
 async function agregarInvitado() {
-  // Verificar permiso
   if (!permisos.value.agregarInvitados) {
     error('No tienes permiso para agregar invitados', 'Acceso Denegado')
     return
@@ -1406,13 +1076,11 @@ async function agregarInvitado() {
   const nombre = nuevoNombre.value.trim()
   const apellido = nuevoApellido.value.trim()
 
-  // Validar que tenga al menos nombre
   if (nombre === '') {
     warning('Por favor escribe al menos el nombre', 'Nombre Requerido')
     return
   }
 
-  // Validar duplicados
   const existe = invitados.value.some(inv =>
     inv.nombre.toLowerCase() === nombre.toLowerCase() &&
     inv.apellido.toLowerCase() === apellido.toLowerCase()
@@ -1423,14 +1091,12 @@ async function agregarInvitado() {
     return
   }
 
-  // Advertir si no hay sillas
   if (sillasRestantes.value === 0) {
     warning('No hay sillas disponibles', 'Sillas Agotadas')
   }
 
   try {
     if (modoBackend.value) {
-      // Guardar en backend
       showLoading({ message: 'Agregando invitado...' })
 
       const invitadoPayload = {
@@ -1450,7 +1116,6 @@ async function agregarInvitado() {
 
       hideLoading()
     } else {
-      // Guardar en localStorage
       invitados.value.push({
         id: Date.now(),
         nombre,
@@ -1463,7 +1128,6 @@ async function agregarInvitado() {
 
     registrarActividad(`Agregó invitado: ${nombre} ${apellido}`)
 
-    // Limpiar formulario
     nuevoNombre.value = ''
     nuevoApellido.value = ''
     nuevaCategoria.value = 'General'
@@ -1475,7 +1139,6 @@ async function agregarInvitado() {
 }
 
 async function toggleConfirmacion(id) {
-  // Verificar permiso
   if (!permisos.value.confirmarInvitados) {
     error('No tienes permiso para confirmar invitados', 'Acceso Denegado')
     return
@@ -1493,7 +1156,6 @@ async function toggleConfirmacion(id) {
 
     try {
       if (modoBackend.value) {
-        // Actualizar en backend
         const response = await invitadosAPI.update(id, {
           confirmado: nuevoEstado
         })
@@ -1504,21 +1166,18 @@ async function toggleConfirmacion(id) {
           success(`Invitado ${mensaje}`, 'Estado Actualizado')
         }
       } else {
-        // Actualizar en localStorage
         invitado.confirmado = nuevoEstado
       }
 
       const estado = nuevoEstado ? 'confirmó' : 'marcó como pendiente'
       registrarActividad(`${estado} a: ${invitado.nombre} ${invitado.apellido}`)
     } catch (err) {
-
       error(err.message || 'No se pudo actualizar el estado', 'Error')
     }
   }
 }
 
 async function eliminarInvitado(id) {
-  // Verificar permiso
   if (!permisos.value.eliminarInvitados) {
     error('No tienes permiso para eliminar invitados', 'Acceso Denegado')
     return
@@ -1529,7 +1188,6 @@ async function eliminarInvitado(id) {
   if (confirm(`¿Estás seguro de eliminar a "${invitado.nombre} ${invitado.apellido}"?`)) {
     try {
       if (modoBackend.value) {
-        // Eliminar del backend
         showLoading({ message: 'Eliminando invitado...' })
 
         const response = await invitadosAPI.delete(id)
@@ -1544,7 +1202,6 @@ async function eliminarInvitado(id) {
 
         hideLoading()
       } else {
-        // Eliminar de localStorage
         const index = invitados.value.findIndex(inv => inv.id === id)
         invitados.value.splice(index, 1)
         success(`Invitado ${invitado.nombre} ${invitado.apellido} eliminado`, 'Invitado Eliminado')
@@ -1559,10 +1216,7 @@ async function eliminarInvitado(id) {
   }
 }
 
-// ========== FUNCIONES DE EDICIÓN ==========
-
 function iniciarEdicion(invitado) {
-  // Verificar permiso
   if (!permisos.value.editarInvitados) {
     warning('No tienes permiso para editar invitados', 'Sin permiso')
     return
@@ -1587,7 +1241,6 @@ async function guardarEdicion() {
   if (invitado) {
     try {
       if (modoBackend.value) {
-        // Actualizar en backend
         showLoading({ message: 'Guardando cambios...' })
 
         const response = await invitadosAPI.update(editandoId.value, {
@@ -1603,7 +1256,6 @@ async function guardarEdicion() {
 
         hideLoading()
       } else {
-        // Actualizar en localStorage
         invitado.nombre = nombre
         invitado.apellido = apellido
         success('Invitado actualizado correctamente', 'Guardado')
@@ -1624,18 +1276,9 @@ function cancelarEdicion() {
   nombreEditando.value = ''
   apellidoEditando.value = ''
 }
-
-// ========== FUNCIÓN DE ORDENAMIENTO ==========
-
-function ordenarInvitados() {
-  // Cambiar el orden
-  ordenAscendente.value = !ordenAscendente.value
-}
 </script>
 
 <style scoped>
-/* SECCIÓN 3: ESTILOS MEJORADOS */
-
 .lista-invitados {
   width: 100%;
   padding: 0;
@@ -1651,119 +1294,6 @@ h2 {
   letter-spacing: -0.01em;
 }
 
-/* ========== STATS GRID (Refactoring UI: metric cards) ========== */
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
-  margin-bottom: 16px;
-}
-
-.stat-card {
-  background: #141414;
-  border: 1px solid rgba(255,255,255,0.07);
-  border-radius: 10px;
-  padding: 14px 14px 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  position: relative;
-  overflow: hidden;
-  transition: border-color 0.2s;
-}
-
-.stat-card:hover { border-color: rgba(255,215,0,0.25); }
-
-.stat-card__icon {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 4px;
-  color: #FFD700;
-  background: rgba(255,215,0,0.08);
-}
-
-.stat-card--available .stat-card__icon { color: #4ade80; background: rgba(74,222,128,0.08); }
-.stat-card--confirmed .stat-card__icon { color: #60a5fa; background: rgba(96,165,250,0.08); }
-.stat-card--occupation .stat-card__icon { color: #f97316; background: rgba(249,115,22,0.08); }
-
-.stat-card__body {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.stat-card__label {
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  color: rgba(255,255,255,0.45);
-}
-
-.stat-card__number {
-  font-size: 26px;
-  font-weight: 700;
-  color: #fff;
-  line-height: 1;
-}
-
-.stat-card--available .stat-card__number { color: #4ade80; }
-.stat-card--confirmed .stat-card__number { color: #60a5fa; }
-.stat-card--occupation .stat-card__number { color: #f97316; }
-
-.stat-card__number small {
-  font-size: 14px;
-  font-weight: 500;
-  opacity: 0.7;
-  margin-left: 1px;
-}
-
-.stat-card__value-row {
-  display: flex;
-  align-items: center;
-}
-
-/* Progress bar inside occupation card */
-.stat-progress {
-  height: 4px;
-  background: rgba(255,255,255,0.08);
-  border-radius: 2px;
-  overflow: hidden;
-  margin-top: 4px;
-}
-
-.stat-progress__fill {
-  height: 100%;
-  background: linear-gradient(90deg, #f97316, #ef4444);
-  border-radius: 2px;
-  transition: width 0.4s ease;
-}
-
-/* Input de sillas integrado en la tarjeta — parece un número, no un input */
-.input-sillas {
-  padding: 0;
-  font-size: 26px;
-  font-weight: 700;
-  line-height: 1;
-  border: none;
-  border-bottom: 1px dashed rgba(255,215,0,0.35);
-  border-radius: 0;
-  width: 80px;
-  background: transparent;
-  color: #FFD700;
-  transition: border-color 0.2s;
-}
-
-.input-sillas:focus {
-  outline: none;
-  border-bottom-color: rgba(255,215,0,0.8);
-}
-
-/* ========== ACTION BUTTONS (Refactoring UI: visual hierarchy) ========== */
 .acciones-excel {
   display: flex;
   gap: 8px;
@@ -1782,7 +1312,6 @@ h2 {
   border-radius: 9px;
 }
 
-/* Primary action = Importar */
 .btn-importar {
   display: inline-flex;
   align-items: center;
@@ -1804,7 +1333,6 @@ h2 {
   box-shadow: 0 4px 12px rgba(255,215,0,0.25);
 }
 
-/* Secondary action = Exportar */
 .btn-exportar {
   display: inline-flex;
   align-items: center;
@@ -1826,7 +1354,6 @@ h2 {
   color: #fff;
 }
 
-/* Ghost = Plantilla */
 .btn-plantilla {
   display: inline-flex;
   align-items: center;
@@ -1849,7 +1376,6 @@ h2 {
   background: rgba(255,255,255,0.04);
 }
 
-/* ========== SECCIÓN AGREGAR INVITADO ========== */
 .seccion-agregar {
   margin-bottom: 12px;
   background: #141414;
@@ -1872,7 +1398,6 @@ h2 {
   border-bottom: 1px solid rgba(255,215,0,0.1);
 }
 
-/* ========== FORMULARIO ========== */
 .formulario {
   display: flex;
   gap: 8px;
@@ -1933,72 +1458,6 @@ h2 {
   transform: translateY(-1px);
 }
 
-/* ========== BÚSQUEDA Y FILTROS ========== */
-.barra-busqueda {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 12px;
-  background: #141414;
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid rgba(255,255,255,0.07);
-}
-
-.input-busqueda {
-  flex: 2;
-  padding: 8px 12px;
-  font-size: 14px;
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 6px;
-  background: #0f0f0f;
-  color: #fff;
-  font-family: inherit;
-  transition: border-color 0.15s;
-}
-
-.input-busqueda::placeholder { color: rgba(255,255,255,0.3); }
-
-.input-busqueda:focus {
-  outline: none;
-  border-color: rgba(255,215,0,0.5);
-}
-
-.select-filtro {
-  padding: 8px 10px;
-  font-size: 13px;
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 6px;
-  cursor: pointer;
-  background: #0f0f0f;
-  color: #fff;
-  font-family: inherit;
-  transition: border-color 0.15s;
-}
-
-.select-filtro:focus {
-  outline: none;
-  border-color: rgba(255,215,0,0.5);
-}
-
-.btn-ordenar {
-  padding: 8px 14px;
-  background: #1e1e1e;
-  color: #FFD700;
-  border: 1px solid rgba(255,215,0,0.3);
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 13px;
-  font-weight: 600;
-  transition: all 0.15s;
-  white-space: nowrap;
-}
-
-.btn-ordenar:hover {
-  background: rgba(255,215,0,0.1);
-  border-color: #FFD700;
-}
-
-/* ========== ESTADÍSTICAS (barra de resultados filtrados) ========== */
 .estadisticas {
   display: flex;
   gap: 0;
@@ -2042,7 +1501,6 @@ h2 {
   margin-top: 4px;
 }
 
-/* ========== LISTA DE INVITADOS ========== */
 .lista-wrapper {
   position: relative;
 }
@@ -2098,321 +1556,6 @@ h2 {
   position: relative;
 }
 
-/* ========== PAGINACIÓN ========== */
-.paginacion {
-  margin-top: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.paginacion-info {
-  text-align: center;
-  font-size: 12px;
-  color: rgba(255,255,255,0.35);
-  letter-spacing: 0.02em;
-}
-
-.paginacion-controles {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-}
-
-.btn-paginacion {
-  padding: 7px 14px;
-  background: #1a1a1a;
-  color: rgba(255,255,255,0.65);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 13px;
-  font-weight: 500;
-  font-family: inherit;
-  transition: all 0.15s;
-  white-space: nowrap;
-}
-
-.btn-paginacion:hover:not(:disabled) {
-  background: rgba(255,215,0,0.08);
-  border-color: rgba(255,215,0,0.3);
-  color: #FFD700;
-}
-
-.btn-paginacion:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
-}
-
-.pagina-actual {
-  padding: 7px 16px;
-  background: rgba(255,215,0,0.08);
-  border: 1px solid rgba(255,215,0,0.2);
-  border-radius: 8px;
-  font-size: 13px;
-  font-weight: 600;
-  color: #FFD700;
-  white-space: nowrap;
-}
-
-.paginacion-tamanio {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  font-size: 12px;
-  color: rgba(255,255,255,0.35);
-}
-
-.paginacion-tamanio select {
-  background: #1a1a1a;
-  color: rgba(255,255,255,0.6);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 6px;
-  padding: 4px 8px;
-  font-size: 12px;
-  font-family: inherit;
-  cursor: pointer;
-}
-
-.invitado-item {
-  background: #141414;
-  border: 1px solid rgba(255,255,255,0.07);
-  border-left: 3px solid transparent;
-  border-radius: 8px;
-  padding: 10px 14px;
-  margin-bottom: 5px;
-  transition: border-color 0.15s;
-}
-
-.invitado-item:hover {
-  border-color: rgba(255,255,255,0.12);
-  border-left-color: #FFD700;
-}
-
-.invitado-item.confirmado {
-  border-left-color: #4ade80;
-}
-
-.invitado-item:not(.confirmado) {
-  border-left-color: rgba(255,255,255,0.12);
-}
-
-.info-invitado {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.nombre-categoria {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-width: 0;
-}
-
-.nombre {
-  font-size: 14px;
-  font-weight: 600;
-  color: #fff;
-}
-
-.badge {
-  padding: 3px 9px;
-  border-radius: 5px;
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-}
-
-.badge.vip {
-  background: #FFD700;
-  color: #111;
-}
-
-.badge.familia {
-  background: #fef3c7;
-  color: #92400e;
-}
-
-.badge.amigos {
-  background: #ede9fe;
-  color: #5b21b6;
-}
-
-.badge.trabajo {
-  background: #dbeafe;
-  color: #1e40af;
-}
-
-.badge.general {
-  background: #f3f4f6;
-  color: #4b5563;
-}
-
-/* ========== AVATAR ========== */
-.invitado-avatar {
-  width: 32px;
-  height: 32px;
-  min-width: 32px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 13px;
-  font-weight: 700;
-  flex-shrink: 0;
-}
-
-.avatar--confirmed {
-  background: rgba(74,222,128,0.12);
-  color: #4ade80;
-  border: 1px solid rgba(74,222,128,0.25);
-}
-
-.avatar--pending {
-  background: rgba(255,255,255,0.06);
-  color: rgba(255,255,255,0.4);
-  border: 1px solid rgba(255,255,255,0.08);
-}
-
-.invitado-name-wrap {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-/* ========== ACCIONES ========== */
-.acciones {
-  display: flex;
-  gap: 8px;
-}
-
-.btn-editar {
-  padding: 5px 11px;
-  background: transparent;
-  color: rgba(255,255,255,0.55);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 12px;
-  font-weight: 500;
-  transition: all 0.15s;
-  font-family: inherit;
-}
-
-.btn-editar:hover {
-  background: rgba(255,255,255,0.06);
-  color: #fff;
-}
-
-.btn-confirmar {
-  padding: 5px 11px;
-  background: transparent;
-  color: rgba(255,255,255,0.55);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 12px;
-  font-weight: 500;
-  transition: all 0.15s;
-  font-family: inherit;
-}
-
-.btn-confirmar.activo {
-  background: #FFD700;
-  color: #111;
-  border-color: #FFD700;
-  font-weight: 600;
-}
-
-.btn-confirmar:hover {
-  background: rgba(255,215,0,0.1);
-  border-color: rgba(255,215,0,0.4);
-  color: #FFD700;
-}
-
-.btn-eliminar {
-  padding: 5px 11px;
-  background: transparent;
-  color: rgba(239,68,68,0.65);
-  border: 1px solid rgba(239,68,68,0.2);
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 12px;
-  font-weight: 500;
-  transition: all 0.15s;
-  font-family: inherit;
-}
-
-.btn-eliminar:hover {
-  background: rgba(239,68,68,0.08);
-  border-color: rgba(239,68,68,0.4);
-  color: #f87171;
-}
-
-/* ========== MODO EDICIÓN ========== */
-.modo-edicion {
-  display: flex;
-  gap: 8px;
-  width: 100%;
-}
-
-.input-editar {
-  flex: 1;
-  padding: 6px 10px;
-  font-size: 14px;
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 6px;
-  background: #0f0f0f;
-  color: #fff;
-  font-family: inherit;
-  transition: border-color 0.15s;
-}
-
-.input-editar:focus {
-  outline: none;
-  border-color: rgba(255,215,0,0.5);
-}
-
-.btn-guardar {
-  padding: 7px 16px;
-  background: #FFD700;
-  color: #111;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 13px;
-  font-weight: 700;
-  transition: background 0.15s;
-}
-
-.btn-guardar:hover {
-  background: #f0c800;
-}
-
-.btn-cancelar {
-  padding: 6px 12px;
-  background: transparent;
-  color: rgba(255,255,255,0.4);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 12px;
-  font-weight: 500;
-  transition: all 0.15s;
-  font-family: inherit;
-}
-
-.btn-cancelar:hover {
-  background: rgba(255,255,255,0.05);
-  color: rgba(255,255,255,0.75);
-}
-
-/* ========== MENSAJES VACÍOS ========== */
 .vacio {
   text-align: center;
   padding: 56px 24px;
@@ -2453,258 +1596,6 @@ h2 {
   color: rgba(255,255,255,0.3);
   line-height: 1.6;
   margin: 0;
-}
-
-/* ========== ANIMACIONES ========== */
-.list-enter-active {
-  transition: all 0.3s ease;
-}
-
-.list-leave-active {
-  transition: all 0.3s ease;
-  position: absolute;
-  width: 100%;
-}
-
-.list-enter-from {
-  opacity: 0;
-  transform: translateX(-30px);
-}
-
-.list-leave-to {
-  opacity: 0;
-  transform: translateX(30px);
-}
-
-/* ========== RESPONSIVE ========== */
-
-/* ── Mobile S (≤480px) ── */
-@media (max-width: 480px) {
-  .stats-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
-  }
-  .stat-card { padding: 10px 10px 8px; }
-  .stat-card__number { font-size: 22px; }
-  .stat-card__icon { width: 26px; height: 26px; }
-
-  .acciones-excel {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  .acciones-excel button { width: 100%; justify-content: center; }
-
-  .formulario { flex-direction: column; }
-  .barra-busqueda { flex-direction: column; }
-  .barra-busqueda select { width: 100%; }
-  .search-container { min-width: 0; }
-
-  .info-invitado {
-    flex-direction: column;
-    gap: 8px;
-    align-items: flex-start;
-  }
-
-  .estadisticas { flex-direction: column; gap: 0; }
-  .estadisticas-card { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.06); }
-  .estadisticas-card:last-child { border-bottom: none; }
-
-  .panel-filtros-guardados { padding: 10px; }
-
-  .paginacion-controles {
-    flex-wrap: wrap;
-    gap: 4px;
-  }
-  .btn-paginacion {
-    padding: 6px 10px;
-    font-size: 11px;
-  }
-  .pagina-actual {
-    padding: 6px 10px;
-    font-size: 11px;
-  }
-  .paginacion-tamanio {
-    font-size: 11px;
-  }
-}
-
-/* ── Mobile M–L (481–768px) ── */
-@media (min-width: 481px) and (max-width: 768px) {
-  .stats-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-  }
-
-  .formulario { flex-direction: column; }
-
-  .barra-busqueda {
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-  .barra-busqueda select { flex: 1 1 140px; }
-  .search-container { flex: 1 1 100%; }
-
-  .info-invitado {
-    flex-direction: column;
-    gap: 10px;
-    align-items: flex-start;
-  }
-
-  .acciones-excel { flex-wrap: wrap; gap: 8px; }
-  .btn-plantilla { margin-left: 0; }
-
-  .paginacion-controles {
-    flex-wrap: wrap;
-    gap: 5px;
-  }
-  .btn-paginacion {
-    padding: 6px 12px;
-    font-size: 12px;
-  }
-  .pagina-actual {
-    padding: 6px 12px;
-    font-size: 12px;
-  }
-
-  .estadisticas { flex-wrap: wrap; }
-  .estadisticas-card { flex: 1 1 45%; }
-}
-
-/* ── Tablet (769–1024px) ── */
-@media (min-width: 769px) and (max-width: 1024px) {
-  .stats-grid {
-    grid-template-columns: repeat(4, 1fr);
-    gap: 10px;
-  }
-  .stat-card { padding: 12px 12px 10px; }
-  .stat-card__number { font-size: 24px; }
-
-  .barra-busqueda { flex-wrap: wrap; gap: 8px; }
-  .barra-busqueda select { flex: 1 1 160px; }
-
-  .btn-plantilla { margin-left: 0; }
-}
-
-/* Estilos para historial de búsqueda y filtros guardados */
-.search-container {
-  position: relative;
-  flex: 1;
-  min-width: 180px;
-}
-
-.search-icon {
-  position: absolute;
-  left: 11px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: rgba(255,255,255,0.3);
-  pointer-events: none;
-  z-index: 1;
-}
-
-.input-busqueda {
-  padding-left: 34px;
-}
-
-.historial-dropdown {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  background: #1a1a1a;
-  border: 1px solid rgba(255,215,0,0.25);
-  border-top: none;
-  border-radius: 0 0 8px 8px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.4);
-  z-index: 100;
-  max-height: 300px;
-  overflow-y: auto;
-}
-
-.historial-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px 12px;
-  background: rgba(255,255,255,0.04);
-  border-bottom: 1px solid rgba(255,255,255,0.06);
-  font-weight: 600;
-  font-size: 0.8em;
-  color: rgba(255,255,255,0.35);
-}
-
-.btn-limpiar-historial {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 1.2em;
-  padding: 0 5px;
-  opacity: 0.6;
-  transition: opacity 0.2s;
-}
-
-.btn-limpiar-historial:hover {
-  opacity: 1;
-}
-
-.historial-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 9px 12px;
-  cursor: pointer;
-  transition: background 0.15s;
-  border-bottom: 1px solid rgba(255,255,255,0.04);
-}
-
-.historial-item:hover {
-  background: rgba(255,255,255,0.04);
-}
-
-.historial-item:last-child {
-  border-bottom: none;
-}
-
-.historial-text {
-  flex: 1;
-  color: rgba(255,255,255,0.7);
-  font-size: 0.9em;
-}
-
-.btn-eliminar-historial {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 1.5em;
-  padding: 0 8px;
-  color: #999;
-  transition: color 0.2s;
-}
-
-.btn-eliminar-historial:hover {
-  color: #f44336;
-}
-
-.btn-limpiar,
-.btn-filtros-guardados {
-  padding: 8px 14px;
-  border: 1px solid rgba(255,255,255,0.1);
-  background: transparent;
-  color: rgba(255,255,255,0.55);
-  border-radius: 6px;
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.15s;
-  white-space: nowrap;
-  font-family: inherit;
-}
-
-.btn-limpiar:hover,
-.btn-filtros-guardados:hover {
-  background: rgba(255,255,255,0.06);
-  color: rgba(255,255,255,0.9);
-  border-color: rgba(255,255,255,0.2);
 }
 
 .panel-filtros-guardados {
@@ -2918,5 +1809,53 @@ h2 {
   color: #f44336;
 }
 
+.list-enter-active {
+  transition: all 0.3s ease;
+}
 
+.list-leave-active {
+  transition: all 0.3s ease;
+  position: absolute;
+  width: 100%;
+}
+
+.list-enter-from {
+  opacity: 0;
+  transform: translateX(-30px);
+}
+
+.list-leave-to {
+  opacity: 0;
+  transform: translateX(30px);
+}
+
+@media (max-width: 480px) {
+  .acciones-excel {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .acciones-excel button { width: 100%; justify-content: center; }
+
+  .formulario { flex-direction: column; }
+
+  .estadisticas { flex-direction: column; gap: 0; }
+  .estadisticas-card { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.06); }
+  .estadisticas-card:last-child { border-bottom: none; }
+
+  .panel-filtros-guardados { padding: 10px; }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+  .formulario { flex-direction: column; }
+
+  .acciones-excel { flex-wrap: wrap; gap: 8px; }
+  .btn-plantilla { margin-left: 0; }
+
+  .estadisticas { flex-wrap: wrap; }
+  .estadisticas-card { flex: 1 1 45%; }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .btn-plantilla { margin-left: 0; }
+}
 </style>

@@ -38,12 +38,14 @@ const startServer = async () => {
     await runAllMigrations()
     process.stderr.write('[STARTUP] Migraciones OK\n')
 
-    // Seed automático si no hay usuarios (primer arranque)
+    // Seed automático solo si no hay usuarios y SKIP_SEED no está activo
     const { rows } = await query('SELECT COUNT(*) FROM usuarios')
-    if (parseInt(rows[0].count) === 0) {
+    if (parseInt(rows[0].count) === 0 && process.env.SKIP_SEED !== 'true') {
       process.stderr.write('[STARTUP] Sin usuarios — ejecutando seed inicial...\n')
       await seedDatabase()
       process.stderr.write('[STARTUP] Seed OK\n')
+    } else if (parseInt(rows[0].count) === 0) {
+      process.stderr.write('[STARTUP] Sin usuarios y SKIP_SEED=true — seed omitido\n')
     }
 
     // Limpieza inicial de tokens expirados en la blacklist y access_codes caducados

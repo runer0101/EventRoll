@@ -1,5 +1,6 @@
 import { asyncHandler } from '../utils/asyncHandler.js'
 import { authService } from '../services/authService.js'
+import { usuariosService } from '../services/usuariosService.js'
 import { invalidateCachedUser } from '../middleware/auth.js'
 
 /** Parsea duraciones tipo "24h", "7d", "30m" a milisegundos. */
@@ -26,6 +27,28 @@ const buildCookieOptions = () => {
     path: '/',
   }
 }
+
+// @desc    Registro público de usuario
+// @route   POST /api/auth/register
+// @access  Public
+export const register = asyncHandler(async (req, res) => {
+  const { nombre, email, password } = req.body
+  const rol = 'admin'
+
+  const user = await usuariosService.createUsuario({ nombre, email, password, rol }, null)
+
+  const result = await authService.login({ email, password })
+
+  res.cookie('token', result.token, buildCookieOptions())
+
+  res.status(201).json({
+    success: true,
+    data: {
+      usuario: result.usuario,
+      ...(process.env.ALLOW_BEARER_TOKEN === 'true' && { token: result.token }),
+    },
+  })
+})
 
 // @desc    Login de usuario
 // @route   POST /api/auth/login

@@ -10,7 +10,7 @@ const seedDatabase = async () => {
   try {
     // 1. Crear usuario admin por defecto
     console.log('Creando usuario admin...')
-    // Usar DEFAULT_ADMIN_PASSWORD si está definido, sino generar uno aleatorio en desarrollo
+    const adminEmail = process.env.DEFAULT_ADMIN_EMAIL || 'admin@eventroll.local'
     const DEFAULT_ADMIN_PASSWORD = process.env.DEFAULT_ADMIN_PASSWORD || null
     let adminPassword = DEFAULT_ADMIN_PASSWORD
     if (!adminPassword) {
@@ -21,7 +21,6 @@ const seedDatabase = async () => {
     }
     const passwordHash = await bcrypt.hash(adminPassword, 12)
 
-    // En producción, nunca sobreescribir contraseña existente del admin
     let adminResult
     if (process.env.NODE_ENV === 'production') {
       adminResult = await query(
@@ -31,7 +30,7 @@ const seedDatabase = async () => {
            nombre = EXCLUDED.nombre,
            rol = EXCLUDED.rol
          RETURNING id`,
-        ['Administrador', 'ccamachod6@gmail.com', passwordHash, 'admin']
+        ['Administrador', adminEmail, passwordHash, 'admin']
       )
       console.warn('⚠️  PRODUCCIÓN: contraseña del admin NO fue modificada (registro existente)')
     } else {
@@ -43,7 +42,7 @@ const seedDatabase = async () => {
            password_hash = EXCLUDED.password_hash,
            rol = EXCLUDED.rol
          RETURNING id`,
-        ['Administrador', 'ccamachod6@gmail.com', passwordHash, 'admin']
+        ['Administrador', adminEmail, passwordHash, 'admin']
       )
     }
     const adminId = adminResult.rows[0].id
@@ -112,13 +111,13 @@ const seedDatabase = async () => {
 
     console.log('Seed completado exitosamente')
     if (process.env.NODE_ENV === 'development') {
-      console.log('\nCredenciales de prueba (desarrollo):')
-      console.log('   Email: ccamachod6@gmail.com')
+      console.log(`\nCredenciales de prueba (desarrollo):`)
+      console.log(`   Email: ${adminEmail}`)
       console.log('   Password: [GUARDADA EN VARIABLE DE ENTORNO]')
       console.log('   Usa DEFAULT_ADMIN_PASSWORD del .env o ejecuta: npm run cambiar-password')
       console.log('   Rol: admin\n')
     } else {
-      console.log('\nCredenciales: define DEFAULT_ADMIN_PASSWORD en tu .env o ejecuta cambiar-password script\n')
+      console.log('\nCredenciales: define DEFAULT_ADMIN_EMAIL y DEFAULT_ADMIN_PASSWORD en tu .env\n')
     }
 
   } catch (error) {

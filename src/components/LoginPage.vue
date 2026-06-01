@@ -14,7 +14,7 @@
 
         <!-- Back link -->
         <a class="back-link" href="#" @click.prevent="$emit('go-home')">
-          ← Volver al inicio
+          <ArrowLeft :size="14" /> Volver al inicio
         </a>
 
         <!-- Logo -->
@@ -39,19 +39,19 @@
         <!-- Feature list -->
         <ul class="left-features">
           <li class="left-feature-item">
-            <span class="feat-check">✓</span>
+            <span class="feat-check"><Check :size="12" stroke-width="3" /></span>
             <span>Gestión completa de listas de invitados</span>
           </li>
           <li class="left-feature-item">
-            <span class="feat-check">✓</span>
+            <span class="feat-check"><Check :size="12" stroke-width="3" /></span>
             <span>Confirmación de asistencia en tiempo real</span>
           </li>
           <li class="left-feature-item">
-            <span class="feat-check">✓</span>
+            <span class="feat-check"><Check :size="12" stroke-width="3" /></span>
             <span>Importación masiva desde Excel</span>
           </li>
           <li class="left-feature-item">
-            <span class="feat-check">✓</span>
+            <span class="feat-check"><Check :size="12" stroke-width="3" /></span>
             <span>5 roles de acceso para tu equipo</span>
           </li>
         </ul>
@@ -71,12 +71,12 @@
         <!-- Card principal -->
         <div class="login-card">
           <div class="card-head">
-            <h1>Bienvenido de vuelta</h1>
-            <p>Ingresa tus credenciales para acceder al panel</p>
+            <h1>{{ modoRegistro ? 'Crear cuenta' : modoId ? 'Acceso por ID' : 'Bienvenido de vuelta' }}</h1>
+            <p>{{ modoRegistro ? 'Registrate para acceder al panel' : modoId ? 'Ingresa el código de acceso' : 'Ingresa tus credenciales para acceder al panel' }}</p>
           </div>
 
           <!-- ── FORM: email + contraseña ── -->
-          <form v-if="!modoId" class="login-form" novalidate @submit.prevent="iniciarSesion">
+          <form v-if="!modoId && !modoRegistro" class="login-form" novalidate @submit.prevent="iniciarSesion">
             <div class="field">
               <label for="email">Correo electrónico</label>
               <input
@@ -121,7 +121,7 @@
             </div>
 
             <div v-if="error" class="error-msg" role="alert">
-              <span aria-hidden="true">⚠</span> {{ error }}
+              <AlertTriangle :size="16" aria-hidden="true" /> {{ error }}
             </div>
 
             <button type="submit" class="btn-submit" :disabled="cargando">
@@ -133,7 +133,7 @@
           </form>
 
           <!-- ── FORM: código de acceso ── -->
-          <form v-else class="login-form" @submit.prevent="iniciarSesionConCodigo">
+          <form v-if="modoId" class="login-form" @submit.prevent="iniciarSesionConCodigo">
             <div class="field">
               <label for="codigo">Código de acceso</label>
               <input
@@ -152,7 +152,7 @@
             </div>
 
             <div v-if="error" class="error-msg">
-              <span>⚠</span> {{ error }}
+              <AlertTriangle :size="16" aria-hidden="true" /> {{ error }}
             </div>
 
             <button type="submit" class="btn-submit" :disabled="cargando">
@@ -163,21 +163,98 @@
             </button>
           </form>
 
-          <!-- ── divisor + toggle modo ── -->
+          <!-- ── FORM: registro ── -->
+          <form v-if="modoRegistro" class="login-form" novalidate @submit.prevent="registrarCuenta">
+            <div class="field">
+              <label for="reg-nombre">Nombre completo</label>
+              <input
+                id="reg-nombre"
+                v-model="regNombre"
+                type="text"
+                placeholder="Tu nombre"
+                required
+                minlength="3"
+                :disabled="cargando"
+              />
+            </div>
+            <div class="field">
+              <label for="reg-email">Correo electrónico</label>
+              <input
+                id="reg-email"
+                v-model="regEmail"
+                type="email"
+                placeholder="tu_correo@gmail.com"
+                required
+                autocomplete="email"
+                :disabled="cargando"
+              />
+            </div>
+            <div class="field">
+              <label for="reg-password">Contraseña</label>
+              <div class="input-wrapper">
+                <input
+                  id="reg-password"
+                  v-model="regPassword"
+                  :type="verPasswordReg ? 'text' : 'password'"
+                  placeholder="Mínimo 8 caracteres"
+                  required
+                  minlength="8"
+                  autocomplete="new-password"
+                  :disabled="cargando"
+                />
+                <button type="button" class="toggle-pass" :title="verPasswordReg ? 'Ocultar' : 'Mostrar'" @click="verPasswordReg = !verPasswordReg">
+                  <svg v-if="!verPasswordReg" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  <svg v-else xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <div v-if="error" class="error-msg" role="alert">
+              <AlertTriangle :size="16" aria-hidden="true" /> {{ error }}
+            </div>
+
+            <button type="submit" class="btn-submit" :disabled="cargando">
+              <span v-if="!cargando">Crear cuenta</span>
+              <span v-else class="loading-text">
+                <span class="spinner"></span> Creando...
+              </span>
+            </button>
+          </form>
+
+          <!-- ── divisor + toggles ── -->
           <div class="modo-divisor">
             <span></span><em>o</em><span></span>
           </div>
 
-          <button class="btn-modo-toggle" type="button" @click="toggleModo">
-            <span v-if="!modoId">
+          <div class="login-toggles">
+            <button
+              class="btn-modo-toggle"
+              :class="{ 'btn-modo-toggle--active': !modoId && !modoRegistro }"
+              type="button"
+              @click="modoId = false; modoRegistro = false"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              Iniciar sesión
+            </button>
+            <button
+              class="btn-modo-toggle"
+              :class="{ 'btn-modo-toggle--active': modoId }"
+              type="button"
+              @click="modoId = true; modoRegistro = false"
+            >
               <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
               Entrar con ID
-            </span>
-            <span v-else>
-              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-              Usar correo y contraseña
-            </span>
-          </button>
+            </button>
+            <button
+              class="btn-modo-toggle"
+              :class="{ 'btn-modo-toggle--active': modoRegistro }"
+              type="button"
+              @click="modoRegistro = true; modoId = false"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+              Crear cuenta
+            </button>
+          </div>
 
           <p class="card-footer">
             Sistema de gestión de eventos
@@ -187,81 +264,26 @@
       </div>
     </div>
 
-    <!-- ═══════ MODAL RECUPERACIÓN ═══════ -->
-    <div v-if="mostrarRecuperacion" class="modal-overlay" @click="cerrarRecuperacion">
-      <div class="modal-box" @click.stop>
-        <button class="modal-close" @click="cerrarRecuperacion">✕</button>
-        <h2>Recuperar contraseña</h2>
-
-        <!-- Paso 1 -->
-        <div v-if="paso === 1" class="modal-step">
-          <p>Ingresa tu correo y te enviaremos un código de verificación.</p>
-          <form @submit.prevent="solicitarCodigo">
-            <div class="field">
-              <label>Correo electrónico</label>
-              <input v-model="emailRec" type="email" placeholder="tu@email.com" required :disabled="cargandoRec" />
-            </div>
-            <button type="submit" class="btn-submit" :disabled="cargandoRec">
-              {{ cargandoRec ? 'Enviando...' : 'Enviar código' }}
-            </button>
-          </form>
-        </div>
-
-        <!-- Paso 2 -->
-        <div v-if="paso === 2" class="modal-step">
-          <p>Ingresa el código de 8 dígitos que enviamos a tu correo.</p>
-          <form @submit.prevent="verificarCodigo">
-            <div class="field">
-              <label>Código de verificación</label>
-              <input v-model="codigoRec" type="text" placeholder="12345678" maxlength="8" required :disabled="cargandoRec" class="input-code" />
-              <p v-if="intentosVerificacion > 0" class="intentos-hint">
-                Intento {{ intentosVerificacion }} de {{ MAX_INTENTOS }}
-              </p>
-            </div>
-            <button type="submit" class="btn-submit" :disabled="cargandoRec">
-              {{ cargandoRec ? 'Verificando...' : 'Verificar código' }}
-            </button>
-            <button type="button" class="btn-back" @click="paso = 1">← Volver</button>
-          </form>
-        </div>
-
-        <!-- Paso 3 -->
-        <div v-if="paso === 3" class="modal-step">
-          <p>Crea una nueva contraseña segura (mínimo 8 caracteres).</p>
-          <form @submit.prevent="restablecerPassword">
-            <div class="field">
-              <label>Nueva contraseña</label>
-              <input v-model="newPass" type="password" placeholder="Mínimo 8 caracteres" minlength="8" required :disabled="cargandoRec" />
-            </div>
-            <div class="field">
-              <label>Confirmar contraseña</label>
-              <input v-model="confirmPass" type="password" placeholder="Repite la contraseña" minlength="8" required :disabled="cargandoRec" />
-            </div>
-            <button type="submit" class="btn-submit" :disabled="cargandoRec">
-              {{ cargandoRec ? 'Cambiando...' : 'Cambiar contraseña' }}
-            </button>
-          </form>
-        </div>
-
-        <div v-if="msgRec" :class="['modal-msg', tipoMsg]">{{ msgRec }}</div>
-      </div>
-    </div>
+    <PasswordRecoveryModal v-model="mostrarRecuperacion" />
 
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue'
+import { ArrowLeft, Check, AlertTriangle } from 'lucide-vue-next'
 import { useAuthStore } from '../stores/auth'
 import { useToast } from '../composables/useToast'
+import { authAPI } from '../services/api'
 import FieldError from './FieldError.vue'
-import { resolveApiBaseUrl } from '../utils/apiUrl'
+import PasswordRecoveryModal from './PasswordRecoveryModal.vue'
 
 const emit = defineEmits(['login', 'go-home'])
+const props = defineProps({
+  modoRegistro: { type: Boolean, default: false }
+})
 const { success, error: showError } = useToast()
 const authStore = useAuthStore()
-
-const BACKEND_URL = resolveApiBaseUrl(import.meta.env.VITE_API_URL)
 
 // ─── Login ────────────────────────────────
 const email       = ref('')
@@ -273,14 +295,6 @@ const emailError  = ref('')
 const passwordError = ref('')
 const cargando    = ref(false)
 const verPassword = ref(false)
-
-function toggleModo() {
-  modoId.value = !modoId.value
-  error.value = ''
-  emailError.value = ''
-  passwordError.value = ''
-  codigo.value = ''
-}
 
 function mapearErroresCampos(errors) {
   errors.forEach(({ path, msg, message }) => {
@@ -327,114 +341,33 @@ async function iniciarSesionConCodigo() {
   }
 }
 
+// ─── Registro ──────────────────────────────
+const modoRegistro = ref(props.modoRegistro)
+const regNombre   = ref('')
+const regEmail    = ref('')
+const regPassword = ref('')
+const verPasswordReg = ref(false)
+
+async function registrarCuenta() {
+  error.value = ''
+  cargando.value = true
+  try {
+    const response = await authAPI.register(regNombre.value.trim(), regEmail.value.trim(), regPassword.value)
+    if (response.success && response.data) {
+      authStore.usuario = response.data.usuario
+      success(`Bienvenido, ${regNombre.value.trim()}!`, 'Cuenta creada')
+      emit('login', response.data.usuario)
+    }
+  } catch (err) {
+    error.value = err.data?.message || err.message || 'Error al crear la cuenta'
+    showError(error.value, 'Error de registro')
+  } finally {
+    cargando.value = false
+  }
+}
+
 // ─── Recuperación ─────────────────────────
 const mostrarRecuperacion = ref(false)
-const paso        = ref(1)
-const emailRec    = ref('')
-const codigoRec   = ref('')
-const newPass     = ref('')
-const confirmPass = ref('')
-const cargandoRec = ref(false)
-const msgRec      = ref('')
-const tipoMsg     = ref('success')
-const intentosVerificacion = ref(0)
-const MAX_INTENTOS = 5
-
-function cerrarRecuperacion() {
-  mostrarRecuperacion.value = false
-  paso.value = 1
-  emailRec.value = ''
-  codigoRec.value = ''
-  newPass.value = ''
-  confirmPass.value = ''
-  msgRec.value = ''
-  intentosVerificacion.value = 0
-}
-
-async function solicitarCodigo() {
-  msgRec.value = ''
-  cargandoRec.value = true
-  try {
-    const res = await fetch(`${BACKEND_URL}/v1/password-recovery/solicitar-codigo`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: emailRec.value })
-    })
-    const data = await res.json()
-    if (data.success) {
-      paso.value = 2
-      tipoMsg.value = 'success'
-      msgRec.value = data.message
-    } else {
-      tipoMsg.value = 'error'
-      msgRec.value = data.message || 'Error al enviar código'
-    }
-  } catch {
-    tipoMsg.value = 'error'
-    msgRec.value = 'Error de conexión con el servidor'
-  } finally {
-    cargandoRec.value = false
-  }
-}
-
-async function verificarCodigo() {
-  msgRec.value = ''
-  cargandoRec.value = true
-  try {
-    const res = await fetch(`${BACKEND_URL}/v1/password-recovery/verificar-codigo`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: emailRec.value, codigo: codigoRec.value })
-    })
-    const data = await res.json()
-    if (data.success) {
-      paso.value = 3
-      tipoMsg.value = 'success'
-      msgRec.value = 'Código verificado correctamente'
-    } else {
-      intentosVerificacion.value++
-      tipoMsg.value = 'error'
-      msgRec.value = data.message || 'Código inválido o expirado'
-    }
-  } catch {
-    tipoMsg.value = 'error'
-    msgRec.value = 'Error de conexión con el servidor'
-  } finally {
-    cargandoRec.value = false
-  }
-}
-
-async function restablecerPassword() {
-  if (newPass.value !== confirmPass.value) {
-    tipoMsg.value = 'error'
-    msgRec.value = 'Las contraseñas no coinciden'
-    return
-  }
-  msgRec.value = ''
-  cargandoRec.value = true
-  try {
-    const res = await fetch(`${BACKEND_URL}/v1/password-recovery/restablecer-password`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: emailRec.value, codigo: codigoRec.value, nuevaPassword: newPass.value })
-    })
-    const data = await res.json()
-    if (data.success) {
-      tipoMsg.value = 'success'
-      msgRec.value = 'Contraseña restablecida exitosamente'
-      success('Contraseña cambiada exitosamente', 'Éxito')
-      setTimeout(cerrarRecuperacion, 2000)
-    } else {
-      tipoMsg.value = 'error'
-      msgRec.value = data.message || 'Error al restablecer contraseña'
-    }
-  } catch {
-    tipoMsg.value = 'error'
-    msgRec.value = 'Error de conexión con el servidor'
-  } finally {
-    cargandoRec.value = false
-  }
-}
 </script>
 
 <style scoped>
@@ -884,6 +817,13 @@ async function restablecerPassword() {
   font-weight: 600;
 }
 
+/* ── toggles ── */
+.login-toggles {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
 /* ── botón toggle modo ── */
 .btn-modo-toggle {
   width: 100%;
@@ -915,145 +855,10 @@ async function restablecerPassword() {
   background: rgba(255,215,0,0.03);
 }
 
-/* ════════════════════════════════════════════
-   MODAL
-════════════════════════════════════════════ */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(6px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-  padding: 1.25rem;
-  animation: fadeIn 0.2s ease;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-.modal-box {
-  background: #141414;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 16px;
-  width: 100%;
-  max-width: 440px;
-  max-height: 90vh;
-  max-height: 90dvh;
-  overflow-y: auto;
-  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7);
-  animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  position: relative;
-  padding: 2rem;
-}
-
-@keyframes slideUp {
-  from { transform: translateY(24px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
-}
-
-.modal-box h2 {
-  font-family: 'Sora', sans-serif;
-  font-size: 1.4rem;
-  font-weight: 800;
-  color: #ffffff;
-  margin: 0 0 1.5rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid rgba(255, 215, 0, 0.2);
-  padding-right: 2rem;
-}
-
-.modal-close {
-  position: absolute;
-  top: 1.25rem;
-  right: 1.25rem;
-  background: rgba(255, 255, 255, 0.06);
-  border: none;
-  color: rgba(255, 255, 255, 0.5);
-  width: 2rem;
-  height: 2rem;
-  border-radius: 50%;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.85rem;
-  transition: all 0.2s;
-}
-
-.modal-close:hover {
-  background: rgba(255, 255, 255, 0.12);
-  color: #ffffff;
-  transform: rotate(90deg);
-}
-
-.modal-step p {
-  color: rgba(255, 255, 255, 0.5);
-  font-size: 0.875rem;
-  line-height: 1.65;
-  margin: 0 0 1.25rem;
-}
-
-.modal-step form {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.input-code {
-  text-align: center;
-  font-size: 1.75rem !important;
-  letter-spacing: 0.5rem !important;
-  font-weight: 800 !important;
-}
-
-.btn-back {
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
-  color: rgba(255, 255, 255, 0.5);
-  font-size: 0.875rem;
-  font-weight: 600;
-  font-family: inherit;
-  padding: 0.65rem;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.btn-back:hover {
-  background: rgba(255, 255, 255, 0.04);
-  color: rgba(255, 255, 255, 0.8);
-}
-
-.modal-msg {
-  margin-top: 1rem;
-  padding: 0.75rem 1rem;
-  border-radius: 8px;
-  font-size: 0.875rem;
-  font-weight: 500;
-}
-
-.modal-msg.success {
-  background: rgba(16, 185, 129, 0.1);
-  border: 1px solid rgba(16, 185, 129, 0.25);
-  color: #6ee7b7;
-}
-
-.modal-msg.error {
-  background: rgba(239, 68, 68, 0.08);
-  border: 1px solid rgba(239, 68, 68, 0.2);
-  color: #fca5a5;
-}
-
-.intentos-hint {
-  font-size: 0.75rem;
-  color: rgba(255, 255, 255, 0.45);
-  margin-top: 0.25rem;
-  text-align: right;
+.btn-modo-toggle--active {
+  border-color: rgba(255,215,0,0.5) !important;
+  color: #FFD700 !important;
+  background: rgba(255,215,0,0.08) !important;
 }
 
 /* ════════════════════════════════════════════

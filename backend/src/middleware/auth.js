@@ -198,14 +198,7 @@ export const requireAdmin = requireRole('admin')
 // Middleware para verificar que el usuario es admin u organizador
 export const requireOrganizer = requireRole('admin', 'organizador')
 
-// Mapa de permisos por rol (espejo del frontend para validación en backend)
-const PERMISOS_POR_ROL = {
-  admin:        { verInvitados: true,  agregarInvitados: true,  editarInvitados: true,  eliminarInvitados: true,  confirmarInvitados: true,  exportarExcel: true,  importarExcel: true,  configurarSillas: true,  gestionarUsuarios: true  },
-  organizador:  { verInvitados: true,  agregarInvitados: true,  editarInvitados: true,  eliminarInvitados: true,  confirmarInvitados: true,  exportarExcel: true,  importarExcel: true,  configurarSillas: true,  gestionarUsuarios: false },
-  asistente:    { verInvitados: true,  agregarInvitados: true,  editarInvitados: true,  eliminarInvitados: false, confirmarInvitados: true,  exportarExcel: true,  importarExcel: false, configurarSillas: false, gestionarUsuarios: false },
-  visualizador: { verInvitados: true,  agregarInvitados: false, editarInvitados: false, eliminarInvitados: false, confirmarInvitados: false, exportarExcel: true,  importarExcel: false, configurarSillas: false, gestionarUsuarios: false },
-  guardia:      { verInvitados: true,  agregarInvitados: false, editarInvitados: false, eliminarInvitados: false, confirmarInvitados: true,  exportarExcel: false, importarExcel: false, configurarSillas: false, gestionarUsuarios: false },
-}
+import { PERMISOS_POR_ROL } from '../../../shared/permissions.js'
 
 // Middleware para verificar un permiso granular.
 // Primero revisa req.user.permisos (overrides por usuario, campo permisos JSONB),

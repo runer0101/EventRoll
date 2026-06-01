@@ -54,10 +54,7 @@ Coordinar la entrada a un evento con múltiples personas del equipo (organizador
 
 ### Credenciales de prueba
 
-| Campo | Valor |
-|-------|-------|
-| Email | `admin@prueba.com` |
-| Contraseña | `EventRoll@2026!` |
+Para acceder a la demo, solicitá las credenciales al administrador del repositorio o levantá tu propia instancia local (ver [Instalación local](#instalación-local)).
 
 ---
 
@@ -388,7 +385,7 @@ npm run dev
 
 | Campo | Valor |
 |-------|-------|
-| Email | `admin@prueba.com` |
+| Email | El valor de `DEFAULT_ADMIN_EMAIL` en tu `.env` |
 | Contraseña | El valor de `DEFAULT_ADMIN_PASSWORD` en tu `.env` |
 
 ---

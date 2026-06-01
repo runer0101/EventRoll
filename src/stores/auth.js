@@ -1,76 +1,10 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { authAPI } from '../services/api'
+import { PERMISOS_POR_ROL } from '../../shared/permissions.js'
 
 const SESSION_CACHE_KEY = 'eventroll_session'
 const SESSION_CACHE_TTL = 5 * 60 * 1000
-
-/**
- * Mapa de permisos por rol.
- * Fuente de verdad para toda la aplicación.
- */
-const PERMISOS_POR_ROL = Object.freeze({
-  admin: Object.freeze({
-    verInvitados: true,
-    agregarInvitados: true,
-    editarInvitados: true,
-    eliminarInvitados: true,
-    confirmarInvitados: true,
-    exportarExcel: true,
-    importarExcel: true,
-    configurarSillas: true,
-    verEstadisticas: true,
-    gestionarUsuarios: true,
-  }),
-  organizador: Object.freeze({
-    verInvitados: true,
-    agregarInvitados: true,
-    editarInvitados: true,
-    eliminarInvitados: true,
-    confirmarInvitados: true,
-    exportarExcel: true,
-    importarExcel: true,
-    configurarSillas: true,
-    verEstadisticas: true,
-    gestionarUsuarios: false,
-  }),
-  asistente: Object.freeze({
-    verInvitados: true,
-    agregarInvitados: true,
-    editarInvitados: true,
-    eliminarInvitados: false,
-    confirmarInvitados: true,
-    exportarExcel: true,
-    importarExcel: false,
-    configurarSillas: false,
-    verEstadisticas: true,
-    gestionarUsuarios: false,
-  }),
-  visualizador: Object.freeze({
-    verInvitados: true,
-    agregarInvitados: false,
-    editarInvitados: false,
-    eliminarInvitados: false,
-    confirmarInvitados: false,
-    exportarExcel: true,
-    importarExcel: false,
-    configurarSillas: false,
-    verEstadisticas: true,
-    gestionarUsuarios: false,
-  }),
-  guardia: Object.freeze({
-    verInvitados: true,
-    agregarInvitados: false,
-    editarInvitados: false,
-    eliminarInvitados: false,
-    confirmarInvitados: true,
-    exportarExcel: false,
-    importarExcel: false,
-    configurarSillas: false,
-    verEstadisticas: false,
-    gestionarUsuarios: false,
-  }),
-})
 
 export const useAuthStore = defineStore('auth', () => {
   const usuario = ref(null)

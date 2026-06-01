@@ -132,7 +132,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { Users, BarChart2, Settings, ShieldCheck, ClipboardList,
+import { Users, BarChart2, Settings, ShieldCheck, ClipboardList, Table,
          ChevronLeft, ChevronRight, LogOut, Pencil, Camera, Trash2, X } from 'lucide-vue-next'
 
 const props = defineProps({
@@ -236,6 +236,13 @@ const menuItems = computed(() => [
     id: 'estadisticas',
     icon: BarChart2,
     label: 'Estadísticas',
+    enabled: true,
+    badge: null
+  },
+  {
+    id: 'plano',
+    icon: Table,
+    label: 'Plano de Mesas',
     enabled: true,
     badge: null
   },

@@ -1,8 +1,13 @@
 <script setup>
-defineProps({
+import { computed } from 'vue'
+import { Inbox, User, Users, Search } from 'lucide-vue-next'
+
+const iconMap = { Inbox, User, Users, Search }
+
+const props = defineProps({
   icon: {
     type: String,
-    default: '📭',
+    default: 'Inbox',
   },
   titulo: {
     type: String,
@@ -19,11 +24,15 @@ defineProps({
 })
 
 defineEmits(['accion'])
+
+const iconComponent = computed(() => iconMap[props.icon] || Inbox)
 </script>
 
 <template>
   <div class="empty-state" role="status" aria-live="polite">
-    <div class="empty-icon" aria-hidden="true">{{ icon }}</div>
+    <div class="empty-icon" aria-hidden="true">
+      <component :is="iconComponent" :size="48" stroke-width="1.5" />
+    </div>
     <h3 class="empty-title">{{ titulo }}</h3>
     <p v-if="descripcion" class="empty-desc">{{ descripcion }}</p>
     <button
@@ -49,10 +58,9 @@ defineEmits(['accion'])
 }
 
 .empty-icon {
-  font-size: clamp(2.5rem, 6vw, 3.5rem);
-  line-height: 1;
+  color: var(--color-text-muted);
   margin-bottom: 0.25rem;
-  filter: grayscale(0.3);
+  opacity: 0.5;
 }
 
 .empty-title {

@@ -2,8 +2,7 @@ import { invitadosRepository } from '../repositories/invitadosRepository.js'
 import { activityService } from './activityService.js'
 import { badRequest, notFoundError } from '../core/errors/AppError.js'
 import { query } from '../config/database.js'
-
-const CATEGORIAS_VALIDAS = ['General', 'VIP', 'Familia', 'Amigos', 'Trabajo']
+import { CATEGORIAS_VALIDAS } from '../../../shared/permissions.js'
 
 const parsePagination = ({ page = 1, limit = 50, order = 'asc' }) => {
   const pageNum = Math.max(1, parseInt(page, 10))

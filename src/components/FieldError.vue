@@ -1,5 +1,6 @@
 <script setup>
 import { useId } from 'vue'
+import { AlertCircle } from 'lucide-vue-next'
 
 const props = defineProps({
   mensaje: {
@@ -26,6 +27,7 @@ defineExpose({ id: resolvedId })
     role="alert"
     aria-live="polite"
   >
+    <AlertCircle :size="14" aria-hidden="true" />
     {{ mensaje }}
   </p>
 </template>
@@ -39,10 +41,5 @@ defineExpose({ id: resolvedId })
   display: flex;
   align-items: center;
   gap: 0.3rem;
-}
-
-.field-error::before {
-  content: '⚠';
-  font-size: 0.75rem;
 }
 </style>

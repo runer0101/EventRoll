@@ -55,6 +55,7 @@ services:
       FRONTEND_URL: ${FRONTEND_URL:-http://localhost}
       DB_SSL: ${DB_SSL:-}
       DB_SSL_REJECT_UNAUTHORIZED: ${DB_SSL_REJECT_UNAUTHORIZED:-}
+      DEFAULT_ADMIN_EMAIL: ${DEFAULT_ADMIN_EMAIL:-admin@eventroll.local}
       DEFAULT_ADMIN_PASSWORD: ${DEFAULT_ADMIN_PASSWORD:-}
     volumes:
       - backend_logs:/app/logs

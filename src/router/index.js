@@ -43,6 +43,11 @@ const routes = [
         name: 'usuarios',
         component: () => import('../views/UsuariosView.vue'),
       },
+      {
+        path: 'plano',
+        name: 'plano',
+        component: () => import('../views/PlanoView.vue'),
+      },
     ],
   },
   { path: '/:pathMatch(.*)*', redirect: '/' },

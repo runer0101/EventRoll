@@ -73,6 +73,11 @@ export const authAPI = {
   loginConCodigo: async (codigo) => {
     const response = await api.post('/v1/auth/login-con-codigo', { codigo })
     return response.data
+  },
+
+  register: async (nombre, email, password) => {
+    const response = await api.post('/v1/auth/register', { nombre, email, password })
+    return response.data
   }
 }
 
@@ -196,6 +201,45 @@ export const eventosAPI = {
   // Obtener todos los eventos
   getAll: async () => {
     const response = await api.get('/v1/eventos')
+    return response.data
+  }
+}
+
+// ========== MESAS ==========
+
+export const mesasAPI = {
+  getAll: async (eventoId) => {
+    const response = await api.get('/v1/mesas', { params: { evento_id: eventoId } })
+    return response.data
+  },
+
+  create: async (data) => {
+    const response = await api.post('/v1/mesas', data)
+    return response.data
+  },
+
+  update: async (id, data) => {
+    const response = await api.put(`/v1/mesas/${id}`, data)
+    return response.data
+  },
+
+  delete: async (id) => {
+    const response = await api.delete(`/v1/mesas/${id}`)
+    return response.data
+  },
+
+  asignar: async (mesaId, invitadoId, posicion) => {
+    const response = await api.post(`/v1/mesas/${mesaId}/asignar`, { invitado_id: invitadoId, posicion })
+    return response.data
+  },
+
+  desasignar: async (invitadoId) => {
+    const response = await api.delete(`/v1/mesas/desasignar/${invitadoId}`)
+    return response.data
+  },
+
+  getSinMesa: async (eventoId) => {
+    const response = await api.get('/v1/mesas/sin-mesa', { params: { evento_id: eventoId } })
     return response.data
   }
 }

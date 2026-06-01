@@ -6,5 +6,5 @@ const router = useRouter()
 </script>
 
 <template>
-  <HomePage @go-login="router.push('/login')" />
+  <HomePage @go-login="router.push('/login')" @go-register="router.push('/login?mode=register')" />
 </template>

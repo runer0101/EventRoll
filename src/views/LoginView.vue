@@ -1,11 +1,13 @@
 <script setup>
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useEventoStore } from '../stores/evento'
 import { eventosAPI } from '../services/api'
 import LoginPage from '../components/LoginPage.vue'
 
 const router = useRouter()
+const route = useRoute()
 const eventoStore = useEventoStore()
+const showRegister = route.query.mode === 'register'
 
 async function handleLogin() {
   try {
@@ -21,6 +23,7 @@ async function handleLogin() {
 
 <template>
   <LoginPage
+    :modo-registro="showRegister"
     @login="handleLogin"
     @go-home="router.push('/')"
   />

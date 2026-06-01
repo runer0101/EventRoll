@@ -26,8 +26,8 @@
 
         <div class="nav-actions">
           <button class="btn-ghost" @click="$emit('go-login')">Iniciar sesión</button>
-          <button class="btn-primary-sm" @click="$emit('go-login')">
-            Acceder al panel <span>→</span>
+          <button class="btn-primary-sm" @click="$emit('go-register')">
+            Crear cuenta <ArrowRight :size="14" />
           </button>
         </div>
       </div>
@@ -58,9 +58,9 @@
           </p>
 
           <div class="hero-cta">
-            <button class="btn-hero" @click="$emit('go-login')">
-              Acceder al panel
-              <span class="btn-arrow">→</span>
+            <button class="btn-hero" @click="$emit('go-register')">
+              Crear cuenta
+              <ArrowRight :size="16" class="btn-arrow" />
             </button>
             <a class="btn-hero-ghost" href="#features">Ver funciones</a>
           </div>
@@ -133,7 +133,7 @@
                   <span class="mock-line mock-line-long"></span>
                   <span class="mock-line mock-line-short"></span>
                 </div>
-                <span class="mock-check mock-check-yes">✓</span>
+                <span class="mock-check mock-check-yes"><Check :size="14" stroke-width="3" /></span>
               </div>
               <div class="mock-row">
                 <span class="mock-avatar mock-avatar-blue"></span>
@@ -141,7 +141,7 @@
                   <span class="mock-line mock-line-med"></span>
                   <span class="mock-line mock-line-short"></span>
                 </div>
-                <span class="mock-check mock-check-yes">✓</span>
+                <span class="mock-check mock-check-yes"><Check :size="14" stroke-width="3" /></span>
               </div>
               <div class="mock-row">
                 <span class="mock-avatar mock-avatar-purple"></span>
@@ -157,7 +157,7 @@
                   <span class="mock-line mock-line-med"></span>
                   <span class="mock-line mock-line-short"></span>
                 </div>
-                <span class="mock-check mock-check-yes">✓</span>
+                <span class="mock-check mock-check-yes"><Check :size="14" stroke-width="3" /></span>
               </div>
             </div>
           </div>
@@ -259,13 +259,13 @@
             <h3>Accede al panel</h3>
             <p>Ingresa con tus credenciales y selecciona el evento activo que quieres gestionar.</p>
           </div>
-          <div class="step-arrow">→</div>
+          <div class="step-arrow"><ArrowRight :size="24" /></div>
           <div class="step">
             <div class="step-num">02</div>
             <h3>Carga tu lista</h3>
             <p>Importa tu lista de invitados desde Excel o agrégalos manualmente uno por uno.</p>
           </div>
-          <div class="step-arrow">→</div>
+          <div class="step-arrow"><ArrowRight :size="24" /></div>
           <div class="step">
             <div class="step-num">03</div>
             <h3>Gestiona en vivo</h3>
@@ -280,9 +280,9 @@
       <div class="cta-glow"></div>
       <div class="cta-inner">
         <h2>¿Listo para tu próximo evento?</h2>
-        <p>Accede al panel y empieza a organizar tus invitados ahora mismo.</p>
-        <button class="btn-hero" @click="$emit('go-login')">
-          Acceder al Panel →
+        <p>Creá tu cuenta y empezá a organizar tus invitados ahora mismo.</p>
+        <button class="btn-hero" @click="$emit('go-register')">
+          Crear Cuenta <ArrowRight :size="16" />
         </button>
       </div>
     </section>
@@ -302,7 +302,7 @@
           <span class="brand-name">EventRoll</span>
         </div>
         <p class="footer-copy">© {{ year }} EventRoll · Sistema de gestión de eventos</p>
-        <button class="footer-login" @click="$emit('go-login')">Acceder →</button>
+        <button class="footer-login" @click="$emit('go-register')">Crear cuenta <ArrowRight :size="14" /></button>
       </div>
     </footer>
 
@@ -310,8 +310,8 @@
 </template>
 
 <script setup>
-import { Users, Zap, FileSpreadsheet, Shield, CheckCircle, Settings, TrendingUp } from 'lucide-vue-next'
-defineEmits(['go-login'])
+import { Users, Zap, FileSpreadsheet, Shield, CheckCircle, Settings, TrendingUp, ArrowRight, Check } from 'lucide-vue-next'
+defineEmits(['go-login', 'go-register'])
 const year = new Date().getFullYear()
 </script>
 
