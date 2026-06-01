@@ -198,7 +198,7 @@ export const requireAdmin = requireRole('admin')
 // Middleware para verificar que el usuario es admin u organizador
 export const requireOrganizer = requireRole('admin', 'organizador')
 
-import { PERMISOS_POR_ROL } from '../../../shared/permissions.js'
+import { PERMISOS_POR_ROL } from '../../shared/permissions.js'
 
 // Middleware para verificar un permiso granular.
 // Primero revisa req.user.permisos (overrides por usuario, campo permisos JSONB),

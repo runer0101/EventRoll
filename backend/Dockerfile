@@ -19,6 +19,7 @@ WORKDIR /app
 # Copiar solo lo necesario
 COPY --from=deps /app/node_modules ./node_modules
 COPY src/ ./src/
+COPY shared/ ./shared/
 COPY package.json ./
 
 # Directorio de logs con permisos correctos
