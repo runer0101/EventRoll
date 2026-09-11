@@ -341,6 +341,36 @@ export const validateImportInvitados = [
 ]
 
 /**
+ * Validadores para Auth (Register)
+ */
+export const validateRegister = [
+  body('nombre')
+    .trim()
+    .notEmpty()
+    .withMessage('Nombre es requerido')
+    .isLength({ max: 100 })
+    .withMessage('Nombre no puede exceder 100 caracteres'),
+  body('email')
+    .trim()
+    .isEmail()
+    .withMessage('Email inválido')
+    .normalizeEmail()
+    .isLength({ max: 255 })
+    .withMessage('Email no puede exceder 255 caracteres'),
+  body('password')
+    .isLength({ min: 8, max: 255 })
+    .withMessage('Contraseña debe tener entre 8 y 255 caracteres')
+    .matches(/^(?=.*[A-Za-z])(?=.*\d)/)
+    .withMessage('Contraseña debe contener al menos una letra y un número'),
+  body('rol')
+    .optional()
+    .trim()
+    .isIn(['organizador', 'asistente', 'guardia', 'visualizador'])
+    .withMessage('Rol inválido. Solo se permiten roles no-admin'),
+  handleValidationErrors
+]
+
+/**
  * Validadores para Password Recovery
  */
 export const validateRequestRecoveryCode = [

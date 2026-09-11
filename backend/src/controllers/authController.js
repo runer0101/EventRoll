@@ -28,24 +28,25 @@ const buildCookieOptions = () => {
   }
 }
 
-// @desc    Registro público de usuario
+// @desc    Registro de usuario (solo admins autenticados)
 // @route   POST /api/auth/register
-// @access  Public
+// @access  Private (admin)
 export const register = asyncHandler(async (req, res) => {
-  const { nombre, email, password } = req.body
-  const rol = 'admin'
+  const { nombre, email, password, rol } = req.body
+  // Default a 'visualizador' si no se especifica rol (nunca 'admin' por registro)
+  const userRol = rol || 'visualizador'
 
-  const user = await usuariosService.createUsuario({ nombre, email, password, rol }, null)
-
-  const result = await authService.login({ email, password })
-
-  res.cookie('token', result.token, buildCookieOptions())
+  const user = await usuariosService.createUsuario({ nombre, email, password, rol: userRol }, null)
 
   res.status(201).json({
     success: true,
     data: {
-      usuario: result.usuario,
-      ...(process.env.ALLOW_BEARER_TOKEN === 'true' && { token: result.token }),
+      usuario: {
+        id: user.id,
+        nombre: user.nombre,
+        email: user.email,
+        rol: user.rol
+      }
     },
   })
 })
