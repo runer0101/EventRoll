@@ -5,13 +5,12 @@ import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import router from './router/index.js'
 import App from './App.vue'
-import { resolveApiBaseUrl, resolveHealthUrl } from './utils/apiUrl'
+import { useBackendWarmup } from './composables/useBackendWarmup'
 
-// Wake-up silencioso: Render free tier duerme tras 15 min de inactividad.
-// Lanzar un ping al /health para despertar el servidor mientras carga la SPA.
-const API_URL = resolveApiBaseUrl(import.meta.env.VITE_API_URL)
-const healthUrl = resolveHealthUrl(API_URL)
-fetch(healthUrl, { mode: 'cors', credentials: 'omit' }).catch(() => {})
+// Wake-up con retry: Render free tier duerme tras 15 min de inactividad.
+// Intenta despertar el servidor con retry logic para mayor robustez.
+const { warmup } = useBackendWarmup()
+warmup().catch(() => {})
 
 const app = createApp(App)
 
