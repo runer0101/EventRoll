@@ -60,6 +60,8 @@ const startServer = async () => {
     setInterval(cleanupExpiredTokens, ONE_DAY_MS).unref()
     setInterval(() => query("UPDATE usuarios SET access_code = NULL, access_code_expires_at = NULL WHERE access_code_expires_at IS NOT NULL AND access_code_expires_at < NOW()"), ONE_DAY_MS).unref()
     setInterval(() => query("DELETE FROM password_recovery_codes WHERE expira_en <= NOW()"), ONE_DAY_MS).unref()
+    // Limpiar rate limits expirados cada hora
+    setInterval(() => query("DELETE FROM rate_limits WHERE expires_at <= NOW()"), 60 * 60 * 1000).unref()
 
     process.stderr.write('[STARTUP] DB OK — arrancando servidor\n')
     app.listen(PORT, () => {

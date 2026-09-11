@@ -12,6 +12,7 @@ import migrarV16 from './migrate-v1.6.js'
 import migrarV17 from './migrate-v1.7.js'
 import migrarV18 from './migrate-v1.8.js'
 import migrarV19 from './migrate-v1.9.js'
+import migrarV110 from './migrate-v1.10.js'
 import { fileURLToPath } from 'url'
 import { normalize } from 'path'
 
@@ -27,6 +28,7 @@ const runAllMigrations = async () => {
   await migrarV17()
   await migrarV18()
   await migrarV19()
+  await migrarV110()
 
   console.log('\n═══════════════════════════════════════════════')
   console.log('  Todas las migraciones completadas            ')

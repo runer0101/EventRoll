@@ -2,6 +2,7 @@ import jwt from 'jsonwebtoken'
 import { query } from '../config/database.js'
 import { logger } from '../utils/logger.js'
 import rateLimit from 'express-rate-limit'
+import { PostgresRateLimitStore } from './rateLimitStore.js'
 
 // ─── Blacklist persistente de tokens (tabla revoked_tokens) ─────────────────
 // Los tokens se revocan al hacer logout y se almacenan en BD por su JTI.
@@ -44,6 +45,9 @@ export const invalidateCachedUser = (userId) => {
   userCache.delete(userId)
 }
 
+// Store PostgreSQL para rate limiting (persistente entre reinicios)
+const postgresStore = new PostgresRateLimitStore({ windowMs: 15 * 60 * 1000 })
+
 // Rate limiter para login (prevenir fuerza bruta)
 export const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutos
@@ -51,6 +55,7 @@ export const loginLimiter = rateLimit({
   message: { success: false, message: 'Demasiados intentos de inicio de sesión. Espera 15 minutos e intenta de nuevo.' },
   standardHeaders: true,
   legacyHeaders: false,
+  store: postgresStore,
 })
 
 // Rate limiter para solicitar códigos de recuperación
@@ -60,6 +65,7 @@ export const recoveryRequestLimiter = rateLimit({
   message: { success: false, message: 'Demasiadas solicitudes de recuperación. Intenta más tarde.' },
   standardHeaders: true,
   legacyHeaders: false,
+  store: postgresStore,
 })
 
 // Rate limiter para verificación de código
@@ -69,6 +75,7 @@ export const recoveryVerifyLimiter = rateLimit({
   message: { success: false, message: 'Demasiados intentos de verificación. Intenta más tarde.' },
   standardHeaders: true,
   legacyHeaders: false,
+  store: postgresStore,
 })
 
 // Rate limiter para restablecer contraseña
@@ -78,6 +85,7 @@ export const recoveryResetLimiter = rateLimit({
   message: { success: false, message: 'Demasiados intentos de restablecimiento. Intenta más tarde.' },
   standardHeaders: true,
   legacyHeaders: false,
+  store: postgresStore,
 })
 
 // Rate limiter para generación de códigos de acceso
@@ -87,6 +95,7 @@ export const codigoLimiter = rateLimit({
   message: { success: false, message: 'Demasiadas generaciones de código. Espera un momento.' },
   standardHeaders: true,
   legacyHeaders: false,
+  store: postgresStore,
 })
 
 // Middleware para verificar JWT
