@@ -1,10 +1,9 @@
 /**
- * Validators barrel export (backward compatibility)
+ * Validators barrel export
  * Re-exports all validators from individual modules
- * 
- * Prefer importing from './validators/index.js' for new code
  */
 
+// Auth validators
 export {
   handleValidationErrors,
   validateLogin,
@@ -13,19 +12,31 @@ export {
   validateRequestRecoveryCode,
   validateVerifyCode,
   validateResetPassword,
-  validateUpdateEmailConfig,
+  validateUpdateEmailConfig
+} from './authValidators.js'
+
+// Usuario validators
+export {
   validateIdParam,
   validateCreateUsuario,
   validateUpdateUsuario,
-  validateDeleteUsuario,
+  validateDeleteUsuario
+} from './usuarioValidators.js'
+
+// Invitado validators
+export {
   validateCreateInvitado,
   validateUpdateInvitado,
   validateDeleteInvitado,
   validateGetInvitados,
-  validateImportInvitados,
+  validateImportInvitados
+} from './invitadoValidators.js'
+
+// Mesa validators
+export {
   validateCreateMesa,
   validateUpdateMesa,
   validateAsignarInvitado,
   validateDesasignarInvitado,
   validateGetMesas
-} from './validators/index.js'
+} from './mesaValidators.js'
