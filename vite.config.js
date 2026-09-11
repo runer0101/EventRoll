@@ -13,7 +13,7 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'lcov', 'html'],
-      include: ['src/stores/**/*.js', 'src/composables/**/*.js'],
+      include: ['src/stores/**/*.js', 'src/composables/**/*.js', 'src/components/**/*.vue'],
       thresholds: { lines: 70, functions: 70, branches: 60 },
     },
   },
