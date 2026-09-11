@@ -35,7 +35,7 @@ export function useBackendWarmup() {
           isWarmingUp.value = false
           return true
         }
-      } catch (error) {
+      } catch {
         // Retry on network error or timeout
       }
       

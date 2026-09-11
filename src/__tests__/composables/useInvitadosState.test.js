@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
 import { ref } from 'vue'
 import { useInvitadosState } from '../../composables/useInvitadosState.js'
 
@@ -30,7 +30,7 @@ describe('useInvitadosState', () => {
     expect(state.pageSize.value).toBe(50)
   })
 
-  it('invitadosFiltrados retorna todos cuando no hay filtros', () => {
+  it('invitadosFiltrados retorna todos cuando no hay filtros (modo local)', () => {
     const state = useInvitadosState({
       textoBusqueda,
       filtroCategoria,
@@ -38,6 +38,7 @@ describe('useInvitadosState', () => {
       ordenAscendente,
     })
 
+    state.modoBackend.value = false
     state.invitados.value = [
       { id: 1, nombre: 'Juan', apellido: 'Pérez', categoria: 'General', confirmado: false },
       { id: 2, nombre: 'María', apellido: 'García', categoria: 'VIP', confirmado: true },
@@ -46,7 +47,7 @@ describe('useInvitadosState', () => {
     expect(state.invitadosFiltrados.value).toHaveLength(2)
   })
 
-  it('filtra por texto de búsqueda', () => {
+  it('filtra por texto de búsqueda (modo local)', () => {
     const state = useInvitadosState({
       textoBusqueda,
       filtroCategoria,
@@ -54,6 +55,7 @@ describe('useInvitadosState', () => {
       ordenAscendente,
     })
 
+    state.modoBackend.value = false
     state.invitados.value = [
       { id: 1, nombre: 'Juan', apellido: 'Pérez', categoria: 'General', confirmado: false },
       { id: 2, nombre: 'María', apellido: 'García', categoria: 'VIP', confirmado: true },
@@ -65,7 +67,7 @@ describe('useInvitadosState', () => {
     expect(state.invitadosFiltrados.value[0].nombre).toBe('Juan')
   })
 
-  it('filtra por categoría', () => {
+  it('filtra por categoría (modo local)', () => {
     const state = useInvitadosState({
       textoBusqueda,
       filtroCategoria,
@@ -73,6 +75,7 @@ describe('useInvitadosState', () => {
       ordenAscendente,
     })
 
+    state.modoBackend.value = false
     state.invitados.value = [
       { id: 1, nombre: 'Juan', apellido: 'Pérez', categoria: 'General', confirmado: false },
       { id: 2, nombre: 'María', apellido: 'García', categoria: 'VIP', confirmado: true },
@@ -84,7 +87,7 @@ describe('useInvitadosState', () => {
     expect(state.invitadosFiltrados.value[0].categoria).toBe('VIP')
   })
 
-  it('filtra por estado de confirmación', () => {
+  it('filtra por estado de confirmación (modo local)', () => {
     const state = useInvitadosState({
       textoBusqueda,
       filtroCategoria,
@@ -92,6 +95,7 @@ describe('useInvitadosState', () => {
       ordenAscendente,
     })
 
+    state.modoBackend.value = false
     state.invitados.value = [
       { id: 1, nombre: 'Juan', apellido: 'Pérez', categoria: 'General', confirmado: false },
       { id: 2, nombre: 'María', apellido: 'García', categoria: 'VIP', confirmado: true },
@@ -103,7 +107,7 @@ describe('useInvitadosState', () => {
     expect(state.invitadosFiltrados.value[0].confirmado).toBe(true)
   })
 
-  it('ordena ascendente por apellido y nombre', () => {
+  it('ordena ascendente por apellido y nombre (modo local)', () => {
     const state = useInvitadosState({
       textoBusqueda,
       filtroCategoria,
@@ -111,6 +115,7 @@ describe('useInvitadosState', () => {
       ordenAscendente,
     })
 
+    state.modoBackend.value = false
     state.invitados.value = [
       { id: 1, nombre: 'María', apellido: 'García', categoria: 'General', confirmado: false },
       { id: 2, nombre: 'Juan', apellido: 'Pérez', categoria: 'VIP', confirmado: true },
@@ -122,7 +127,7 @@ describe('useInvitadosState', () => {
     expect(state.invitadosFiltrados.value[1].apellido).toBe('Pérez')
   })
 
-  it('ordena descendente por apellido y nombre', () => {
+  it('ordena descendente por apellido y nombre (modo local)', () => {
     const state = useInvitadosState({
       textoBusqueda,
       filtroCategoria,
@@ -130,6 +135,7 @@ describe('useInvitadosState', () => {
       ordenAscendente,
     })
 
+    state.modoBackend.value = false
     state.invitados.value = [
       { id: 1, nombre: 'María', apellido: 'García', categoria: 'General', confirmado: false },
       { id: 2, nombre: 'Juan', apellido: 'Pérez', categoria: 'VIP', confirmado: true },
@@ -141,7 +147,7 @@ describe('useInvitadosState', () => {
     expect(state.invitadosFiltrados.value[1].apellido).toBe('García')
   })
 
-  it('calcula invitadosConfirmados correctamente', () => {
+  it('calcula invitadosConfirmados correctamente (modo local)', () => {
     const state = useInvitadosState({
       textoBusqueda,
       filtroCategoria,
@@ -149,6 +155,7 @@ describe('useInvitadosState', () => {
       ordenAscendente,
     })
 
+    state.modoBackend.value = false
     state.invitados.value = [
       { id: 1, nombre: 'Juan', apellido: 'Pérez', categoria: 'General', confirmado: false },
       { id: 2, nombre: 'María', apellido: 'García', categoria: 'VIP', confirmado: true },
@@ -158,7 +165,7 @@ describe('useInvitadosState', () => {
     expect(state.invitadosConfirmados.value).toBe(2)
   })
 
-  it('calcula invitadosPendientes correctamente', () => {
+  it('calcula invitadosPendientes correctamente (modo local)', () => {
     const state = useInvitadosState({
       textoBusqueda,
       filtroCategoria,
@@ -166,6 +173,7 @@ describe('useInvitadosState', () => {
       ordenAscendente,
     })
 
+    state.modoBackend.value = false
     state.invitados.value = [
       { id: 1, nombre: 'Juan', apellido: 'Pérez', categoria: 'General', confirmado: false },
       { id: 2, nombre: 'María', apellido: 'García', categoria: 'VIP', confirmado: true },
@@ -175,7 +183,7 @@ describe('useInvitadosState', () => {
     expect(state.invitadosPendientes.value).toBe(1)
   })
 
-  it('calcula sillasRestantes correctamente', () => {
+  it('calcula sillasRestantes correctamente (modo local)', () => {
     const state = useInvitadosState({
       textoBusqueda,
       filtroCategoria,
@@ -183,6 +191,7 @@ describe('useInvitadosState', () => {
       ordenAscendente,
     })
 
+    state.modoBackend.value = false
     state.sillasDisponibles.value = 100
     state.invitados.value = [
       { id: 1, nombre: 'Juan', apellido: 'Pérez', categoria: 'General', confirmado: true },
@@ -192,7 +201,7 @@ describe('useInvitadosState', () => {
     expect(state.sillasRestantes.value).toBe(98)
   })
 
-  it('sillasRestantes no puede ser negativo', () => {
+  it('sillasRestantes no puede ser negativo (modo local)', () => {
     const state = useInvitadosState({
       textoBusqueda,
       filtroCategoria,
@@ -200,6 +209,7 @@ describe('useInvitadosState', () => {
       ordenAscendente,
     })
 
+    state.modoBackend.value = false
     state.sillasDisponibles.value = 1
     state.invitados.value = [
       { id: 1, nombre: 'Juan', apellido: 'Pérez', categoria: 'General', confirmado: true },
@@ -209,7 +219,7 @@ describe('useInvitadosState', () => {
     expect(state.sillasRestantes.value).toBe(0)
   })
 
-  it('calcula porcentajeOcupacion correctamente', () => {
+  it('calcula porcentajeOcupacion correctamente (modo local)', () => {
     const state = useInvitadosState({
       textoBusqueda,
       filtroCategoria,
@@ -217,6 +227,7 @@ describe('useInvitadosState', () => {
       ordenAscendente,
     })
 
+    state.modoBackend.value = false
     state.sillasDisponibles.value = 100
     state.invitados.value = [
       { id: 1, nombre: 'Juan', apellido: 'Pérez', categoria: 'General', confirmado: true },

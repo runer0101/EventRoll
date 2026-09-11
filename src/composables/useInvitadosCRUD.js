@@ -8,7 +8,6 @@ export function useInvitadosCRUD({
   invitados,
   modoBackend,
   currentPage,
-  backendPagination,
   sillasRestantes,
   editandoId,
   nombreEditando,
