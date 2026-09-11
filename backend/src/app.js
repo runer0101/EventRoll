@@ -10,7 +10,6 @@ import authRoutes from './routes/authRoutes.js'
 import usuariosRoutes from './routes/usuariosRoutes.js'
 import invitadosRoutes from './routes/invitadosRoutes.js'
 import eventosRoutes from './routes/eventosRoutes.js'
-import passwordRecoveryRoutes from './routes/password-recovery.js'
 import mesasRoutes from './routes/mesasRoutes.js'
 import { notFound, errorHandler } from './middleware/errorHandler.js'
 import { requestId } from './middleware/requestId.js'
@@ -154,7 +153,6 @@ app.use('/api/v1/auth', authRoutes)
 app.use('/api/v1/usuarios', usuariosRoutes)
 app.use('/api/v1/invitados', invitadosRoutes)
 app.use('/api/v1/eventos', eventosRoutes)
-app.use('/api/v1/password-recovery', passwordRecoveryRoutes)
 app.use('/api/v1/mesas', mesasRoutes)
 
 app.get('/', (req, res) => {

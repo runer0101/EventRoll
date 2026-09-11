@@ -54,7 +54,12 @@ Coordinar la entrada a un evento con múltiples personas del equipo (organizador
 
 ### Credenciales de prueba
 
-Para acceder a la demo, solicitá las credenciales al administrador del repositorio o levantá tu propia instancia local (ver [Instalación local](#instalación-local)).
+| Campo | Valor |
+|-------|-------|
+| **Email** | `arch` |
+| **Contraseña** | `arch` |
+
+> ⚠️ Esta es una demo pública. El registro está deshabilitado. Usa las credenciales de arriba para acceder.
 
 ---
 
@@ -385,8 +390,8 @@ npm run dev
 
 | Campo | Valor |
 |-------|-------|
-| Email | El valor de `DEFAULT_ADMIN_EMAIL` en tu `.env` |
-| Contraseña | El valor de `DEFAULT_ADMIN_PASSWORD` en tu `.env` |
+| Email | `arch` |
+| Contraseña | `arch` |
 
 ---
 
