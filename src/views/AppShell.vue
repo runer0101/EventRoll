@@ -1,10 +1,7 @@
 <script setup>
-import { ref, computed, provide, onMounted, watchEffect } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
+import { provide } from 'vue'
 import Sidebar from '../components/Sidebar.vue'
-import { useAuthStore } from '../stores/auth'
-import { useEventoStore } from '../stores/evento'
-import { invitadosAPI } from '../services/api'
+import { useAppShell } from '../composables/useAppShell'
 import {
   PermisosKey,
   RegistrarActividadKey,
@@ -15,64 +12,19 @@ import {
   ManejarLogoutKey,
 } from '../composables/injection-keys'
 
-const router = useRouter()
-const route = useRoute()
-const authStore = useAuthStore()
-const eventoStore = useEventoStore()
-
-const usuarioActual = computed(() => authStore.usuario)
-const eventoIdActual = computed(() => eventoStore.eventoId)
-
-const actividadReciente = ref([])
-const sidebarCollapsed = ref(false)
-const statsData = ref({ totalInvitados: 0, confirmados: 0, pendientes: 0 })
-const stats = computed(() => statsData.value)
-
-const MAX_ACTIVIDADES = 10
-
-function registrarActividad(accion) {
-  if (!authStore.usuario) return
-  actividadReciente.value.unshift({
-    tiempo: new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
-    accion,
-    usuario: authStore.usuario.nombre,
-  })
-  if (actividadReciente.value.length > MAX_ACTIVIDADES) {
-    actividadReciente.value = actividadReciente.value.slice(0, MAX_ACTIVIDADES)
-  }
-}
-
-async function cargarStats() {
-  if (!authStore.usuario || !eventoStore.eventoId) return
-  try {
-    const res = await invitadosAPI.getAll({ evento_id: eventoStore.eventoId, limit: 1 })
-    const p = res.pagination || {}
-    statsData.value = {
-      totalInvitados: p.total || 0,
-      confirmados: p.confirmados || 0,
-      pendientes: p.pendientes || 0,
-    }
-  } catch {
-    // mantiene los ceros
-  }
-}
-
-async function manejarLogout() {
-  registrarActividad('Cerró sesión')
-  actividadReciente.value = []
-  await authStore.logout()
-  router.push('/')
-}
-
-function handleSidebarToggle(collapsed) {
-  sidebarCollapsed.value = collapsed
-}
-
-function seleccionarMenu(itemId) {
-  registrarActividad(`Navegó a ${itemId}`)
-  router.push({ name: itemId })
-  if (itemId === 'estadisticas') cargarStats()
-}
+const {
+  usuarioActual,
+  eventoIdActual,
+  actividadReciente,
+  sidebarCollapsed,
+  stats,
+  registrarActividad,
+  manejarLogout,
+  handleSidebarToggle,
+  seleccionarMenu,
+  authStore,
+  eventoStore,
+} = useAppShell()
 
 // Provide para componentes hijos (mantiene compatibilidad con ListaInvitados, GestionUsuarios)
 provide(PermisosKey, () => authStore.permisos)
@@ -82,20 +34,6 @@ provide(SetEventoIdActualKey, (v) => eventoStore.setEventoId(v))
 provide(StatsKey, stats)
 provide(ActividadRecienteKey, actividadReciente)
 provide(ManejarLogoutKey, manejarLogout)
-
-watchEffect(() => {
-  if (eventoStore.eventoId) cargarStats()
-})
-
-// Recargar stats al entrar a la ruta de estadísticas
-watchEffect(() => {
-  if (route.name === 'estadisticas') cargarStats()
-})
-
-onMounted(async () => {
-  await cargarStats()
-  registrarActividad('Inició sesión')
-})
 </script>
 
 <template>
