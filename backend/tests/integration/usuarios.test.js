@@ -79,8 +79,8 @@ describe('Usuarios API — integración', () => {
 
       expect(res.status).toBe(201)
       expect(res.body.success).toBe(true)
-      expect(res.body.data.usuario.email).toBe(newUser.email)
-      expect(res.body.data.usuario.rol).toBe(newUser.rol)
+      expect(res.body.data.email).toBe(newUser.email)
+      expect(res.body.data.rol).toBe(newUser.rol)
     })
 
     it('retorna 400 con email inválido', async () => {
@@ -141,7 +141,7 @@ describe('Usuarios API — integración', () => {
           password: 'TestPass123!',
           rol: 'asistente',
         })
-      userId = res.body.data.usuario.id
+      userId = res.body.data.id
     })
 
     it('retorna 200 al actualizar usuario', async () => {
@@ -179,7 +179,7 @@ describe('Usuarios API — integración', () => {
           password: 'TestPass123!',
           rol: 'asistente',
         })
-      userId = res.body.data.usuario.id
+      userId = res.body.data.id
     })
 
     it('retorna 200 al eliminar usuario', async () => {
