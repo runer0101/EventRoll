@@ -37,10 +37,5 @@
     "@types/react": "^18.2.0",
     "@types/bcryptjs": "^2.4.2"
   },
-  "allowScripts": {
-    "@prisma/client@5.11.0": true,
-    "prisma@5.11.0": true,
-    "@prisma/engines@5.11.0": true,
-    "sharp@0.33.5": true
-  }
+
 }
