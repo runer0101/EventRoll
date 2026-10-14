@@ -1,7 +1,8 @@
 import React from 'react';
-import { notFound } from 'next/navigation';
 import { getOrganizationBySlug } from '@/lib/organization';
 import { getEventForOrganization, getTicketTypesForEvent } from '@/lib/queries/events';
+import { notFound } from 'next/navigation';
+
 
 export default async function EventDetailPage({
   params,
@@ -10,7 +11,6 @@ export default async function EventDetailPage({
 }) {
   const { orgSlug, eventId } = await params;
   const org = await getOrganizationBySlug(orgSlug);
-  if (!org) notFound();
 
   const event = await getEventForOrganization(eventId, org.id);
   if (!event) notFound();

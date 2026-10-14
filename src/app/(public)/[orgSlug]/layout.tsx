@@ -1,7 +1,6 @@
 import React from 'react';
 import type { ReactNode } from 'react';
 import { getOrganizationBySlug } from '@/lib/organization';
-import { notFound } from 'next/navigation';
 
 export default async function OrgLayout({
   children,
@@ -12,7 +11,6 @@ export default async function OrgLayout({
 }) {
   const { orgSlug } = await params;
   const org = await getOrganizationBySlug(orgSlug);
-  if (!org) notFound(); // safety, getOrganizationBySlug already 404s
 
   return (
     <div className="min-h-screen bg-gray-50">

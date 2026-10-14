@@ -1,18 +1,20 @@
 import { auth } from "@/auth";
-import prisma from '@/lib/prisma';
 import { getEventsByOrganization } from '@/lib/queries/events';
+import { getOrganizationById } from '@/lib/queries/organizations';
+
 import { notFound } from 'next/navigation';
 import { redirect } from "next/navigation";
 import { logoutUser } from "@/actions/auth";
+import Link from 'next/link';
+
 
 export default async function DashboardPage() {
   const session = await auth();
   if (!session?.user?.organizationId) redirect("/login");
 
   // Obtener la organización completa para obtener el slug.
-  const org = await prisma.organization.findUnique({
-    where: { id: session.user.organizationId },
-  });
+  const org = await getOrganizationById(session.user.organizationId);
+
   if (!org) notFound();
 
   // Listar eventos de la organización.
@@ -24,9 +26,9 @@ export default async function DashboardPage() {
         Bienvenido, {session.user.name ?? "usuario"}! (org: {org.name})
       </h1>
       <nav className="mb-4">
-        <a href={`/${org.slug}`} className="text-blue-600 hover:underline">
+        <Link href={`/${org.slug}`} className="text-blue-600 hover:underline">
           Ver página pública de la organización
-        </a>
+        </Link>
       </nav>
       <section className="mb-6">
         <h2 className="text-xl mb-2">Eventos</h2>
@@ -36,9 +38,9 @@ export default async function DashboardPage() {
           <ul className="list-disc pl-5 space-y-1">
             {events.map((e) => (
               <li key={e.id}>
-                <a href={`/${org.slug}/eventos/${e.id}`} className="text-blue-600 hover:underline">
+                <Link href={`/${org.slug}/eventos/${e.id}`} className="text-blue-600 hover:underline">
                   {e.title} – {new Date(e.date).toLocaleDateString()}
-                </a>
+                </Link>
               </li>
             ))}
           </ul>

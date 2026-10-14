@@ -10,7 +10,6 @@ export default async function CheckInPage({
 }) {
   const { orgSlug, eventId } = await params;
   const org = await getOrganizationBySlug(orgSlug);
-  if (!org) notFound();
 
   // Verify the event belongs to the organization.
   const event = await getEventForOrganization(eventId, org.id);

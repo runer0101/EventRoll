@@ -1,7 +1,8 @@
 import React from 'react';
-import { notFound } from 'next/navigation';
 import { getOrganizationBySlug } from '@/lib/organization';
 import { getEventsByOrganization } from '@/lib/queries/events';
+import Link from 'next/link';
+
 
 export default async function OrgEventsPage({
   params,
@@ -10,7 +11,6 @@ export default async function OrgEventsPage({
 }) {
   const { orgSlug } = await params;
   const org = await getOrganizationBySlug(orgSlug);
-  if (!org) notFound();
 
   const events = await getEventsByOrganization(org.id);
 
@@ -23,9 +23,9 @@ export default async function OrgEventsPage({
         <ul className="list-disc pl-5 space-y-2">
           {events.map((e) => (
             <li key={e.id}>
-              <a href={`/${org.slug}/eventos/${e.id}`} className="text-blue-600 hover:underline">
+              <Link href={`/${org.slug}/eventos/${e.id}`} className="text-blue-600 hover:underline">
                 {e.title} – {new Date(e.date).toLocaleDateString()}
-              </a>
+              </Link>
             </li>
           ))}
         </ul>
