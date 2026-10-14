@@ -1,8 +1,18 @@
 {
   "name": "eventos-saas",
-  "version": "0.1.0",
+  "packageManager": "pnpm@11.22.0",
+
   "private": true,
-  "scripts": {
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@prisma/client",
+      "@prisma/engines",
+      "prisma",
+      "bcryptjs",
+      "esbuild"
+    ]
+  },
+
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
@@ -22,15 +32,6 @@
     "postcss": "8.4.31"
   },
   "devDependencies": {
-    "pnpm": {
-      "onlyBuiltDependencies": [
-        "@prisma/client",
-        "@prisma/engines",
-        "prisma",
-        "bcryptjs",
-        "esbuild"
-      ]
-    },
     "prisma": "5.11.0",
     "typescript": "5.3.3",
     "@types/react": "^18.2.0",
