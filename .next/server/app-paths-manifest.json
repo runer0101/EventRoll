@@ -1,0 +1,13 @@
+{
+  "/(auth)/login/page": "app/(auth)/login/page.js",
+  "/(auth)/register/page": "app/(auth)/register/page.js",
+  "/(public)/[orgSlug]/eventos/[eventId]/page": "app/(public)/[orgSlug]/eventos/[eventId]/page.js",
+  "/(public)/[orgSlug]/eventos/page": "app/(public)/[orgSlug]/eventos/page.js",
+  "/(public)/[orgSlug]/page": "app/(public)/[orgSlug]/page.js",
+  "/_global-error/page": "app/_global-error/page.js",
+  "/_not-found/page": "app/_not-found/page.js",
+  "/api/auth/[...nextauth]/route": "app/api/auth/[...nextauth]/route.js",
+  "/checkin/[orgSlug]/[eventId]/page": "app/checkin/[orgSlug]/[eventId]/page.js",
+  "/dashboard/page": "app/dashboard/page.js",
+  "/page": "app/page.js"
+}
