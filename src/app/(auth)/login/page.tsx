@@ -2,6 +2,7 @@
 
 import { useState, FormEvent } from "react";
 import { loginUser } from "@/actions/auth";
+import type { LoginInput } from "@/lib/validations/auth";
 
 export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
@@ -13,8 +14,8 @@ export default function LoginPage() {
     const payload = {
       email: String(formData.get("email")),
       password: String(formData.get("password")),
-    };
-    const res = await loginUser(payload as any);
+    } as LoginInput;
+    const res = await loginUser(payload);
     if (!res.success) setError(res.error);
     else window.location.href = "/dashboard";
   }
@@ -24,8 +25,11 @@ export default function LoginPage() {
       <h1 className="text-2xl mb-4">Iniciar sesión</h1>
       <form className="w-full max-w-md space-y-4" onSubmit={handleSubmit}>
         <div>
-          <label className="block text-sm font-medium">Correo electrónico</label>
+          <label htmlFor="email" className="block text-sm font-medium">
+            Correo electrónico
+          </label>
           <input
+            id="email"
             name="email"
             type="email"
             required
@@ -33,8 +37,11 @@ export default function LoginPage() {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium">Contraseña</label>
+          <label htmlFor="password" className="block text-sm font-medium">
+            Contraseña
+          </label>
           <input
+            id="password"
             name="password"
             type="password"
             required
@@ -45,7 +52,9 @@ export default function LoginPage() {
         <button
           type="submit"
           className="w-full rounded bg-indigo-600 py-2 text-white hover:bg-indigo-700"
-        >Entrar</button>
+        >
+          Entrar
+        </button>
       </form>
     </main>
   );

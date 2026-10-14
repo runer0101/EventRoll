@@ -1,19 +1,18 @@
-/**
- * Configuración mínima para Next‑Auth que se ejecuta en el *edge*.
- * Sólo contiene opciones que no requieren librerías de Node (prisma, bcrypt, …).
- */
-
-import { auth as nextAuthMiddleware } from "next-auth/middleware";
 import type { NextAuthConfig } from "next-auth";
 
-export const authConfig: NextAuthConfig = {
-  // Página a la que redirige cuando se necesita autenticación
-  pages: {
-    signIn: "/login",
+// Configuración "liviana" que se utiliza en el middleware (entorno edge).
+// No incluye Prisma ni bcrypt, pues esas librerías no están disponibles allí.
+export const authConfig = {
+  pages: { signIn: "/login" },
+  providers: [], // se rellenará en src/auth.ts (servidor completo)
+  callbacks: {
+    // Autoriza el acceso solo cuando la sesión está presente para rutas protegidas.
+    authorized({ auth, request }) {
+      const isLogged = !!auth?.user;
+      const isDashboard = request.nextUrl.pathname.startsWith("/dashboard");
+      if (isDashboard) return isLogged; // redirige a /login si no está logueado
+      return true; // resto de rutas públicas
+    },
   },
-  // Estrategia JWT (predeterminada para Credentials)
   session: { strategy: "jwt" },
-};
-
-// Exportamos la versión *middleware* que Next.js usará.
-export const auth = nextAuthMiddleware(authConfig);
+} satisfies NextAuthConfig;

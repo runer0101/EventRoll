@@ -2,6 +2,7 @@
 
 import { useState, FormEvent } from "react";
 import { registerUser } from "@/actions/auth";
+import type { RegisterInput } from "@/lib/validations/auth";
 
 export default function RegisterPage() {
   const [error, setError] = useState<string | null>(null);
@@ -16,8 +17,8 @@ export default function RegisterPage() {
       email: String(formData.get("email")),
       password: String(formData.get("password")),
       confirmPassword: String(formData.get("confirmPassword")),
-    };
-    const res = await registerUser(payload as any);
+    } as RegisterInput;
+    const res = await registerUser(payload);
     if (!res.success) setError(res.error);
     else setSuccess(true);
   }
@@ -30,8 +31,9 @@ export default function RegisterPage() {
       ) : (
         <form className="w-full max-w-md space-y-4" onSubmit={handleSubmit}>
           <div>
-            <label className="block text-sm font-medium">Nombre</label>
+            <label htmlFor="name" className="block text-sm font-medium">Nombre</label>
             <input
+              id="name"
               name="name"
               type="text"
               required
@@ -40,8 +42,9 @@ export default function RegisterPage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium">Correo electrónico</label>
+            <label htmlFor="email" className="block text-sm font-medium">Correo electrónico</label>
             <input
+              id="email"
               name="email"
               type="email"
               required
@@ -49,8 +52,9 @@ export default function RegisterPage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium">Contraseña</label>
+            <label htmlFor="password" className="block text-sm font-medium">Contraseña</label>
             <input
+              id="password"
               name="password"
               type="password"
               required
@@ -59,8 +63,9 @@ export default function RegisterPage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium">Confirmar contraseña</label>
+            <label htmlFor="confirmPassword" className="block text-sm font-medium">Confirmar contraseña</label>
             <input
+              id="confirmPassword"
               name="confirmPassword"
               type="password"
               required

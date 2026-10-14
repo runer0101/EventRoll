@@ -1,15 +1,15 @@
-/**
- * Configuración completa de Next‑Auth (servidor) con el proveedor Credentials.
- * Aquí sí podemos usar Prisma y bcryptjs porque corre en el runtime Node.
- */
-
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import type { NextAuthConfig } from "next-auth";
+import { authConfig } from "./auth.config";
 import prisma from "@/lib/prisma";
 import bcrypt from "bcryptjs";
+import type { RegisterInput } from "@/lib/validations/auth";
 
-export const authOptions: NextAuthConfig = {
+// Exportamos las piezas que necesita el resto de la aplicación (handlers, auth, signIn, signOut).
+export const { handlers, auth, signIn, signOut } = NextAuth({
+  ...authConfig,
+  // Estrategia JWT obligatoria para Credentials
+  session: { strategy: "jwt" },
   providers: [
     CredentialsProvider({
       name: "Credentials",
@@ -18,22 +18,20 @@ export const authOptions: NextAuthConfig = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
+        // Validamos los datos antes de acceder a la base.
         if (!credentials?.email || !credentials?.password) return null;
-        const user = await prisma.user.findUnique({ where: { email: credentials.email } });
-        if (!user) return null;
-        const valid = await bcrypt.compare(credentials.password, user.passwordHash);
-        if (!valid) return null;
-        return { id: user.id, name: user.name, email: user.email };
+        const email = credentials.email.trim().toLowerCase();
+        const user = await prisma.user.findUnique({ where: { email } });
+        if (!user) return null; // no revelamos si el email existe
+        const isValid = await bcrypt.compare(credentials.password, user.passwordHash);
+        if (!isValid) return null;
+        return { id: user.id, name: user.name, email: user.email } as RegisterInput;
       },
     }),
   ],
-
-  // Usamos JWT (no sesiones en DB)
-  session: { strategy: "jwt" },
-
-  pages: { signIn: "/login" },
-
   callbacks: {
+    // Conservamos el callback "authorized" del config y añadimos los JWT y Session.
+    ...authConfig.callbacks,
     async jwt({ token, user }) {
       if (user) token.id = (user as any).id;
       return token;
@@ -43,6 +41,4 @@ export const authOptions: NextAuthConfig = {
       return session;
     },
   },
-};
-
-export default NextAuth(authOptions);
+});
