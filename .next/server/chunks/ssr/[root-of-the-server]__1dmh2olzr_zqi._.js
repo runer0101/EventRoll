@@ -1,3 +1,0 @@
-module.exports=[[52423,(a,b,c)=>{b.exports=a.r(18622)},64333,(a,b,c)=>{b.exports=a.r(52423).vendored["react-rsc"].ReactJsxRuntime},27572,a=>{var b=a.i(64333);a.s(["default",0,function({children:a}){return(0,b.jsxs)("html",{lang:"es",children:[(0,b.jsx)("head",{}),(0,b.jsx)("body",{className:"bg-gray-50 antialiased",children:a})]})},"metadata",0,{title:"EventRoll SaaS",description:"Plataforma multi‑tenant de gestión de eventos"}])}],18622,(a,b,c)=>{b.exports=a.x("next/dist/compiled/next-server/app-page-turbo.runtime.prod.js",()=>require("next/dist/compiled/next-server/app-page-turbo.runtime.prod.js"))},50645,function(a){a.n(a.i(27572))}];
-
-//# sourceMappingURL=%5Broot-of-the-server%5D__1dmh2olzr_zqi._.js.map
