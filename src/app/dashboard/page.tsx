@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { getEventsByOrganization } from '@/lib/queries/events';
-import { getOrganizationById } from '@/lib/queries/organizations';
+import { getTicketStatsByOrganization } from '@/lib/queries/tickets';
+
 
 import { notFound } from 'next/navigation';
 import { redirect } from "next/navigation";
@@ -19,6 +20,8 @@ export default async function DashboardPage() {
 
   // Listar eventos de la organización.
   const events = await getEventsByOrganization(org.id);
+  const ticketStats = await getTicketStatsByOrganization(org.id);
+
 
   return (
     <main className="p-8">
@@ -46,6 +49,22 @@ export default async function DashboardPage() {
           </ul>
         )}
       </section>
+
+      <section className="mb-6">
+        <h2 className="text-xl mb-2">Tickets vendidos</h2>
+        {ticketStats.length === 0 ? (
+          <p>No hay tickets registrados.</p>
+        ) : (
+          <ul className="list-disc pl-5 space-y-1">
+            {ticketStats.map((s) => (
+              <li key={s.eventId}>
+                {s.eventTitle} – Total: {s.total}, PAID: {s.paid}, PENDING: {s.pending}
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
       <form action={logoutUser}>
         <button
           type="submit"

@@ -14,6 +14,7 @@
     "@prisma/client": "5.11.0",
     "autoprefixer": "10.4.15",
     "bcryptjs": "2.4.3",
+    "nanoid": "^6.0.2",
     "next": "16.4.0",
     "next-auth": "5.0.0-beta.1",
     "postcss": "8.4.31",

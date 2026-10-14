@@ -2,6 +2,8 @@ import React from 'react';
 import { getOrganizationBySlug } from '@/lib/organization';
 import { getEventForOrganization, getTicketTypesForEvent } from '@/lib/queries/events';
 import { notFound } from 'next/navigation';
+import AttendeeForm from '@/components/AttendeeForm';
+
 
 
 export default async function EventDetailPage({
@@ -35,6 +37,7 @@ export default async function EventDetailPage({
           ))}
         </ul>
       )}
+      <AttendeeForm ticketTypes={ticketTypes} orgSlug={orgSlug} eventId={event.id} />
     </section>
   );
 }
