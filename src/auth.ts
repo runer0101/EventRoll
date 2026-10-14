@@ -5,6 +5,14 @@ import prisma from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import type { RegisterInput } from "@/lib/validations/auth";
 
+// Tipo interno para los datos que devolvemos al crear la sesión
+interface AuthUser {
+  id: string;
+  name: string;
+  email: string;
+  organizationId?: string | null;
+}
+
 // Exportamos las piezas que necesita el resto de la aplicación (handlers, auth, signIn, signOut).
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
@@ -25,7 +33,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (!user) return null; // no revelamos si el email existe
         const isValid = await bcrypt.compare(credentials.password, user.passwordHash);
         if (!isValid) return null;
-        return { id: user.id, name: user.name, email: user.email } as RegisterInput;
+        // Buscamos el Member para obtener organizationId (primer vínculo).
+        const member = await prisma.member.findFirst({ where: { userId: user.id } });
+        const organizationId = member?.organizationId ?? null;
+        const sessionUser: AuthUser = {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          organizationId,
+        };
+        return sessionUser;
       },
     }),
   ],
@@ -33,11 +50,20 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     // Conservamos el callback "authorized" del config y añadimos los JWT y Session.
     ...authConfig.callbacks,
     async jwt({ token, user }) {
-      if (user) token.id = (user as any).id;
+      if (user) {
+        const u = user as AuthUser;
+        token.id = u.id;
+        if (u.organizationId) token.organizationId = u.organizationId;
+      }
       return token;
     },
     async session({ session, token }) {
-      if (session.user) session.user.id = token.id as string;
+      if (session.user) {
+        session.user.id = token.id as string;
+        if (token.organizationId) {
+          session.user.organizationId = token.organizationId as string;
+        }
+      }
       return session;
     },
   },

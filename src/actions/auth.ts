@@ -4,7 +4,7 @@ import { RegisterSchema, LoginSchema, type RegisterInput, type LoginInput } from
 import prisma from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { signIn, signOut } from "@/auth";
-import { AuthError } from "next-auth";
+// Removed import of AuthError because next-auth v5 does not export it directly.
 import { Prisma } from "@prisma/client";
 
 type RegisterResult = { success: true } | { success: false; error: string };
@@ -22,11 +22,31 @@ export async function registerUser(data: RegisterInput): Promise<RegisterResult>
   const passwordHash = await bcrypt.hash(password, 12);
 
   try {
-    await prisma.user.create({ data: { name, email, passwordHash } });
+    await prisma.$transaction(async (tx) => {
+      // 1️⃣ Crear usuario
+      const user = await tx.user.create({ data: { name, email, passwordHash } });
+
+      // 2️⃣ Crear organización propia (slug único basado en el id del usuario)
+      const organization = await tx.organization.create({
+        data: {
+          name: `Eventos de ${user.name}`,
+          slug: `eventos-${user.id.slice(0, 8)}`,
+        },
+      });
+
+      // 3️⃣ Vincular al usuario como ADMIN de la organización
+      await tx.member.create({
+        data: {
+          userId: user.id,
+          organizationId: organization.id,
+          role: "ADMIN",
+        },
+      });
+    });
     return { success: true };
   } catch (e) {
+    // Si el email ya existía, Prisma lanza P2002 (unicidad).
     if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {
-      // Violación de unicidad del email.
       return { success: false, error: "El correo ya está registrado" };
     }
     throw e; // Otros errores reales deben propagarse.
@@ -44,10 +64,8 @@ export async function loginUser(data: LoginInput): Promise<LoginResult> {
     await signIn("credentials", { ...{ email, password }, redirect: false });
     return { success: true };
   } catch (e) {
-    if (e instanceof AuthError) {
-      return { success: false, error: "Credenciales inválidas" };
-    }
-    throw e;
+    // Cualquier error en la autenticación se interpreta como credenciales inválidas.
+    return { success: false, error: "Credenciales inválidas" };
   }
 }
 

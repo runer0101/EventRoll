@@ -1,0 +1,128 @@
+// Prisma schema for EventRoll SaaS (Multi‑tenant)
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["clientExtensions"]
+}
+
+// ────────────────────────────────────── Enums ──────────────────────────────────────
+enum Plan {
+  FREE
+  PRO
+  BUSINESS
+}
+
+enum Role {
+  ADMIN
+  STAFF
+}
+
+enum TicketStatus {
+  PENDING
+  PAID
+  USED
+  CANCELLED
+}
+
+// ────────────────────────────────────── Models ──────────────────────────────────────
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+
+  // Relaciones
+  members Member[]
+}
+
+model Organization {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  plan      Plan     @default(FREE)
+  createdAt DateTime @default(now())
+
+  // Relaciones
+  members Member[]
+  events  Event[]
+  ticketTypes TicketType[]
+  tickets Ticket[]
+}
+
+model Member {
+  id             String   @id @default(cuid())
+  userId         String
+  organizationId String
+  role           Role     @default(ADMIN)
+
+  @@unique([userId, organizationId])
+  @@index([organizationId])
+
+  // Relaciones
+  user         User        @relation(fields: [userId], references: [id])
+  organization Organization @relation(fields: [organizationId], references: [id])
+}
+
+model Event {
+  id             String   @id @default(cuid())
+  title          String
+  description    String
+  date           DateTime
+  location       String
+  capacity       Int
+  organizationId String
+  createdAt      DateTime @default(now())
+
+  @@index([organizationId])
+
+  // Relaciones
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  ticketTypes    TicketType[]
+  tickets        Ticket[]
+}
+
+model TicketType {
+  id             String   @id @default(cuid())
+  name           String
+  price          Decimal  @db.Decimal(10, 2)
+  stock          Int
+  eventId        String
+  organizationId String
+  createdAt      DateTime @default(now())
+
+  @@index([organizationId])
+  @@index([eventId])
+
+  // Relaciones
+  event          Event        @relation(fields: [eventId], references: [id])
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  tickets        Ticket[]
+}
+
+model Ticket {
+  id             String       @id @default(cuid())
+  qrCode         String       @unique
+  status         TicketStatus @default(PENDING)
+  checkedInAt    DateTime?
+  attendeeName   String
+  attendeeEmail  String
+  ticketTypeId   String
+  eventId        String
+  organizationId String
+  createdAt      DateTime @default(now())
+
+  @@index([organizationId])
+  @@index([eventId])
+  @@index([ticketTypeId])
+
+  // Relaciones
+  ticketType     TicketType   @relation(fields: [ticketTypeId], references: [id])
+  event          Event        @relation(fields: [eventId], references: [id])
+  organization   Organization @relation(fields: [organizationId], references: [id])
+}

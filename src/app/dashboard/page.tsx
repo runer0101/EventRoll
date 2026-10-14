@@ -4,12 +4,12 @@ import { logoutUser } from "@/actions/auth";
 
 export default async function DashboardPage() {
   const session = await auth();
-  if (!session?.user) redirect("/login");
+  if (!session?.user?.organizationId) redirect("/login");
 
   return (
     <main className="p-8">
       <h1 className="text-2xl mb-4">
-        Bienvenido, {session.user.name ?? "usuario"}!
+        Bienvenido, {session.user.name ?? "usuario"}! (org: {session.user.organizationId})
       </h1>
       <form action={logoutUser}>
         <button
