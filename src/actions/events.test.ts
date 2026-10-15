@@ -13,8 +13,10 @@ const prismaMock = vi.hoisted(() => ({
 
 vi.mock('@/lib/prisma', () => ({ default: prismaMock }));
 vi.mock('@/lib/session', () => ({ getOrganizationId: vi.fn() }));
+vi.mock('@/lib/billing', () => ({ canCreateEvent: vi.fn() }));
 vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }));
 
+import { canCreateEvent } from '@/lib/billing';
 import { getOrganizationId } from '@/lib/session';
 import { createEvent, deleteEvent, updateEvent } from './events';
 
@@ -38,6 +40,7 @@ const validInput = {
 beforeEach(() => {
   vi.clearAllMocks();
   vi.mocked(getOrganizationId).mockResolvedValue('org_1');
+  vi.mocked(canCreateEvent).mockResolvedValue({ allowed: true });
   prismaMock.event.create.mockResolvedValue({ id: 'ev_new' });
   prismaMock.event.updateMany.mockResolvedValue({ count: 1 });
   prismaMock.ticket.count.mockResolvedValue(0);
@@ -77,6 +80,19 @@ describe('createEvent', () => {
         organizationId: 'org_1',
       }),
     });
+  });
+
+  it('blocks creation when the FREE plan limit is reached', async () => {
+    vi.mocked(canCreateEvent).mockResolvedValue({
+      allowed: false,
+      reason: 'Tu plan FREE permite 1 evento activo. Activa PRO para publicar más eventos.',
+    });
+
+    const result = await createEvent(validInput);
+
+    expect(result.success).toBe(false);
+    if (!result.success) expect(result.error).toContain('FREE');
+    expect(prismaMock.event.create).not.toHaveBeenCalled();
   });
 });
 

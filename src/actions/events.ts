@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import prisma from '@/lib/prisma';
 import { getOrganizationId } from '@/lib/session';
+import { canCreateEvent } from '@/lib/billing';
 import { EventSchema } from '@/lib/validations/event';
 
 export type EventActionResult =
@@ -16,6 +17,15 @@ export async function createEvent(data: unknown): Promise<EventActionResult> {
   const parsed = EventSchema.safeParse(data);
   if (!parsed.success) {
     return { success: false, errors: parsed.error.flatten().fieldErrors };
+  }
+
+  // Entitlements: FREE organizations can keep a single active event.
+  const entitlement = await canCreateEvent(organizationId);
+  if (!entitlement.allowed) {
+    return {
+      success: false,
+      error: entitlement.reason ?? 'Límite de eventos alcanzado',
+    };
   }
 
   await prisma.event.create({ data: { ...parsed.data, organizationId } });

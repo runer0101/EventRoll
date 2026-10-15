@@ -28,6 +28,13 @@ enum TicketStatus {
   CANCELLED
 }
 
+enum SubscriptionStatus {
+  NONE
+  ACTIVE
+  PAST_DUE
+  CANCELED
+}
+
 // ────────────────────────────────────── Models ──────────────────────────────────────
 model User {
   id           String   @id @default(cuid())
@@ -52,6 +59,21 @@ model Organization {
   events  Event[]
   ticketTypes TicketType[]
   tickets Ticket[]
+  subscription Subscription?
+}
+
+model Subscription {
+  id                   String             @id @default(cuid())
+  organizationId       String             @unique
+  stripeCustomerId     String?
+  stripeSubscriptionId String?            @unique
+  status               SubscriptionStatus @default(NONE)
+  currentPeriodEnd     DateTime?
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+
+  // Relaciones
+  organization Organization @relation(fields: [organizationId], references: [id])
 }
 
 model Member {
