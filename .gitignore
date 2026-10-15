@@ -8,3 +8,4 @@ node_modules/
 *.tsbuildinfo
 coverage/
 playwright-report/
+test-results/
