@@ -2,6 +2,8 @@ import { auth } from "@/auth";
 import { getEventsByOrganization } from '@/lib/queries/events';
 import { getTicketStatsByOrganization } from '@/lib/queries/tickets';
 import { getOrganizationById } from '@/lib/queries/organizations';
+import { getSubscription, isSubscriptionActive } from '@/lib/billing';
+import UpgradeButton from '@/components/UpgradeButton';
 
 
 import { notFound } from 'next/navigation';
@@ -10,7 +12,12 @@ import { logoutUser } from "@/actions/auth";
 import Link from 'next/link';
 
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ checkout?: string }>;
+}) {
+  const { checkout } = await searchParams;
   const session = await auth();
   if (!session?.user?.organizationId) redirect("/login");
 
@@ -22,10 +29,12 @@ export default async function DashboardPage() {
   // Listar eventos de la organización.
   const events = await getEventsByOrganization(org.id);
   const ticketStats = await getTicketStatsByOrganization(org.id);
+  const subscription = await getSubscription(org.id);
+  const isPro = isSubscriptionActive(subscription);
 
 
   return (
-    <main className="p-8">
+    <main className="mx-auto max-w-3xl p-8">
       <h1 className="text-2xl mb-4">
         Bienvenido, {session.user.name ?? "usuario"}! (org: {org.name})
       </h1>
@@ -40,6 +49,34 @@ export default async function DashboardPage() {
           Nuevo evento
         </Link>
       </nav>
+      <section className="mb-6 rounded border bg-white p-4">
+        <h2 className="text-xl mb-2">Plan</h2>
+        {checkout === 'success' && (
+          <p className="mb-2 text-green-600">
+            Pago completado. Tu plan PRO se activará en unos segundos.
+          </p>
+        )}
+        {checkout === 'cancelled' && (
+          <p className="mb-2 text-gray-600">Checkout cancelado.</p>
+        )}
+        {isPro ? (
+          <p>
+            Plan <strong>PRO</strong> activo
+            {subscription?.currentPeriodEnd
+              ? ` hasta ${subscription.currentPeriodEnd.toLocaleDateString()}`
+              : ''}
+            .
+          </p>
+        ) : (
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <p className="text-sm text-gray-700">
+              Plan <strong>FREE</strong>: 1 evento activo. Activa PRO para
+              publicar eventos ilimitados.
+            </p>
+            <UpgradeButton />
+          </div>
+        )}
+      </section>
       <section className="mb-6">
         <h2 className="text-xl mb-2">Eventos</h2>
         {events.length === 0 ? (
