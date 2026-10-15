@@ -29,9 +29,15 @@ export default async function DashboardPage() {
       <h1 className="text-2xl mb-4">
         Bienvenido, {session.user.name ?? "usuario"}! (org: {org.name})
       </h1>
-      <nav className="mb-4">
+      <nav className="mb-6 flex flex-wrap items-center gap-4 text-sm">
         <Link href={`/${org.slug}`} className="text-blue-600 hover:underline">
           Ver página pública de la organización
+        </Link>
+        <Link
+          href="/dashboard/eventos/nuevo"
+          className="rounded bg-blue-600 px-3 py-1.5 text-white hover:bg-blue-700"
+        >
+          Nuevo evento
         </Link>
       </nav>
       <section className="mb-6">
@@ -42,8 +48,17 @@ export default async function DashboardPage() {
           <ul className="list-disc pl-5 space-y-1">
             {events.map((e) => (
               <li key={e.id}>
-                <Link href={`/${org.slug}/eventos/${e.id}`} className="text-blue-600 hover:underline">
-                  {e.title} – {new Date(e.date).toLocaleDateString()}
+                <Link href={`/dashboard/eventos/${e.id}`} className="text-blue-600 hover:underline">
+                  {e.title}
+                </Link>
+                {" – "}
+                {new Date(e.date).toLocaleDateString()}
+                {" · "}
+                <Link
+                  href={`/${org.slug}/eventos/${e.id}`}
+                  className="text-sm text-gray-600 hover:underline"
+                >
+                  página pública
                 </Link>
               </li>
             ))}
