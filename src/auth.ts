@@ -3,7 +3,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { authConfig } from "./auth.config";
 import prisma from "@/lib/prisma";
 import bcrypt from "bcryptjs";
-import type { RegisterInput } from "@/lib/validations/auth";
+import { LoginSchema } from "@/lib/validations/auth";
 
 // Tipo interno para los datos que devolvemos al crear la sesión
 interface AuthUser {
@@ -27,11 +27,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       },
       async authorize(credentials) {
         // Validamos los datos antes de acceder a la base.
-        if (!credentials?.email || !credentials?.password) return null;
-        const email = credentials.email.trim().toLowerCase();
+        const parsed = LoginSchema.safeParse(credentials);
+        if (!parsed.success) return null;
+        const { email, password } = parsed.data;
         const user = await prisma.user.findUnique({ where: { email } });
         if (!user) return null; // no revelamos si el email existe
-        const isValid = await bcrypt.compare(credentials.password, user.passwordHash);
+        const isValid = await bcrypt.compare(password, user.passwordHash);
         if (!isValid) return null;
         // Buscamos el Member para obtener organizationId (primer vínculo).
         const member = await prisma.member.findFirst({ where: { userId: user.id } });

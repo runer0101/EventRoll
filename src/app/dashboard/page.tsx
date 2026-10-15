@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { getEventsByOrganization } from '@/lib/queries/events';
 import { getTicketStatsByOrganization } from '@/lib/queries/tickets';
+import { getOrganizationById } from '@/lib/queries/organizations';
 
 
 import { notFound } from 'next/navigation';

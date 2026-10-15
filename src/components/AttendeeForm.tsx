@@ -95,7 +95,7 @@ export default function AttendeeForm({ ticketTypes, orgSlug, eventId }: Attendee
           <option value="">Seleccione una opción</option>
           {ticketTypes.map((tt) => (
             <option key={tt.id} value={tt.id} disabled={tt.stock <= 0}>
-              {tt.name} – ${tt.price} ({tt.stock} disponible{tt.stock !== 1 ? 's' : ''})
+              {tt.name} – ${tt.price.toFixed(2)} ({tt.stock} disponible{tt.stock !== 1 ? 's' : ''})
             </option>
           ))}
         </select>

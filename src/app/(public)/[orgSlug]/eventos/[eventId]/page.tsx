@@ -32,7 +32,7 @@ export default async function EventDetailPage({
         <ul className="list-disc pl-5 space-y-2">
           {ticketTypes.map((tt) => (
             <li key={tt.id}>
-              {tt.name} – ${tt.price} – {tt.stock} disponibles
+              {tt.name} – ${tt.price.toFixed(2)} – {tt.stock} disponibles
             </li>
           ))}
         </ul>
