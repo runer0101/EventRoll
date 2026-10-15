@@ -1,10 +1,12 @@
 "use client";
 
 import { useState, FormEvent } from "react";
+import { useRouter } from "next/navigation";
 import { loginUser } from "@/actions/auth";
 import type { LoginInput } from "@/lib/validations/auth";
 
 export default function LoginPage() {
+  const router = useRouter();
   const [error, setError] = useState<string | null>(null);
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
@@ -17,7 +19,7 @@ export default function LoginPage() {
     } as LoginInput;
     const res = await loginUser(payload);
     if (!res.success) setError(res.error);
-    else window.location.href = "/dashboard";
+    else router.push("/dashboard");
   }
 
   return (

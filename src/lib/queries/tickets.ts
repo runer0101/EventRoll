@@ -10,8 +10,6 @@ export const getTicketByIdForOrganization = async (ticketId: string, organizatio
   });
 };
 
-import type { Prisma } from '@prisma/client';
-
 /**
  * Estadísticas de tickets por evento dentro de una organización.
  * Devuelve un array con { eventId, eventTitle, total, paid, pending }.

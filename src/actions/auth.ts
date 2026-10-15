@@ -63,7 +63,7 @@ export async function loginUser(data: LoginInput): Promise<LoginResult> {
   try {
     await signIn("credentials", { ...{ email, password }, redirect: false });
     return { success: true };
-  } catch (e) {
+  } catch {
     // Cualquier error en la autenticación se interpreta como credenciales inválidas.
     return { success: false, error: "Credenciales inválidas" };
   }
