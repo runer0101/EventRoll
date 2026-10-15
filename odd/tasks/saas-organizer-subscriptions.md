@@ -2,7 +2,7 @@
 
 Stack: monolito modular Next.js 16 (App Router, Server Actions, Route Handlers) + TypeScript + PostgreSQL/Prisma + Stripe Billing. Sin backend separado.
 
-Estado: F0–F3 completadas y verificadas (ver Log). Siguiente: F4 (Stripe).
+Estado: F0–F5 completadas y verificadas. F6 en curso (deploy y publicación dependen de cuentas externas del propietario).
 Regla: commits por unidad de trabajo, sin co-autor y sin push (autorizado 2026-10-15).
 
 ## Decisiones (2026-10-15)
@@ -84,3 +84,6 @@ L6 Plan aprobado [2026-10-15]: decisiones D1..D5 y fases F0..F6; autorización d
 L7 F0–F1 [2026-10-15]: higiene del repo (7ff02d2, 4bb1a2a) y type-check estricto (e2b6299). WU1: DTO con precio serializado + Vitest (ecd9e00, 2ec9c90); la página de registro responde 200 (antes 500). WU2: stock atómico + capacidad (6c75e98); prueba real de concurrencia contra Postgres: 5 registros sobre stock 1 → 1 ticket, stock final 0. WU3: Tailwind v4 cableado (7c047aa).
 L8 F2 [2026-10-15]: migración a `proxy.ts` + guard de `/checkin` (901859e); React 19 + next-auth 5.0.0-beta.32 (b3d0e27); build sin warnings de deprecación; e2e de login por curl (login 302, dashboard 200, checkin 307 sin sesión).
 L9 F3 [2026-10-15]: CRUD del organizador (3b616aa), check-in atómico PAID→USED (74b4284), docker compose para Postgres local (b9c3517); suite de 35 tests verde; smoke autenticado de dashboard, formularios y check-in OK. Seed con credenciales demo y códigos de check-in reproducibles.
+L10 F4 [2026-10-15]: entitlements FREE/PRO (20fca63) y Stripe Checkout + webhook + panel de plan (9c1e975). Webhook con verificación de firma y sincronización de suscripciones; guard de plan FREE aplicado server-side y en UI. Verificación de compra real pendiente de las claves Stripe test del propietario.
+L11 F5 [2026-10-15]: ESLint 10 (flat config, 0 warnings), suite Playwright (3 e2e verdes; capturas en docs/screenshots), CI de GitHub Actions (79684d8) y pulido visual (3cfd269). Totales: 62 tests unit/integración + 3 e2e; build sin warnings.
+L12 F6 en curso [2026-10-15]: README nivel CV con capturas, guía de Stripe test-mode y setup completo. Pendiente de acciones del propietario: cuenta Stripe test para verificación de compra real; deploy Vercel + Neon; push, release v1.0.0 y ajustes del repo (description, topics, social preview).
