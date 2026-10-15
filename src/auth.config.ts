@@ -1,17 +1,19 @@
 import type { NextAuthConfig } from "next-auth";
 
-// Configuración "liviana" que se utiliza en el middleware (entorno edge).
-// No incluye Prisma ni bcrypt, pues esas librerías no están disponibles allí.
+// Lightweight NextAuth configuration used by the proxy.
+// It intentionally avoids Prisma and bcrypt so no database client (or heavy
+// dependency) is loaded on every request.
 export const authConfig = {
   pages: { signIn: "/login" },
-  providers: [], // se rellenará en src/auth.ts (servidor completo)
+  providers: [], // filled in by src/auth.ts (full server-side setup)
   callbacks: {
-    // Autoriza el acceso solo cuando la sesión está presente para rutas protegidas.
+    // Route protection: unauthenticated users are redirected to /login.
     authorized({ auth, request }) {
       const isLogged = !!auth?.user;
-      const isDashboard = request.nextUrl.pathname.startsWith("/dashboard");
-      if (isDashboard) return isLogged; // redirige a /login si no está logueado
-      return true; // resto de rutas públicas
+      const { pathname } = request.nextUrl;
+      const isProtected =
+        pathname.startsWith("/dashboard") || pathname.startsWith("/checkin");
+      return isProtected ? isLogged : true;
     },
   },
   session: { strategy: "jwt" },

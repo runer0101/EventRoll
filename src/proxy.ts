@@ -1,7 +1,8 @@
 import NextAuth from "next-auth";
 import { authConfig } from "./auth.config";
 
-// Exportamos el guardia que ejecuta el callback "authorized".
+// Proxy (formerly Middleware) runs before protected routes render.
+// The exported function executes the "authorized" callback from authConfig.
 export default NextAuth(authConfig).auth;
 
 export const config = {
