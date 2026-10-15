@@ -1,6 +1,7 @@
 import React from 'react';
 import { getOrganizationBySlug } from '@/lib/organization';
 import { getEventForOrganization, getTicketTypesForEvent } from '@/lib/queries/events';
+import { toPublicTicketType } from '@/lib/dto';
 import { notFound } from 'next/navigation';
 import AttendeeForm from '@/components/AttendeeForm';
 
@@ -17,7 +18,7 @@ export default async function EventDetailPage({
   const event = await getEventForOrganization(eventId, org.id);
   if (!event) notFound();
 
-  const ticketTypes = await getTicketTypesForEvent(event.id, org.id);
+  const ticketTypes = (await getTicketTypesForEvent(event.id, org.id)).map(toPublicTicketType);
 
   return (
     <section className="space-y-4">
@@ -32,7 +33,7 @@ export default async function EventDetailPage({
         <ul className="list-disc pl-5 space-y-2">
           {ticketTypes.map((tt) => (
             <li key={tt.id}>
-              {tt.name} – ${tt.price.toFixed(2)} – {tt.stock} disponibles
+              {tt.name} – ${tt.price} – {tt.stock} disponibles
             </li>
           ))}
         </ul>
