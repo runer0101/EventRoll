@@ -117,6 +117,21 @@ Without Stripe keys the app still works end to end; only the PRO upgrade reports
 - **Unit/integration (Vitest)** cover the domain rules: price serialization across the server/client boundary, atomic stock and capacity enforcement, check-in transitions, subscription entitlements and Stripe webhook handling.
 - **End-to-end (Playwright)** cover the real user journeys: visitor registration → QR ticket, organizer login → dashboard → check-in (including double-scan rejection), and the FREE plan blocking a second active event. Screenshots land in `docs/screenshots/`.
 
+## Deploy for free
+
+The whole stack fits in free tiers (no credit card, no expiry) — good enough for a portfolio demo:
+
+1. **Database — [Neon](https://neon.com) Free plan** (100 CU-hours/month, 1 GB storage, scales to zero when idle): create a project and copy the *pooled* connection string. Apply the schema and demo data from your machine:
+
+   ```bash
+   DATABASE_URL="<neon-connection-string>" pnpm exec prisma migrate deploy
+   DATABASE_URL="<neon-connection-string>" pnpm seed
+   ```
+
+2. **Hosting — [Vercel](https://vercel.com) Hobby plan** ($0, personal/non-commercial): import this repository and set the environment variables (`DATABASE_URL`, `AUTH_SECRET`, `NEXT_PUBLIC_APP_URL` and, optionally, the Stripe ones). Deploy.
+
+3. *(Optional)* **Stripe** test mode is also free: add the test keys and point the webhook at `https://your-app.vercel.app/api/stripe/webhook`.
+
 ## Roadmap
 
 - Camera scanner for check-in.

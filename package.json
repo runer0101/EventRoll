@@ -9,6 +9,7 @@
     "start": "next start",
     "prisma": "prisma",
     "migrate": "prisma migrate dev",
+    "postinstall": "prisma generate",
     "seed": "prisma db seed",
     "test": "vitest run",
     "test:watch": "vitest",
