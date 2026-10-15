@@ -17,7 +17,7 @@ export default async function OrgLayout({
       <header className="bg-blue-600 text-white p-4">
         <h1 className="text-2xl font-bold">{org.name}</h1>
       </header>
-      <main className="p-6">{children}</main>
+      <main className="mx-auto max-w-3xl p-6">{children}</main>
     </div>
   );
 }

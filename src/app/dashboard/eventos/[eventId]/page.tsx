@@ -25,7 +25,7 @@ export default async function ManageEventPage({
   const ticketTypes = await getTicketTypesForEvent(event.id, org.id);
 
   return (
-    <main className="p-8 max-w-3xl">
+    <main className="mx-auto max-w-3xl p-8">
       <Link href="/dashboard" className="text-sm text-blue-600 hover:underline">
         ← Volver al dashboard
       </Link>

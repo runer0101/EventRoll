@@ -23,10 +23,10 @@ export default async function CheckInPage({
   if (session.user.organizationId !== org.id) notFound();
 
   return (
-    <main className="p-8">
+    <main className="mx-auto max-w-2xl p-8">
       <h1 className="text-2xl font-bold">Check-in — {event.title}</h1>
       <p className="text-gray-600">
-        {new Date(event.date).toLocaleDateString()} · {event.location}
+        {new Date(event.date).toLocaleString('es', { dateStyle: 'long', timeStyle: 'short' })} · {event.location}
       </p>
       <CheckInForm eventId={event.id} />
     </main>

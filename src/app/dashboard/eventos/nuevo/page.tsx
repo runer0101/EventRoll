@@ -8,7 +8,7 @@ export default async function NewEventPage() {
   if (!session?.user?.organizationId) redirect('/login');
 
   return (
-    <main className="p-8 max-w-2xl">
+    <main className="mx-auto max-w-2xl p-8">
       <Link href="/dashboard" className="text-sm text-blue-600 hover:underline">
         ← Volver al dashboard
       </Link>

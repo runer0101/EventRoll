@@ -24,7 +24,7 @@ export default async function EventDetailPage({
     <section className="space-y-4">
       <h1 className="text-3xl font-bold">{event.title}</h1>
       <p>{event.description}</p>
-      <p>Fecha: {new Date(event.date).toLocaleString()}</p>
+      <p>Fecha: {new Date(event.date).toLocaleString('es', { dateStyle: 'long', timeStyle: 'short' })}</p>
       <p>Lugar: {event.location}</p>
       <h2 className="text-2xl mt-4">Tipos de entrada</h2>
       {ticketTypes.length === 0 ? (
